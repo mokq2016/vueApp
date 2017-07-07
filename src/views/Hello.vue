@@ -12,7 +12,15 @@
     </div>
 </template>
 <script>
+/* import { ViewBox
+}from 'vux'*/
 export default {
+ /* components:{
+      ViewBox
+      XHeader,
+      Cell,
+      Group
+    },*/
   name: 'hello',
   data () {
     return {

@@ -6,6 +6,10 @@
     </div>
     <!-- <div class="bg-div"></div> -->
     <div class="content">
+      <div class='logo-div'>
+        <i class='iconfont icon-shuiwuchuli'></i>
+        <span class='title'>深圳国税</span>
+      </div>
       <div class='login-div'>
         <group>
           <x-input label-width='4rem' placeholder="请输入用户名" v-validate="'required'" name='用户名' v-model="userName">
@@ -117,9 +121,21 @@ export default {
     color: white;
     height: 100vh;
     /* background: rgba(56, 51, 255, 0.7); */
+    .logo-div{
+      text-align: center;
+      margin-top: 3rem;
+      color:#6666FF;
+      .icon-shuiwuchuli{
+        font-size: 3rem;
+      }
+      .title{
+        display: block;
+        letter-spacing: 1rem;
+      }
+    }
     .login-div {
       width: 96%;
-      margin: 10rem auto 0;
+      margin: 2rem auto 0;
       /* border-radius: 4rem; */
       box-shadow: 0 4px 8px 6px rgba(0, 0, 0, 0.2);
       .iconfont {
