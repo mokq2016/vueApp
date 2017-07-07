@@ -6,9 +6,11 @@
     <!--  <view-box ref="viewBox"> -->
     <div class="menu-container">
       <div class="menu-div" v-for='item in menuList'>
-        <div class="menu-content">
+        <div class="menu-content" :style='item.color' @click='navto(item.id)'>
+        <!-- <router-link :to="item.to"> -->
           <i class="iconfont" :class='item.iconName'></i>
           <span class="describe">{{item.name}}</span>
+         <!--  </router-link> -->
         </div>
       </div>
     </div>
@@ -46,20 +48,35 @@ export default {
     return {
       imgList: baseList,
       menuList: [{
+        id:1,
         name: '自然人代开发票',
-        iconName: 'icon-businesscard'
+        iconName: 'icon-fapiaoshenqing',
+        color:{color:'#FF9900'}
       }, {
-        name: '自然人代开发票',
-        iconName: 'icon-businesscard'
+        id:2,
+        name: '小规模申报',
+        iconName: 'icon-businesscard',
+        color:{color:'#00CC33'}
       }, {
+        id:3,
         name: '自然人代开发票',
-        iconName: 'icon-businesscard'
+        iconName: 'icon-businesscard',
+        color:{color:'#009FE7'}
       }, {
+        id:4,
         name: '自然人代开发票',
-        iconName: 'icon-businesscard'
+        iconName: 'icon-businesscard',
+        color:{color:'#CC336B'}
       }]
     }
+  },
+  methods:{
+    navto(id){
+      if(id===1){
+         window.location.href='http://baidu.com' 
+      }
   }
+}
 
 }
 </script>
@@ -83,7 +100,8 @@ export default {
       /*   justify-content:space-around; */
       width: 30vw;
       height: 30vw;
-      border: 1px solid green;
+      border: 1px solid #ccc;
+      border-radius: 1rem;
       .menu-content {
         text-align: center;
         .iconfont {

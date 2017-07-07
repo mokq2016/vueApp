@@ -124,7 +124,7 @@ export default {
     .logo-div{
       text-align: center;
       margin-top: 3rem;
-      color:#6666FF;
+      color:#009FE7;
       .icon-shuiwuchuli{
         font-size: 3rem;
       }

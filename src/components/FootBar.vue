@@ -1,19 +1,19 @@
 <template>
     <div>
       <tabbar class='tabbar'>
-            <tabbar-item link="/home">
+            <tabbar-item :class="{'weui-bar__item_on':$route.path == '/home'}" link="/home">
                 <i slot="icon" class="icon-homepage iconfont"></i>
                 <span slot="label">首页</span>
             </tabbar-item>
-            <tabbar-item link="/hello" badge="13">
+            <tabbar-item :class="{'weui-bar__item_on':$route.path == '/contacts'}" link="/contacts" badge="13">
                 <i slot="icon" class="icon-remind iconfont"></i>
                 <span slot="label">消息</span>
             </tabbar-item>
-            <tabbar-item link="/list">
-                <i slot="icon" class="icon-praise iconfont"></i>
+            <tabbar-item :class="{'weui-bar__item_on':$route.path == '/hello'}" link="/hello">
+                <i slot="icon" class="icon-shuiwu1 iconfont"></i>
                 <span slot="label">办税</span>
             </tabbar-item>
-            <tabbar-item link="/hello2">
+            <tabbar-item :class="{'weui-bar__item_on':$route.path == '/hello2'}" link="/hello2">
                 <i slot="icon" class="icon-group iconfont"></i>
                 <span slot="label">我</span>
             </tabbar-item>
