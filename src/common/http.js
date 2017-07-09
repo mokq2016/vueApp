@@ -4,7 +4,7 @@ import { Promise } from 'es6-promise';
 import user from '../store/user'
 
 Axios.defaults.timeout = 30000; // 1分钟
-Axios.defaults.baseURL = 'http://app.xiaochina.net'; 
+/*Axios.defaults.baseURL = 'http://app.xiaochina.net';*/ 
 //hosturl: 'http://dzswj.szgs.gov.cn',
 //hosturl: 'http://app.xiaochina.net',
 

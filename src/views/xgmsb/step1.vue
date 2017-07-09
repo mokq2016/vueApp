@@ -55,6 +55,22 @@
         <x-button type="primary" class='w80' action-type='button' @click.native='next()'>下一步</x-button>
       </div>
     </div>
+    <div>
+      <x-dialog v-model="showNoScroll">
+        <div class="msg-box" style="padding:1rem;text-align: left">
+          <span>
+           温馨提示：</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+           尊敬的纳税人，我们为您提供的简易申报流程仅适用于3%征收率本期申报的情形，如果您有发生差额扣除项目、5%征收率的业务，销售已使用过固定资产、销售出租不动产与购置税控专用设备等减税项目,免税项目（不含未达起征点免税优惠）以及往期申报业务，请您使用电子税务局电脑端办理小规模纳税人申报业务。
+         </span>
+        </div>
+        <div style='margin-bottom: 10px'>
+          <!-- <span class='close' @click='showNoScroll = false'>
+            <i class='iconfont icon-close'></i>
+                     </span> -->
+          <x-button type="primary" mini action-type='button' @click.native='showNoScroll = false'>确定</x-button>
+        </div>
+      </x-dialog>
+    </div>
   </div>
 </template>
 <script>
@@ -64,7 +80,8 @@ import {
   Group,
   XInput,
   XButton,
-  CellBox
+  CellBox,
+  XDialog
 } from 'vux'
 import ElInputMoney from '../../components/MoneyInput'
 import sbcommon from '../../common/sbcommon'
@@ -76,11 +93,13 @@ export default {
     XInput,
     XButton,
     CellBox,
+    XDialog,
     ElInputMoney
   },
   data() {
     return {
       step1: 0,
+      showNoScroll: true,
       hwData: {
         A2: '0.00',
         A3: '0.00',
@@ -109,7 +128,7 @@ export default {
       formData: {},
       resultData: null,
       sbInfo: {
-        SZLBDM:''
+        SZLBDM: ''
       },
       ifOverHwQzd: false,
       ifOverFwQzd: false
@@ -230,10 +249,11 @@ export default {
   },
   beforeCreate() {
     let that = this;
+    /* this.$alert("有差额扣除项目、减免税项目（不包括未达起征点免税）、销售使用过固定资产、销售出租不动产的纳税人请使用电脑端申报；责令认定一般纳税人请到主管税务机关办理增值税一般纳税人登记事宜。");*/
     sbcommon.getSbzlHdxx('10103').then(function(data) {
       //console.log(data)
       that.resultData = sbcommon.isExsitSbzlHdxx(['10103'], data);
-        //判断是否有核定
+      //判断是否有核定
       if (that.resultData == null) {
         that.$alert({
           content: '当前税种信息没有小规模增值税申报种类，不能进行小规模申报，如需申报，需联系主管税务机关，核实已核定了有效的增值税税种，且为小规模纳税人。',
@@ -295,6 +315,9 @@ export default {
       //   console.log(that.sbInfo['SZLBDM'])
       // })
     })
+  },
+  activated (){
+    this.$forceUpdate();
   }
 }
 </script>

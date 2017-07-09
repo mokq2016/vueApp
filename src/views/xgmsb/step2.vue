@@ -1,6 +1,10 @@
 <template>
-  <div class="container" id="xgmsb">
-    <div style="padding: 0 0.5rem">
+  <div class="container" id="xgmsb" style='height:100%'>
+    <div class='fixedHead'>
+    <v-headerbar title='税额填写'>
+    </v-headerbar>
+    </div>
+    <div style="padding: 0 0.5rem;margin-top: 3.1rem">
       <step v-model="step2" background-color='#fbf9fe'>
         <step-item :title="getTitle('步骤一')" description="开票信息"></step-item>
         <step-item :title="getTitle('步骤二')" description="税额"></step-item>
@@ -64,77 +68,78 @@
       </div>
     </div>
     <div>
-    <popup v-model="showPopup" height='100%'>
-      <div v-show='showSystemData'>
-        <table class="table">
-          <tbody>
-            <tr>
-              <td style="width:76%">应税货物及劳务税务机关代开的增值税专用发票不含税销售额</td>
-              <td>{{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
-            </tr>
-            <tr>
-              <td>应税服务、不动产和无形资产税务机关代开的增值税专用发票不含税销售额</td>
-              <td>{{systemData['zyfpdkbhsxse_fw_zyfpzkbhsxse_fw']}}</td>
-            </tr>
-            <tr>
-              <td>税务机关代开的增值税专用发票不含税销售额</td>
-              <td>{{systemData['ZYFPDKBHSXSE']}}</td>
-            </tr>
-            <tr>
-              <td>防伪税控系统自开的增值税专用发票不含税销售额</td>
-              <td>{{systemData['ZYFPZKBHSXSE']}}</td>
-            </tr>
-            <tr>
-              <td>税务机关代开的增值税普通发票不含税销售额</td>
-              <td>{{systemData['PTFPDKBHSXSE']}}</td>
-            </tr>
-            <tr>
-              <td>防伪税控系统自开的增值税普通发票不含税销售额</td>
-              <td>{{systemData['PTFPZKBHSXSE']}}</td>
-            </tr>
-            <tr>
-              <td>网票系统自开的通用机打发票不含税销售额</td>
-              <td>{{systemData['tyfpdkbhsxse_hw']}}</td>
-            </tr>
-            <tr>
-              <td>货物劳务核定定额</td>
-              <td>{{systemData['dqdeYshwlwHdxse']}}</td>
-            </tr>
-            <tr>
-              <td>应税服务核定定额</td>
-              <td>{{systemData['dqdeYsfwHdxse']}}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div v-show='showPbbd'>
-        <table class="table">
-          <tbody>
-            <tr :class="getAccept(1).cls">
-              <td style='width:74%'>应税货物及劳务税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
-              <td>{{getAccept(1).msg}}</td>
-            </tr>
-            <tr :class="getAccept(2).cls">
-              <td>应税服务、不动产和无形资产税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_fw_zyfpzkbhsxse_fw']}}</td>
-              <td>{{getAccept(2).msg}}</td>
-            </tr>
-            <tr :class="getAccept(3).cls">
-              <td>应税货物及劳务税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
-              <td>{{getAccept(3).msg}}</td>
-            </tr>
-            <tr :class="getAccept(4).cls">
-              <td>应税货物及劳务税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
-              <td>{{getAccept(4).msg}}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="text-align:center">
-        <span class='close' @click='showPopup = false'>
+      <popup v-model="showPopup" height='100%'>
+        <div v-show='showSystemData'>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td style="width:76%">应税货物及劳务税务机关代开的增值税专用发票不含税销售额</td>
+                <td>{{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
+              </tr>
+              <tr>
+                <td>应税服务、不动产和无形资产税务机关代开的增值税专用发票不含税销售额</td>
+                <td>{{systemData['zyfpdkbhsxse_fw_zyfpzkbhsxse_fw']}}</td>
+              </tr>
+              <tr>
+                <td>税务机关代开的增值税专用发票不含税销售额</td>
+                <td>{{systemData['ZYFPDKBHSXSE']}}</td>
+              </tr>
+              <tr>
+                <td>防伪税控系统自开的增值税专用发票不含税销售额</td>
+                <td>{{systemData['ZYFPZKBHSXSE']}}</td>
+              </tr>
+              <tr>
+                <td>税务机关代开的增值税普通发票不含税销售额</td>
+                <td>{{systemData['PTFPDKBHSXSE']}}</td>
+              </tr>
+              <tr>
+                <td>防伪税控系统自开的增值税普通发票不含税销售额</td>
+                <td>{{systemData['PTFPZKBHSXSE']}}</td>
+              </tr>
+              <tr>
+                <td>网票系统自开的通用机打发票不含税销售额</td>
+                <td>{{systemData['tyfpdkbhsxse_hw']}}</td>
+              </tr>
+              <tr>
+                <td>货物劳务核定定额</td>
+                <td>{{systemData['dqdeYshwlwHdxse']}}</td>
+              </tr>
+              <tr>
+                <td>应税服务核定定额</td>
+                <td>{{systemData['dqdeYsfwHdxse']}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-show='showPbbd'>
+          <table class="table">
+            <tbody>
+              <tr :class="getAccept(1).cls">
+                <td style='width:74%'>应税货物及劳务税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
+                <td>{{getAccept(1).msg}}</td>
+              </tr>
+              <tr :class="getAccept(2).cls">
+                <td>应税服务、不动产和无形资产税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_fw_zyfpzkbhsxse_fw']}}</td>
+                <td>{{getAccept(2).msg}}</td>
+              </tr>
+              <tr :class="getAccept(3).cls">
+                <td>应税货物及劳务税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
+                <td>{{getAccept(3).msg}}</td>
+              </tr>
+              <tr :class="getAccept(4).cls">
+                <td>应税货物及劳务税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
+                <td>{{getAccept(4).msg}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="text-align:center;margin-top: 10px">
+          <!-- <span class='close' @click='showPopup = false'>
             <i class='iconfont icon-close'></i>
-          </span>
-      </div>
-    </popup>
+          </span> -->
+          <x-button type="primary" mini action-type='button' @click.native='showPopup = false'>返回</x-button>
+        </div>
+      </popup>
     </div>
   </div>
 </template>
@@ -194,7 +199,7 @@ export default {
   },
   computed: {
     hwYnse: function() {
-      return Math.max(parseFloat(this.formData['a1']) + parseFloat(this.formData['a7'] * 0.03), this.sbInfo['YSHWHDYNSE']).toFixed(2);
+      return Math.max((parseFloat(this.formData['a1']) + parseFloat(this.formData['a7'])) * 0.03, this.sbInfo['YSHWHDYNSE']).toFixed(2);
     },
     hwMse: function() {
       if (this.sbInfo['GTHBZ'] === '1') {
@@ -214,7 +219,7 @@ export default {
       return (parseFloat(this.hwYnse) - parseFloat(this.hwData.A16) - parseFloat(this.hwData.A21)).toFixed(2);
     },
     fwYnse: function() {
-      return Math.max(parseFloat(this.formData['b1'] * 0.03) + parseFloat(this.formData['b4'] * 0.05), this.sbInfo['YSFWHDYNSE']).toFixed(2);
+      return Math.max(parseFloat(this.formData['b1']) * 0.03 + parseFloat(this.formData['b4']) * 0.05, this.sbInfo['YSFWHDYNSE']).toFixed(2);
     },
     fwMse: function() {
       if (this.ifOverFwQzd) {
@@ -240,21 +245,21 @@ export default {
     },
     submit() {
       let self = this;
+      if (self.isdy == 'Y') { // 强制调用票表比对
+        if (!self.clickPbbd) {
+          self.$alert("请先进行票表比对");
+          return;
+        }
+        if (self.isjk == "Y") { // 强制监控，不通过不允许提交申报表
+          if (self.acceptArr.indexOf('notaccept') !== -1) {
+            self.$alert("票表比对监控不通过不允许提交申报表");
+            return;
+          }
+        }
+      }
       this.$confirm({
         content: '您确定要提交？',
         onConfirm() {
-           if (self.isdy == 'Y') { // 强制调用票表比对
-             if (!self.clickPbbd) {
-               self.$alert("请先进行票表比对");
-               return;
-             }
-             if (self.isjk == "Y") { // 强制监控，不通过不允许提交申报表
-               if (self.acceptArr.indexOf('notaccept') !== -1) {
-                 self.$alert("票表比对监控不通过不允许提交申报表");
-                 return;
-               }
-             }
-           }
           if (self.sbInfo['SZLBDM'] == '01') { //货物
             self.calculateHwSe();
           } else if (self.sbInfo['SZLBDM'] == '02') { //服务
@@ -667,7 +672,7 @@ export default {
           self.systemData['ZYFPZKBHSXSE'] = result.data.zyfpzkbhsxse;
           self.systemData['PTFPDKBHSXSE'] = result.data.ptfpdkbhsxse;
           self.systemData['PTFPZKBHSXSE'] = result.data.ptfpzkbhsxse;
-         
+
           self.systemData['dqdeYshwlwHdxse'] = result.data.hwlwhdde;
           self.systemData['dqdeYsfwHdxse'] = result.data.ysfwhdde;
 
@@ -778,11 +783,27 @@ export default {
     //初始化未显示的表单数据
     this.initData();
     this.initFormData();
+  },
+  beforeRouteLeave(to, from, next) {
+    if (this.showPopup) {
+      this.showPopup = false;
+      next(false);
+      return;
+    } else {
+      next();
+    }
   }
 }
 </script>
 <style lang='less'>
 #xgmsb {
+  .fixedHead {
+    position: fixed;
+    width: 100%;
+    height: 3.1rem;
+    z-index: 500;
+    top: 0;
+  }
   .content {
     width: 100%;
     .vux-cell-box.weui-cell {

@@ -5,13 +5,13 @@ import FastClick from 'fastclick'
 import router from './router'
 import App from './App'
 import components from './components/'
-import Msg from './common/Msg' 
-import http from './common/http' 
-import validate from './common/validate' 
-import store from './store/' 
-import './common/common' 
+import Msg from './common/Msg'
+import http from './common/http'
+import validate from './common/validate'
+import store from './store/'
+import './common/common'
 import './iconfont/iconfont.css'
-import './assets/style/common.less' 
+import './assets/style/common.less'
 
 Object.keys(components).forEach((key) => {
   var name = key.replace(/(\w)/, (v) => v.toUpperCase()) // 首字母大写
@@ -19,11 +19,23 @@ Object.keys(components).forEach((key) => {
 })
 
 router.beforeEach((to, from, next) => {
-    if(!store.state.user.nsrInfo && to.meta.auth){
-        let to = { path: '/login' }
-        return next(to);
+  /*if(to.meta.auto+ "" == 'undefined'){
+    to.meta.auth = true;
+  }*/
+  if (!store.state.user.nsrInfo && to.meta.auth) {
+    let to = { path: '/login' }
+    return next(to);
+  }
+ /* if (to.name == 'xgmsb_step1') {
+    if (from.name != 'xgmsb_step2') {
+      to.meta.keepAlive = false;
+    } else {
+      to.meta.keepAlive = true;
+
     }
-    next();
+  }*/
+  console.log(to)
+  next();
 })
 FastClick.attach(document.body)
 

@@ -38,6 +38,7 @@ export default new VueRouter({
         replace: true
       },*/
     {
+      name: 'login',
       path: '/login',
       component: resolve => require(['../views/login/login.vue'], resolve),
       meta: {
@@ -45,7 +46,19 @@ export default new VueRouter({
       }
     }, {
       path: '/xgmsb_step1',
+      name: 'xgmsb_step1',
       component: resolve => require(['../views/xgmsb/step1.vue'], resolve),
+      beforeRouteEnter(to, from, next) {
+        if (from.name == 'login') {
+          to.meta.keepAlive = true;
+        }
+        console.log(from.name)
+        next();
+      },
+      beforeRouteLeave(to, from, next) {
+        from.meta.keepAlive = false;
+        next();
+      },
       meta: {
         keepAlive: true,
         auth: true
@@ -57,6 +70,26 @@ export default new VueRouter({
       meta: {
         auth: true
       }
+    }, {
+      name: 'aboutMe',
+      path: '/aboutMe',
+      component: resolve => require(['../views/aboutMe/aboutMe.vue'], resolve),
+      meta: {
+        auth: true
+      }
+    }, {
+      name: 'bindCompany',
+      path: '/bindCompany',
+      component: resolve => require(['../views/aboutMe/bindCompany/bindCompany.vue'], resolve)
+    }, {
+      name: 'addCompany',
+      path: '/addCompany',
+      component: resolve => require(['../views/aboutMe/bindCompany/addCompany.vue'], resolve)
+    }, {
+      name: 'chooseIdentity',
+      path: '/chooseIdentity',
+      component: resolve => require(['../views/chooseIdentity/chooseIdentity.vue'], resolve)
     }
+
   ]
 })

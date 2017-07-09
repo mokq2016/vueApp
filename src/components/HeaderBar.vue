@@ -1,7 +1,9 @@
 <template>
   <header class="header">
     <div class="left-div">
-      <slot name='left'></slot>
+      <slot name='left'>
+        <i class="iconfont icon-return" @click='$router.go(-1)'></i>
+      </slot>
     </div>
     <div class="center-div">
       <h4 class="title">{{title}}</h4>
