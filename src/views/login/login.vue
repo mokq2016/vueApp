@@ -11,19 +11,39 @@
         <span class='title'>深圳国税</span>
       </div>
       <div class='login-div'>
-        <group>
-          <x-input label-width='4rem' placeholder="请输入用户名" v-validate="'required'" name='用户名' v-model="userName">
+        <div style="height:44px;">
+          <!--           <sticky scroll-box="vux_view_box_body" :offset="46" :check-sticky-support="false">
+             -->
+          <tab :line-width="1">
+            <tab-item @on-item-click='showTaxNumLogin = true' selected>税号登录</tab-item>
+            <tab-item @on-item-click='showTaxNumLogin = false'>手机号登录</tab-item>
+          </tab>
+          <!--  </sticky> -->
+        </div>
+        <group v-show='showTaxNumLogin'>
+          <x-input label-width='4rem' placeholder="请输入税号" v-validate="'required'" name='税号' v-model="userName">
             <i slot="label" class="iconfont icon-people"></i>
           </x-input>
-          <span v-show="errors2.has('用户名') && submitted" class="errors-tip is-danger">{{ errors2.first('用户名') }}</span>
+          <span v-show="errors2.has('税号') && submitted" class="errors-tip is-danger">{{ errors2.first('税号') }}</span>
           <x-input label-width='4rem' :type='inpType' v-validate="'required'" data-vv-name='密码' placeholder="请输入密码" v-model="passWord">
             <i slot="label" class="iconfont icon-lock"></i>
-            <i slot="right" class="iconfont icon-attention" @click='changeInp()'></i>
+            <i slot="right" class="iconfont icon-browse" @click='changeInp()'></i>
+          </x-input>
+          <span v-show="errors2.has('密码') && submitted" class="errors-tip is-danger">{{ errors2.first('密码') }}</span>
+        </group>
+        <group v-show='!showTaxNumLogin'>
+          <x-input label-width='4rem' placeholder="请输入手机号" v-validate="'required'" name='手机号' v-model="mobile">
+            <i slot="label" class="iconfont icon-people"></i>
+          </x-input>
+          <span v-show="errors2.has('手机号') && submitted" class="errors-tip is-danger">{{ errors2.first('手机号') }}</span>
+          <x-input label-width='4rem' :type='inpType' v-validate="'required'" data-vv-name='密码' placeholder="请输入密码" v-model="mobilePw">
+            <i slot="label" class="iconfont icon-lock"></i>
+            <i slot="right" class="iconfont icon-browse" @click='changeInp()'></i>
           </x-input>
           <span v-show="errors2.has('密码') && submitted" class="errors-tip is-danger">{{ errors2.first('密码') }}</span>
         </group>
       </div>
-      <x-button type="primary" class='w80 reg-btn' action-type='button' @click.native='login()'>登录</x-button>
+      <x-button type="primary" class='w80 reg-btn' action-type='button' @click.native='chooseLogin()'>登录</x-button>
     </div>
   </div>
 </template>
@@ -31,32 +51,41 @@
 import {
   XInput,
   Group,
-  XButton
+  XButton,
+  Tab,
+  TabItem,
+  Sticky
 } from 'vux'
 import {
   mapActions
 } from 'vuex'
-import {
+/*import {
   USER_SIGNIN
-} from '../../store/user'
+ }from '../../store/modules/user'*/
 import particles from '../../config/particles'
 export default {
   components: {
     XInput,
     Group,
-    XButton
+    XButton,
+    Tab,
+    TabItem,
+    Sticky
   },
   data() {
     return {
+      showTaxNumLogin: true,
       inpType: 'password',
       userName: '',
       passWord: '',
       email: '',
-      submitted: false
+      submitted: false,
+      mobile: '',
+      mobilePw: ''
     }
   },
   methods: {
-    ...mapActions([USER_SIGNIN]),
+    ...mapActions(['USER_SIGNIN']),
     changeInp() {
       if (this.inpType == 'password') {
         this.inpType = 'text';
@@ -64,9 +93,17 @@ export default {
         this.inpType = 'password'
       }
     },
+    chooseLogin(){
+      if(this.showTaxNumLogin){
+        this.login();
+      }else{
+        this.mobileLogin();
+      }
+    },
     login() {
       let that = this;
-      this.$validator.validateAll().then(function(isValidate) {
+      this.USER_SIGNIN({nsrInfo:{nsrsbh:121323232}})
+      this.$validator.validateAll({'税号':that.userName,'密码':that.passWord}).then(function(isValidate) {
         if (isValidate) {
           let param = {
             nsrsbh: that.userName,
@@ -75,7 +112,7 @@ export default {
             redirectURL: "",
             time: new Date().format('yyyy-MM-dd hh:mm:ss')
           }
-          that.$http.post('/api/weixin/yybslogin', param).then((result) => {
+          that.$http.post('/api/weixin/yybslogin', param,{MSG:'登录中...'}).then((result) => {
             if (result.success) {
               that.$toast('登录成功！');
               that.USER_SIGNIN({
@@ -90,6 +127,20 @@ export default {
           that.submitted = true;
         }
       })
+    },
+    mobileLogin() {
+      let self = this;
+      let param = {
+        mobile: this.mobile,
+        passsword: this.mobilePw
+      }
+      self.$http.post('/api/mobile/general/login', param).then((result) => {
+        if (result.success) {
+
+        } else {
+          self.$alert(result.message);
+        }
+      })
     }
   },
   mounted() {
@@ -99,7 +150,6 @@ export default {
 </script>
 <style lang="less">
 #login {
-
   .bg-div {
     /* background-color:#000; */
     position: absolute;
@@ -121,14 +171,14 @@ export default {
     color: white;
     height: 100vh;
     /* background: rgba(56, 51, 255, 0.7); */
-    .logo-div{
+    .logo-div {
       text-align: center;
       margin-top: 3rem;
-      color:#009FE7;
-      .icon-shuiwuchuli{
+      color: #009FE7;
+      .icon-shuiwuchuli {
         font-size: 3rem;
       }
-      .title{
+      .title {
         display: block;
         letter-spacing: 1rem;
       }

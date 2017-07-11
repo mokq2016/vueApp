@@ -25,16 +25,16 @@ export default {
   },
   data() {
     return {
-      canClick: true,
+      canClick: false,
       nsrsbh: ''
     }
   },
   methods: {
     bind() {
-
+console.log(this.num)
     },
     getCompanyName() {
-      console.log(this.nsrsbh)
+      
     }
   }
 }

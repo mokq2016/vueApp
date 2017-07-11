@@ -2,7 +2,7 @@
   <div class="container" id='about'>
     <group>
       <cell title='杨定平' inline-desc='1232434343' is-link>
-        <i slot='icon' class="iconfont icon-people"></i>
+        <i slot='icon' class="iconfont icon-geren"></i>
       </cell>
     </group>
     <group>
@@ -39,7 +39,7 @@ export default {
 </script>
 <style lang='less'>
 #about.container {
-  .icon-people {
+  .icon-geren {
     font-size: 3rem;
     border-radius: 50%;
     margin-right: 0.5rem;

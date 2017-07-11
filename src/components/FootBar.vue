@@ -10,11 +10,11 @@
                 <span slot="label">消息</span>
             </tabbar-item>
             <tabbar-item :class="{'weui-bar__item_on':$route.path == '/hello'}" link="/hello">
-                <i slot="icon" class="icon-shuiwu1 iconfont"></i>
+                <i slot="icon" class="icon-tax iconfont"></i>
                 <span slot="label">办税</span>
             </tabbar-item>
             <tabbar-item :class="{'weui-bar__item_on':$route.path == '/aboutMe'}" link="/aboutMe">
-                <i slot="icon" class="icon-group iconfont"></i>
+                <i slot="icon" class="icon-people iconfont"></i>
                 <span slot="label">我</span>
             </tabbar-item>
         </tabbar>

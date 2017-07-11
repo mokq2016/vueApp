@@ -1,16 +1,19 @@
 <template>
   <div class='container'>
     <div style="width:100%">
-      <swiper :list="imgList"></swiper>
+      <swiper :list="imgList" :auto='true' :loop='true' :interval='3000'></swiper>
     </div>
     <!--  <view-box ref="viewBox"> -->
+    <div class='login-info' v-show='true'>
+      <span>{{$store.state.user.nsrInfo.nsrmc}}({{$store.state.user.nsrInfo.nsrsbh}})</span>
+    </div>
     <div class="menu-container">
       <div class="menu-div" v-for='item in menuList'>
         <div class="menu-content" :style='item.color' @click='navto(item.id)'>
-        <!-- <router-link :to="item.to"> -->
+          <!-- <router-link :to="item.to"> -->
           <i class="iconfont" :class='item.iconName'></i>
           <span class="describe">{{item.name}}</span>
-         <!--  </router-link> -->
+          <!--  </router-link> -->
         </div>
       </div>
     </div>
@@ -25,17 +28,20 @@ import {
   Swiper,
   SwiperItem
 } from 'vux'
+import {
+  mapGetters
+} from 'vuex'
 const baseList = [{
   url: 'javascript:',
-  img: '',
+  img: 'https://static.vux.li/demo/1.jpg',
   title: '送你一朵fua'
 }, {
   url: 'javascript:',
-  img: '',
+  img: 'https://static.vux.li/demo/2.jpg',
   title: '送你一辆车'
 }, {
   url: 'javascript:',
-  img: '',
+  img: 'https://static.vux.li/demo/3.jpg',
   title: '送你一次旅行'
 }]
 export default {
@@ -48,35 +54,72 @@ export default {
     return {
       imgList: baseList,
       menuList: [{
-        id:1,
+        id: 1,
         name: '自然人代开发票',
-        iconName: 'icon-fapiaoshenqing',
-        color:{color:'#FF9900'}
+        iconName: 'icon-fapiao1',
+        color: {
+          color: '#FF9900'
+        }
       }, {
-        id:2,
+        id: 2,
         name: '小规模申报',
-        iconName: 'icon-businesscard',
-        color:{color:'#00CC33'}
+        iconName: 'icon-shenbao',
+        color: {
+          color: '#00CC33'
+        }
       }, {
-        id:3,
+        id: 3,
         name: '自然人代开发票',
-        iconName: 'icon-businesscard',
-        color:{color:'#009FE7'}
+        iconName: 'icon-fapiao1',
+        color: {
+          color: '#009FE7'
+        }
       }, {
-        id:4,
+        id: 4,
         name: '自然人代开发票',
-        iconName: 'icon-businesscard',
-        color:{color:'#CC336B'}
+        iconName: 'icon-fapiao1',
+        color: {
+          color: '#CC336B'
+        }
+      }, {
+        id: 4,
+        name: '自然人代开发票',
+        iconName: 'icon-fapiao1',
+        color: {
+          color: '#CC336B'
+        }
+      }, {
+        id: 4,
+        name: '自然人代开发票',
+        iconName: 'icon-fapiao1',
+        color: {
+          color: '#CC336B'
+        }
+      }, {
+        id: 4,
+        name: '自然人代开发票',
+        iconName: 'icon-fapiao1',
+        color: {
+          color: '#CC336B'
+        }
+      }, {
+        id: 4,
+        name: '自然人代开发票',
+        iconName: 'icon-fapiao1',
+        color: {
+          color: '#CC336B'
+        }
       }]
     }
   },
-  methods:{
-    navto(id){
-      if(id===1){
-         window.location.href='http://baidu.com' 
+  methods: {
+    ...mapGetters(['GET_NSRINFO']),
+    navto(id) {
+      if (id === 1) {
+        window.location.href = 'http://baidu.com'
       }
+    }
   }
-}
 
 }
 </script>
@@ -85,11 +128,19 @@ export default {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  .login-info {
+    background: #FFFFC7;
+    padding: 0.5rem 1rem;
+    span {
+      line-height: 1rem;
+      display: inline-block;
+    }
+  }
   .menu-container {
     width: 100%;
     overflow: auto;
     flex: 1;
-    margin: 1rem auto;
+    margin: 0.5rem auto;
     display: flex;
     flex-wrap: wrap;
     flex-direction: row;

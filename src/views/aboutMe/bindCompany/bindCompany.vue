@@ -6,11 +6,14 @@
       </v-headerbar>
     </div>
     <div class="content" style="position:absolute;margin-top: 3.1rem;width: 100%">
+    <div v-html='getHtml()'>
+      
+    </div>
       <swipeout>
         <div class='item-div clearFix'>
           <swipeout-item>
             <div slot="right-menu">
-              <swipeout-button>解绑</swipeout-button>
+              <swipeout-button @click.native='cancelBind()'>解绑</swipeout-button>
             </div>
             <div slot="content">
               <div style='padding-left: 0.7rem'>
@@ -27,78 +30,6 @@
             </div>
           </swipeout-item>
         </div>
-        <swipeout-item>
-          <div slot="right-menu">
-            <swipeout-button>解绑</swipeout-button>
-          </div>
-          <div slot="content">
-            lalala
-          </div>
-        </swipeout-item>
-        <swipeout-item>
-          <div slot="right-menu">
-            <swipeout-button>解绑</swipeout-button>
-          </div>
-          <div slot="content">
-            lalala
-          </div>
-        </swipeout-item>
-        <swipeout-item>
-          <div slot="right-menu">
-            <swipeout-button>解绑</swipeout-button>
-          </div>
-          <div slot="content">
-            lalala
-          </div>
-        </swipeout-item>
-        <swipeout-item>
-          <div slot="right-menu">
-            <swipeout-button>解绑</swipeout-button>
-          </div>
-          <div slot="content">
-            lalala
-          </div>
-        </swipeout-item>
-        <swipeout-item>
-          <div slot="right-menu">
-            <swipeout-button>解绑</swipeout-button>
-          </div>
-          <div slot="content">
-            lalala
-          </div>
-        </swipeout-item>
-        <swipeout-item>
-          <div slot="right-menu">
-            <swipeout-button>解绑</swipeout-button>
-          </div>
-          <div slot="content">
-            lalala
-          </div>
-        </swipeout-item>
-        <swipeout-item>
-          <div slot="right-menu">
-            <swipeout-button>解绑</swipeout-button>
-          </div>
-          <div slot="content">
-            lalala
-          </div>
-        </swipeout-item>
-        <swipeout-item>
-          <div slot="right-menu">
-            <swipeout-button>解绑</swipeout-button>
-          </div>
-          <div slot="content">
-            lalala
-          </div>
-        </swipeout-item>
-        <swipeout-item>
-          <div slot="right-menu">
-            <swipeout-button>解绑</swipeout-button>
-          </div>
-          <div slot="content">
-            lalala
-          </div>
-        </swipeout-item>
       </swipeout>
     </div>
   </div>
@@ -118,7 +49,31 @@ export default {
   methods: {
     addCompany() {
       this.$router.push('addCompany');
+    },
+    initBindInfo() {
+      let self = this;
+      this.$http.get('/api/yhgl/get/bindlist').then((result) => {
+        if (result.success) {
+
+        } else {
+          self.$alert(result.message);
+        }
+      })
+    },
+    cancelBind(){
+      this.$confirm({
+        content:'您确定要解除绑定？',
+        onConfirm(){
+          console.log('confirm')
+        }
+      })
+    },
+    getHtml() {
+      return "<div><span style='color:red'>123</span></div>"
     }
+  },
+  created() {
+    this.initBindInfo();
   }
 }
 </script>
