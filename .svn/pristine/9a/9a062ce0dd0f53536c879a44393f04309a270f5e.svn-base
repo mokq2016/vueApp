@@ -1,0 +1,150 @@
+<template>
+  <div class="container">
+    <div class="header">
+      <v-headerbar title='选择办税身份'></v-headerbar>
+    </div>
+    <div class="content">
+      <ul>
+        <li v-for='(item, index) in items'>
+          <div class='inner-div' :class="{'isSelected':selected === index}" @click='selected = index'>
+            <div class='icon-div'>
+              <i class="iconfont icon-gongsi1"></i>
+            </div>
+            <div class='right-descript'>
+              <span>{{item.gsNsrmc}}</span>
+              <p>{{item.roleName}}</p>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class='footer'>
+      <x-button type="primary" class='w80' action-type='button' @click.native='chooseIdentity()'>确定</x-button>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  XButton
+} from 'vux'
+import {
+  mapGetters,
+  mapActions
+} from 'vuex'
+export default {
+  components: {
+    XButton
+  },
+  data() {
+    return {
+      selected: -1,
+      items: [{
+        djxh: '10114403000026196177',
+        nsrmc: '深圳市宏泰包装材料有限公司'
+      }, {
+        djxh: '10114403000026196177',
+        nsrmc: '深圳市宏泰包装材料有限公司'
+      }, {
+        djxh: '10114403000026196177',
+        nsrmc: '深圳市宏泰包装材料有限公司'
+      }]
+    }
+  },
+  methods: {
+    ...mapGetters(['GET_NSRLIST']),
+    ...mapActions(['UPDATE_USERINFO']),
+    chooseIdentity() {
+      let self = this;
+      this.$http.get('/api/mobile/userinfo/latest').then(function(result) {
+        if (result.success) {
+          self.UPDATE_USERINFO({
+            nsrInfo: result.data.nsrInfo,
+            accountInfo: result.data.accountInfo
+          });
+        } else {
+          self.$toast(result.message);
+        }
+        self.$router.push('home');
+      })
+    }
+  },
+  created() {
+    let self = this;
+    this.items = [];
+    this.GET_NSRLIST().forEach(function(item) {
+      let roleList = item.roleList;
+      if (roleList.length > 0) {
+        for (let i = 0; i < roleList.length; i++) {
+          self.items.push(Object.assign({}, item, {
+            roleName: roleList[i].roleName
+          }))
+        }
+      }
+    })
+  }
+
+}
+</script>
+<style lang='less' scoped>
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    ul li {
+      margin-top: -1rem;
+    }
+    .inner-div.isSelected {
+      border: 1px solid #33CCFF;
+    }
+    .inner-div {
+      padding: 0px 10px;
+      width: 84%;
+      margin: auto;
+      border: 1px solid #DBDBDB;
+      display: flex;
+      flex-direction: row;
+      .icon-div {
+        /*  border: 1px solid #ccc;
+                   border-radius: 50%;
+                   height: 3rem;
+                   width: 3rem; */
+        flex-shrink: 0;
+        text-align: center;
+        margin-right: 0.6rem;
+        .icon-gongsi1 {
+          position: relative;
+          color: #ccc;
+          /*  top: -0.6rem; */
+          border: 1px solid #ccc;
+          border-radius: 50%;
+          /* margin-right: 0.6rem; */
+          font-size: 2.4rem;
+        }
+      }
+      .right-descript {
+        position: relative;
+        span {
+          display: inline-block;
+          margin-top: 5px;
+          line-height: 1.4rem;
+        }
+        p {
+          position: relative;
+          bottom: 3px;
+          font-size: 0.9rem;
+          color: #858585;
+        }
+      }
+    }
+  }
+  .footer {
+    height: 5rem;
+    margin-top: 1rem;
+    width: 100%;
+    align-self: flex-end;
+  }
+}
+</style>

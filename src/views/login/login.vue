@@ -1,13 +1,13 @@
 <template>
   <div class="container" id='login'>
-    <div id="particles-js" style='background:rgba(0,0,0,0.8);height:100vh'>
+    <div id="particles-js" style='height:100vh'>
       <canvas class='particles-js-canvas-el' style='width:100%;height:100%'>
       </canvas>
     </div>
     <!-- <div class="bg-div"></div> -->
     <div class="content">
       <div class='logo-div'>
-        <i class='iconfont icon-shuiwuchuli'></i>
+        <i class='iconfont icon-shuiwuguanli2'></i>
         <span class='title'>深圳国税</span>
       </div>
       <div class='login-div'>
@@ -44,6 +44,12 @@
         </group>
       </div>
       <x-button type="primary" class='w80 reg-btn' action-type='button' @click.native='chooseLogin()'>登录</x-button>
+      <table class='foot-table'>
+        <tr>
+          <td><span @click='register()'>注册</span></td>
+          <td style='text-align:right'><!-- 忘记密码 --></td>
+        </tr>
+      </table>
     </div>
   </div>
 </template>
@@ -86,6 +92,9 @@ export default {
   },
   methods: {
     ...mapActions(['USER_SIGNIN']),
+    register(){
+      window.location.href = 'http://servyouwx.applinzi.com/irs-shenz.git/www/index.html#/irs/register/%7B%22Flag%22:%22Y%22%7D';
+    },
     changeInp() {
       if (this.inpType == 'password') {
         this.inpType = 'text';
@@ -93,17 +102,24 @@ export default {
         this.inpType = 'password'
       }
     },
-    chooseLogin(){
-      if(this.showTaxNumLogin){
+    chooseLogin() {
+      if (this.showTaxNumLogin) {
         this.login();
-      }else{
+      } else {
         this.mobileLogin();
       }
     },
     login() {
       let that = this;
-      this.USER_SIGNIN({nsrInfo:{nsrsbh:121323232}})
-      this.$validator.validateAll({'税号':that.userName,'密码':that.passWord}).then(function(isValidate) {
+      this.USER_SIGNIN({
+        nsrInfo: {
+          nsrsbh: 121323232
+        }
+      })
+      this.$validator.validateAll({
+        '税号': that.userName,
+        '密码': that.passWord
+      }).then(function(isValidate) {
         if (isValidate) {
           let param = {
             nsrsbh: that.userName,
@@ -112,12 +128,15 @@ export default {
             redirectURL: "",
             time: new Date().format('yyyy-MM-dd hh:mm:ss')
           }
-          that.$http.post('/api/weixin/yybslogin', param,{MSG:'登录中...'}).then((result) => {
+          that.$http.post('/api/weixin/yybslogin', param, {
+            MSG: '登录中...'
+          }).then((result) => {
             if (result.success) {
               that.$toast('登录成功！');
               that.USER_SIGNIN({
-                nsrInfo: result.data
-              });
+              token: result.data.wxToken,
+              nsrInfo: result.data
+            });
               that.$router.push('xgmsb_step1');
             } else {
               that.$alert(result.message);
@@ -132,19 +151,43 @@ export default {
       let self = this;
       let param = {
         mobile: this.mobile,
-        passsword: this.mobilePw
+        password: this.mobilePw
       }
       self.$http.post('/api/mobile/general/login', param).then((result) => {
-        if (result.success) {
-
-        } else {
-          self.$alert(result.message);
-        }
-      })
+          if (result.success) {
+            self.USER_SIGNIN({
+              token: result.data.token,
+              accountInfo: result.data.accountInfo,
+              nsrInfo: result.data.nsrInfo,
+              nsrList: result.data.nsrList
+            });
+            self.$router.push({
+              name: 'chooseIdentity',
+              params: {
+                isFromLogin: true
+              }
+            }); //isFromLogin  1代表从login路由
+          } else {
+            self.$alert(result.message);
+          }
+          /* return result*/
+        })
+        /*.then((result) =>{
+                 if(result.success){
+                  let param = {
+                    name:result.data.accountInfo.fullName,
+                    sfzjhm:result.data.accountInfo.identityCardNo
+                  }
+                    return self.$http.post('/api/smrz/mobile/getQybdxx',param,{ 'Content-Type': 'application/x-www-form-urlencoded;' }).then((result) => {
+                      console.log(result)
+                    })
+              
+                 }
+              })*/
     }
   },
   mounted() {
-    particlesJS('particles-js', particles);
+    /*particlesJS('particles-js', particles);*/
   }
 }
 </script>
@@ -168,19 +211,20 @@ export default {
     top: 0;
     left: 0;
     width: 100%;
-    color: white;
+   /*  color: white; */
     height: 100vh;
     /* background: rgba(56, 51, 255, 0.7); */
     .logo-div {
       text-align: center;
-      margin-top: 3rem;
+      /* margin-top: 3rem; */
       color: #009FE7;
-      .icon-shuiwuchuli {
-        font-size: 3rem;
+      .icon-shuiwuguanli2 {
+        font-size: 4rem;
       }
       .title {
         display: block;
         letter-spacing: 1rem;
+        margin-top: -1rem;
       }
     }
     .login-div {
@@ -190,11 +234,11 @@ export default {
       box-shadow: 0 4px 8px 6px rgba(0, 0, 0, 0.2);
       .iconfont {
         font-size: 1.6rem;
-        color: white;
+        /* color: white; */
       }
-      .weui-icon {
+      /* .weui-icon {
         color: #fff
-      }
+      } */
       .icon-people,
       .icon-lock {
         margin-right: 1rem;
@@ -202,9 +246,16 @@ export default {
       .weui-cells.vux-no-group-title {
         background-color: rgba(255, 255, 255, 0.4);
       }
-      input::-webkit-input-placeholder {
-        color: #fff;
-        opacity: 1;
+     /*  input::-webkit-input-placeholder {
+       color: #fff;
+       opacity: 1;
+     } */
+    }
+    .foot-table {
+      width: 80%;
+      margin: auto;
+      td {
+        color: #009FE7;
       }
     }
   }

@@ -1,0 +1,198 @@
+<template>
+  <div class="container">
+    <div class="header">
+      <v-headerbar title='选择办税身份'></v-headerbar>
+    </div>
+    <div class="content">
+      <ul>
+        <li v-for='(item, index) in items'>
+          <div class='inner-div' :class="{'isSelected':selected === index}" @click='selected = index'>
+            <div class='icon-div'>
+              <i class="iconfont icon-gongsi1"></i>
+            </div>
+            <div class='right-descript'>
+              <span>{{item.gsNsrmc}}</span>
+              <p>{{item.roleName}}</p>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class='footer'>
+      <x-button type="primary" class='w80' action-type='button' @click.native='chooseIdentity()'>确定</x-button>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  XButton
+} from 'vux'
+import {
+  mapGetters,
+  mapActions
+} from 'vuex'
+export default {
+  components: {
+    XButton
+  },
+  data() {
+    return {
+      isFromLogin: false,
+      selected: -1,
+      items: [{
+        djxh: '10114403000026196177',
+        nsrmc: '深圳市宏泰包装材料有限公司'
+      }, {
+        djxh: '10114403000026196177',
+        nsrmc: '深圳市宏泰包装材料有限公司'
+      }, {
+        djxh: '10114403000026196177',
+        nsrmc: '深圳市宏泰包装材料有限公司'
+      }]
+    }
+  },
+  methods: {
+    ...mapGetters(['GET_NSRLIST']),
+    ...mapActions(['UPDATE_USERINFO']),
+    chooseIdentity() {
+      /*console.log(this.items[this.selected])*/
+        /*return;*/
+      let self = this;
+      if (!self.selected === -1) {
+        this.$alert("请选择办税身份！");
+        return;
+      }
+
+      /*if (!self.isFromLogin) { //非login路由而来为切换办税身份*/
+      this.$http('/api/mobile/general/chooseCompany', {
+          djxh: self.items[this.selected].djxh,
+          nsrsbh: self.items[this.selected].nsrsbhGs
+        }).then(function(result) {
+          if (result.success) {//切换身份成功
+            self.UPDATE_USERINFO({
+              currentRole: {
+                roleName: self.items[this.selected].roleName,
+                nsrmc: self.items[this.selected].gsNsrmc,
+                nsrsbh: self.items[this.selected].nsrsbh
+              }
+            });
+            if(self.isFromLogin){
+                self.getLatestUserInfo();//登录时获取最新企业信息
+            }else{
+              self.$router.go(-1);
+            }
+          }else{
+            self.$alert(result.message);
+          }
+        })
+        /*}else{
+
+        }*/
+    },
+    getLatestUserInfo() {
+      let self = this;
+      this.$http.get('/api/mobile/userinfo/latest').then(function(result) {
+        if (result.success) {
+          self.UPDATE_USERINFO({
+            nsrInfo: result.data.nsrInfo,
+            accountInfo: result.data.accountInfo
+          });
+        } else {
+          self.$toast(result.message);
+        }
+        if (self.isFromLogin) {
+          self.$router.push('home');
+        } else {
+          self.$router.go(-1);
+        }
+
+      })
+    }
+  },
+  created() {
+    let self = this;
+    this.items = [];
+    this.isFromLogin = this.$route.params.isFromLogin;
+    this.GET_NSRLIST().forEach(function(item) {
+        let roleList = item.roleList;
+        if (roleList.length > 0) {
+          for (let i = 0; i < roleList.length; i++) {
+            self.items.push(Object.assign({}, item, {
+              roleName: roleList[i].roleName
+            }))
+          }
+        }
+      })
+      /*self.items.push({gsNsrmc:'个人身份',roleName:'',nsrsbh:''})*/
+  }
+  /*mounted() {
+    console.log(this.$route.params.isFromLogin)
+    
+    this.isFromLogin = this.$route.params.isFromLogin;
+  }*/
+
+}
+</script>
+<style lang='less' scoped>
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  .content {
+    flex: 1;
+    overflow-y: auto;
+    ul li {
+      margin-top: -1rem;
+    }
+    .inner-div.isSelected {
+      border: 1px solid #33CCFF;
+    }
+    .inner-div {
+      padding: 0px 10px;
+      width: 84%;
+      margin: auto;
+      border: 1px solid #DBDBDB;
+      display: flex;
+      flex-direction: row;
+      .icon-div {
+        /*  border: 1px solid #ccc;
+                   border-radius: 50%;
+                   height: 3rem;
+                   width: 3rem; */
+        flex-shrink: 0;
+        text-align: center;
+        margin-right: 0.6rem;
+        .icon-gongsi1 {
+          position: relative;
+          color: #ccc;
+          /*  top: -0.6rem; */
+          border: 1px solid #ccc;
+          border-radius: 50%;
+          /* margin-right: 0.6rem; */
+          font-size: 2.4rem;
+        }
+      }
+      .right-descript {
+        position: relative;
+        span {
+          display: inline-block;
+          margin-top: 5px;
+          line-height: 1.4rem;
+        }
+        p {
+          position: relative;
+          bottom: 3px;
+          font-size: 0.9rem;
+          color: #858585;
+        }
+      }
+    }
+  }
+  .footer {
+    height: 5rem;
+    margin-top: 1rem;
+    width: 100%;
+    align-self: flex-end;
+  }
+}
+</style>

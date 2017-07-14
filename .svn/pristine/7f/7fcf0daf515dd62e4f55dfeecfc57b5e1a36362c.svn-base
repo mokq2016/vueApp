@@ -1,0 +1,262 @@
+<template>
+  <div class="container" id='login'>
+    <div id="particles-js" style='background:rgba(0,0,0,0.8);height:100vh'>
+      <canvas class='particles-js-canvas-el' style='width:100%;height:100%'>
+      </canvas>
+    </div>
+    <!-- <div class="bg-div"></div> -->
+    <div class="content">
+      <div class='logo-div'>
+        <i class='iconfont icon-shuiwuguanli2'></i>
+        <span class='title'>深圳国税</span>
+      </div>
+      <div class='login-div'>
+        <div style="height:44px;">
+          <!--           <sticky scroll-box="vux_view_box_body" :offset="46" :check-sticky-support="false">
+             -->
+          <tab :line-width="1">
+            <tab-item @on-item-click='showTaxNumLogin = true' selected>税号登录</tab-item>
+            <tab-item @on-item-click='showTaxNumLogin = false'>手机号登录</tab-item>
+          </tab>
+          <!--  </sticky> -->
+        </div>
+        <group v-show='showTaxNumLogin'>
+          <x-input label-width='4rem' placeholder="请输入税号" v-validate="'required'" name='税号' v-model="userName">
+            <i slot="label" class="iconfont icon-people"></i>
+          </x-input>
+          <span v-show="errors2.has('税号') && submitted" class="errors-tip is-danger">{{ errors2.first('税号') }}</span>
+          <x-input label-width='4rem' :type='inpType' v-validate="'required'" data-vv-name='密码' placeholder="请输入密码" v-model="passWord">
+            <i slot="label" class="iconfont icon-lock"></i>
+            <i slot="right" class="iconfont icon-browse" @click='changeInp()'></i>
+          </x-input>
+          <span v-show="errors2.has('密码') && submitted" class="errors-tip is-danger">{{ errors2.first('密码') }}</span>
+        </group>
+        <group v-show='!showTaxNumLogin'>
+          <x-input label-width='4rem' placeholder="请输入手机号" v-validate="'required'" name='手机号' v-model="mobile">
+            <i slot="label" class="iconfont icon-people"></i>
+          </x-input>
+          <span v-show="errors2.has('手机号') && submitted" class="errors-tip is-danger">{{ errors2.first('手机号') }}</span>
+          <x-input label-width='4rem' :type='inpType' v-validate="'required'" data-vv-name='密码' placeholder="请输入密码" v-model="mobilePw">
+            <i slot="label" class="iconfont icon-lock"></i>
+            <i slot="right" class="iconfont icon-browse" @click='changeInp()'></i>
+          </x-input>
+          <span v-show="errors2.has('密码') && submitted" class="errors-tip is-danger">{{ errors2.first('密码') }}</span>
+        </group>
+      </div>
+      <x-button type="primary" class='w80 reg-btn' action-type='button' @click.native='chooseLogin()'>登录</x-button>
+      <table class='foot-table'>
+        <tr>
+          <td>注册</td>
+          <td style='text-align:right'>忘记密码</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  XInput,
+  Group,
+  XButton,
+  Tab,
+  TabItem,
+  Sticky
+} from 'vux'
+import {
+  mapActions
+} from 'vuex'
+/*import {
+  USER_SIGNIN
+ }from '../../store/modules/user'*/
+import particles from '../../config/particles'
+export default {
+  components: {
+    XInput,
+    Group,
+    XButton,
+    Tab,
+    TabItem,
+    Sticky
+  },
+  data() {
+    return {
+      showTaxNumLogin: true,
+      inpType: 'password',
+      userName: '',
+      passWord: '',
+      email: '',
+      submitted: false,
+      mobile: '',
+      mobilePw: ''
+    }
+  },
+  methods: {
+    ...mapActions(['USER_SIGNIN']),
+    changeInp() {
+      if (this.inpType == 'password') {
+        this.inpType = 'text';
+      } else {
+        this.inpType = 'password'
+      }
+    },
+    chooseLogin() {
+      if (this.showTaxNumLogin) {
+        this.login();
+      } else {
+        this.mobileLogin();
+      }
+    },
+    login() {
+      let that = this;
+      this.USER_SIGNIN({
+        nsrInfo: {
+          nsrsbh: 121323232
+        }
+      })
+      this.$validator.validateAll({
+        '税号': that.userName,
+        '密码': that.passWord
+      }).then(function(isValidate) {
+        if (isValidate) {
+          let param = {
+            nsrsbh: that.userName,
+            nsrpwd: sha1.hex(that.passWord),
+            verifyCode: '',
+            redirectURL: "",
+            time: new Date().format('yyyy-MM-dd hh:mm:ss')
+          }
+          that.$http.post('/api/weixin/yybslogin', param, {
+            MSG: '登录中...'
+          }).then((result) => {
+            if (result.success) {
+              that.$toast('登录成功！');
+              that.USER_SIGNIN({
+                nsrInfo: result.data
+              });
+              that.$router.push('xgmsb_step1');
+            } else {
+              that.$alert(result.message);
+            }
+          })
+        } else {
+          that.submitted = true;
+        }
+      })
+    },
+    mobileLogin() {
+      let self = this;
+      let param = {
+        mobile: this.mobile,
+        password: this.mobilePw
+      }
+      self.$http.post('/api/mobile/general/login', param).then((result) => {
+          if (result.success) {
+            self.USER_SIGNIN({
+              token: result.data.token,
+              accountInfo: result.data.accountInfo,
+              nsrInfo: result.data.nsrInfo,
+              nsrList: result.data.nsrList
+            });
+            self.$router.push({
+              name: 'chooseIdentity',
+              params: {
+                isFromLogin: true
+              }
+            }); //isFromLogin  1代表从login路由
+          } else {
+            self.$alert(result.message);
+          }
+          /* return result*/
+        })
+        /*.then((result) =>{
+                 if(result.success){
+                  let param = {
+                    name:result.data.accountInfo.fullName,
+                    sfzjhm:result.data.accountInfo.identityCardNo
+                  }
+                    return self.$http.post('/api/smrz/mobile/getQybdxx',param,{ 'Content-Type': 'application/x-www-form-urlencoded;' }).then((result) => {
+                      console.log(result)
+                    })
+              
+                 }
+              })*/
+    }
+  },
+  mounted() {
+    particlesJS('particles-js', particles);
+  }
+}
+</script>
+<style lang="less">
+#login {
+  .bg-div {
+    /* background-color:#000; */
+    position: absolute;
+    z-index: -3;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    /*  opacity:0.3;  */
+    /* background: url('../../img/login_bg.jpg'); */
+    background-size: 100% 100%;
+  }
+  .content {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    width: 100%;
+    color: white;
+    height: 100vh;
+    /* background: rgba(56, 51, 255, 0.7); */
+    .logo-div {
+      text-align: center;
+      margin-top: 3rem;
+      color: #009FE7;
+      .icon-shuiwuguanli2 {
+        font-size: 4rem;
+      }
+      .title {
+        display: block;
+        letter-spacing: 1rem;
+        margin-top: -1rem;
+      }
+    }
+    .login-div {
+      width: 96%;
+      margin: 2rem auto 0;
+      /* border-radius: 4rem; */
+      box-shadow: 0 4px 8px 6px rgba(0, 0, 0, 0.2);
+      .iconfont {
+        font-size: 1.6rem;
+        color: white;
+      }
+      .weui-icon {
+        color: #fff
+      }
+      .icon-people,
+      .icon-lock {
+        margin-right: 1rem;
+      }
+      .weui-cells.vux-no-group-title {
+        background-color: rgba(255, 255, 255, 0.4);
+      }
+      input::-webkit-input-placeholder {
+        color: #fff;
+        opacity: 1;
+      }
+    }
+    .foot-table {
+      width: 80%;
+      margin: auto;
+      td {
+        color: #009FE7;
+      }
+    }
+  }
+  .reg-btn {
+    margin-top: 1rem;
+  }
+}
+</style>

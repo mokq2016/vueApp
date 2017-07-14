@@ -3,6 +3,15 @@ import VueRouter from 'vue-router'
 
 Vue.use(VueRouter)
 
+import sbcx from '../views/xgmsb/sbcx/search.vue'
+import sbResult from '../views/xgmsb/sbcx/sbresult.vue'
+import sbSuccess from '../views/xgmsb/sbSuccess.vue'
+
+import wjkList from '../views/xgmsb/wjkcx/list.vue' //未交款
+
+import yjkResult from '../views/xgmsb/yjkcx/list.vue' //已交款
+import yjkSearch from '../views/xgmsb/yjkcx/search.vue'
+
 export default new VueRouter({
   routes: [{
       path: '*', // 其他页面
@@ -32,12 +41,12 @@ export default new VueRouter({
         meta: {
           auth: false
         }
-      }, {
-        path: '/list',
-        component: resolve => require(['../views/List.vue'], resolve),
-        replace: true
-      },*/
+      }, */
     {
+      path: '/accountInfo',
+      component: resolve => require(['../views/login/accountInfo.vue'], resolve)
+
+    }, {
       name: 'login',
       path: '/login',
       component: resolve => require(['../views/login/login.vue'], resolve),
@@ -52,7 +61,6 @@ export default new VueRouter({
         if (from.name == 'login') {
           to.meta.keepAlive = true;
         }
-        console.log(from.name)
         next();
       },
       beforeRouteLeave(to, from, next) {
@@ -87,13 +95,53 @@ export default new VueRouter({
       component: resolve => require(['../views/aboutMe/bindCompany/addCompany.vue'], resolve)
     }, {
       name: 'chooseIdentity',
-      path: '/chooseIdentity',
+      path: '/chooseIdentity/:isFromLogin', //isFromLogin标记是否从login路由过来 true代表为从login其他非login路由
       component: resolve => require(['../views/chooseIdentity/chooseIdentity.vue'], resolve)
-    }
-, {
+
+    }, {
       name: 'modifyPassword',
       path: '/modifyPassword',
       component: resolve => require(['../views/login/modifyPassword.vue'], resolve)
+    }, {
+      name: 'companyInfo',
+      path: '/companyInfo/:companyDetail',
+      component: resolve => require(['../views/aboutMe/bindCompany/companyInfo.vue'], resolve)
+    }, {
+      name: 'taxList',
+      path: '/taxList',
+      component: resolve => require(['../views/manageTaxer/TaxerList.vue'], resolve)
+    }, {
+      name: 'addTaxer',
+      path: '/addTaxer',
+      component: resolve => require(['../views/manageTaxer/addTaxer.vue'], resolve)
+    }, {
+      name: 'sbcx', //申报查询页面
+      path: '/sbcx',
+      component: sbcx
+    }, {
+      name: 'sbResult', //申报查询结果
+      path: '/sbResult',
+      component: sbResult
+    }, {
+      name: 'sbSuccess', //发送报表成功
+      path: '/sbSuccess',
+      component: sbSuccess
+    }, {
+      name: 'wjkList', //待缴款  未交款
+      path: '/wjkList',
+      component: wjkList
+    }, {
+      name: 'yjkResult', //缴款查询结果页面  已交款
+      path: '/yjkResult',
+      component: yjkResult
+    }, {
+      name: 'yjkSearch', //已交款 查询条件页
+      path: '/yjkSearch',
+      component: yjkSearch
+    }, {
+      name: 'authorize',
+      path: '/authorize',
+      component: resolve => require(['../views/authorize/authorize.vue'], resolve)
     }
   ]
 })

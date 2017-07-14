@@ -1,19 +1,34 @@
 <template>
   <div class="container" id='about'>
     <group>
-      <cell title='杨定平' inline-desc='1232434343' is-link>
+      <cell :title='GET_ACCOUNTINFO().fullName' :inline-desc='GET_ACCOUNTINFO().mobile' is-link>
         <i slot='icon' class="iconfont icon-geren"></i>
       </cell>
     </group>
     <group>
-    <cell title='当前办税身份' is-link value='法定代表人'>
-      
-      </cell>
-      <cell-box is-link link='/bindCompany'>
+<!--     <cell title='当前办税身份' is-link :link="{name:'chooseIdentity',params:{isFromLogin:false}}">
+    <span slot='value'>{{getCurrentRoleName()}}</span>
+    <span slot='default' class='companyName'>{{GET_CURRENTROLE().nsrmc}}</span>
+  </cell> -->
+      <cell-box is-link :link="{name:'chooseIdentity',params:{isFromLogin:false}}">
         <div slot='default'>
-          绑定企业<span class='companyName'>深圳市雅堂支付网络技术有限公司</span>
+          当前办税身份<span class='companyName'>{{GET_CURRENTROLE().nsrmc}}</span>
         </div>
       </cell-box>
+      <cell-box is-link link='/bindCompany'>
+        <div slot='default'>
+          我的全部身份<!-- <span class='companyName'>{{GET_CURRENTROLE().nsrmc}}</span> -->
+        </div>
+      </cell-box>
+      <cell title='管理办税人员' is-link link='/taxList'> 
+        
+      </cell>
+      <cell title='授权确认' is-link>
+        
+      </cell>
+    </group>
+    <group>
+      <cell title='修改密码' is-link link='modifyPassword'></cell>
     </group>
     <group>
       <cell-box is-link>
@@ -29,11 +44,25 @@ import {
   CellBox,
   Cell
 } from 'vux'
+import {mapGetters} from 'vuex'
 export default {
   components: {
     Group,
     CellBox,
     Cell
+  },
+  methods:{
+     ...mapGetters(['GET_NSRINFO','GET_CURRENTROLE','GET_ACCOUNTINFO']),
+     getCurrentRoleName(){
+      if(this.GET_CURRENTROLE()){
+        return this.GET_CURRENTROLE().roleName.split('-')[0];
+      }else {
+        return '';
+      }
+     }
+  },
+  created(){
+    console.log(this.GET_CURRENTROLE())
   }
 }
 </script>
