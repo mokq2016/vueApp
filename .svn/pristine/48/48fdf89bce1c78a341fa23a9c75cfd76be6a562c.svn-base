@@ -256,7 +256,7 @@ export default {
         that.$alert({
           content: '当前税种信息没有小规模增值税申报种类，不能进行小规模申报，如需申报，需联系主管税务机关，核实已核定了有效的增值税税种，且为小规模纳税人。',
           onHide() {
-            that.$router.replace('xgmsbMenu');
+            that.$router.replace('login');
           }
         })
       }
@@ -265,7 +265,7 @@ export default {
         that.$alert({
           content: '您在当前属期内已申报成功，不允许重复申报',
           onHide() {
-            that.$router.replace('xgmsbMenu');
+            that.$router.replace('login');
           }
         })
       }
@@ -274,7 +274,7 @@ export default {
         that.$alert({
           content: '期初信息获取失败，异常原因：' + that.resultData.QCCGBZMS,
           onHide() {
-            that.$router.replace('xgmsbMenu');
+            that.$router.replace('login');
           }
         })
       }
@@ -283,7 +283,7 @@ export default {
         that.$alert({
           content: '您逾期未认定为增值税一般纳税人，请至大厅前台进行申报！',
           onHide() {
-            that.$router.replace('xgmsbMenu');
+            that.$router.replace('login');
           }
         })
       }
@@ -293,7 +293,7 @@ export default {
           that.$alert({
             content: '根据国家税务总局的规定，纳税人财务报表按季报送。为了避免影响您的纳税信用，请按时报送。报送本期增值税前再检查是否完成上一属期的财务报表报送。例如您在申报所属期2017年第一季度的增值税前检查是否完成2016年第4季度的财务报表报送。以此类推。',
             onHide() {
-              that.$router.replace('xgmsbMenu');
+              that.$router.replace('login');
             }
           })
         }

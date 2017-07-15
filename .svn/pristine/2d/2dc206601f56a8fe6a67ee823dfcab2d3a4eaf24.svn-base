@@ -9,7 +9,7 @@
         <div class="result-part" v-for="( item, index ) in searchResult">
           <a class="href-btn" v-on:click="jk(item)">〉</a>
           <div class="line">
-            <label>{{(index+1)}}：{{ item.zsxmmc }}</label>
+            <label>{{index}}：{{ item.zsxmmc }}</label>
           </div>
           <div class="line">
             <label>正税金额</label> <span>{{ item.kkse }}</span>
@@ -18,13 +18,13 @@
             <label>滞纳金额</label> <span>{{ item.znjfklx }}</span>
           </div>
           <div class="line">
-            <label>税(费)金额合计</label> <span> {{ (Number(item.znjfklx) + Number(item.kkse)).toFixed(2) }} </span>
+            <label>税(费)金额合计</label> <span> {{ parseFloat(item.znjfklx) + parseFloat(item.kkse) }} </span>
           </div>
           <div class="line">
-            <label>缴款期限</label> <span>{{ item.jkqx.substring(0,10) }}</span>
+            <label>缴款期限</label> <span>{{ item.jkqx }}</span>
           </div>
           <div class="line">
-            <label>应征发生日期</label> <span>{{ item.yzfsrq.substring(0,10) }}</span>
+            <label>应征发生日期</label> <span>{{ item.yzfsrq }}</span>
           </div>
           <div class="line">
             <label>所属时期起</label> <span>{{ item.sssqq }}</span>

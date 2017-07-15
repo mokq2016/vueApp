@@ -1,0 +1,8 @@
+export default {
+    target:''
+}
+/*
+测试环境地址：http://app.xiaochina.net
+生产环境地址：http://dzswj.szgs.gov.cn
+本地环境配置  ''
+ */

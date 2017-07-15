@@ -91,7 +91,7 @@ export default {
   methods: {
     ...mapActions(['USER_SIGNIN']),
     register(){
-      window.location.href = server.current+'/irs-shenz.git/www/index.html#/irs/register/%7B%22Flag%22:%22Y%22%7D';
+      window.location.href = server.target+'/irs-shenz.git/www/index.html#/irs/register/%7B%22Flag%22:%22Y%22%7D';
     },
     changeInp() {
       if (this.inpType == 'password') {
@@ -109,6 +109,11 @@ export default {
     },
     login() {
       let that = this;
+      this.USER_SIGNIN({
+        nsrInfo: {
+          nsrsbh: 121323232
+        }
+      })
       this.$validator.validateAll({
         '税号': that.userName,
         '密码': that.passWord
@@ -152,7 +157,7 @@ export default {
               token: result.data.token,
               accountInfo: result.data.accountInfo,
               nsrInfo: result.data.nsrInfo,
-              nsrList: result.data.nsrList || []
+              nsrList: result.data.nsrList
             });
             self.$router.push({
               name: 'chooseIdentity',
