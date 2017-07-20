@@ -11,7 +11,7 @@ export default {
   ],
   getSbzlHdxx(SBZLCODE) {
     let param = {
-      djxh: user.state.nsrInfo.nsrxxVO.djxh,
+      djxh: user.state.nsrInfo.djxh,
       sbny: new Date().format('yyyyMM'),
       sbzlDm: SBZLCODE
     }

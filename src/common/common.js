@@ -51,3 +51,29 @@ String.prototype.toMoney = function (prefix = '', digit) {
     }
     return prefix + val;
 };
+//原生toFixed
+Number.prototype._nativeToFixed = Number.prototype.toFixed;
+/*重写toFixed解决四舍五入不准确问题*/
+Number.prototype.toFixed =  function(s)
+{
+    var temp = 0.5;
+    if((this+"").indexOf("-") != -1){//
+    }
+   var  changenum=(parseInt(this * Math.pow( 10, s ) + temp)/ Math.pow( 10, s )).toString();
+    var index=changenum.indexOf(".");
+    if(index<0&&s>0){
+        changenum=changenum+".";
+        for(i=0;i<s;i++){
+            changenum=changenum+"0";
+        }
+
+    }else {
+        index=changenum.length-index;
+        for(var i=0;i<(s-index)+1;i++){
+            changenum=changenum+"0";
+        }
+
+    }
+
+    return changenum;
+}

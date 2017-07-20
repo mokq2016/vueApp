@@ -1,0 +1,89 @@
+<template>
+  <div class="container">
+    <v-headerbar title='找回密码'></v-headerbar>
+    <div class="content">
+      <group>
+        <x-input title='新密码' v-model='formData.password' :type='inpType' label-width='5.3rem' placeholder='8-16位字母数字组合' name='新密码' v-validate="'required|passWord'">
+          <i slot="right" class="iconfont icon-browse fs16" @click='changeInp()'></i>
+        </x-input>
+        <span v-show="errors2.has('新密码') && submitted" style='margin-left: 6.2rem' class="errors-tip is-danger">{{ errors2.first('新密码') }}</span>
+        <x-input title='确认密码' :type='inpType' v-model='confirmPwd' name='确认密码' placeholder='8-16位字母数字组合' v-validate="'required|confirmed:新密码'">
+          <i slot="right" class="iconfont icon-browse fs16" @click='changeInp()'></i>
+        </x-input>
+        <span v-show="errors2.has('确认密码') && submitted" style='margin-left: 6.2rem' class="errors-tip is-danger">{{ errors2.first('确认密码') }}</span>
+      </group>
+      <x-button type='primary' class='w80 mt6' @click.native='findPwd()'>确定</x-button>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  Group,
+  XInput,
+  XButton
+} from 'vux'
+export default {
+  components: {
+    Group,
+    XInput,
+    XButton
+  },
+  data() {
+    return {
+      inpType: 'password',
+      submitted: false,
+      confirmPwd: '',
+      formData: {
+        telNum: '',
+        code: '',
+        password: ''
+      }
+    }
+  },
+  methods: {
+    findPwd() {
+      let self = this;
+      this.$validator.validateAll().then(function(isValidate) {
+        if (isValidate) {
+          let param = {
+            telNum: self.formData.telNum,
+            code: self.formData.code,
+            password: btoa(self.formData.password)
+          }
+          self.$http.post('/api/smrz/modifyPw', param).then(function(result) {
+            if (result.success) {
+              self.$toast({
+                type: 'success',
+                text: '修改密码成功！'
+              })
+              self.$router.push('/login');
+            } else {
+              self.$alert(result.message);
+            }
+          })
+        } else {
+          self.submitted = true;
+        }
+      })
+    },
+    changeInp() {
+      if (this.inpType == 'password') {
+        this.inpType = 'text';
+      } else {
+        this.inpType = 'password'
+      }
+    },
+  },
+  created() {
+    try {
+      let routeParam = JSON.parse(this.$route.params.params);
+      this.formData.telNum = routeParam.telNum;
+      this.formData.code = routeParam.code;
+    } catch (e) {
+      console.log(e);
+    }
+
+
+  }
+}
+</script>

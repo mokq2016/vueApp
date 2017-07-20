@@ -2,7 +2,7 @@
   <div class="container">
     <div>
       <v-headerbar title='管理办税人员'>
-          <i slot='right' class='iconfont icon-add' @click="$router.push('addTaxer')"></i>
+        <i slot='right' class='iconfont icon-add' @click="$router.push('addTaxer')"></i>
       </v-headerbar>
     </div>
     <div class='content' v-for='item in taxerList'>
@@ -22,6 +22,7 @@
         </tbody>
       </table>
     </div>
+    <v-nodata v-if='taxerList.length === 0' title='暂无记录'></v-nodata>
   </div>
 </template>
 <script>
@@ -32,9 +33,9 @@ export default {
   components: {
     XButton
   },
-  data(){
+  data() {
     return {
-        taxerList:[]
+      taxerList: []
     }
   },
   methods: {
@@ -42,53 +43,57 @@ export default {
       let self = this;
       this.$http.get('/api/yhgl/get/taxOfficerList').then(function(result) {
         if (result.success) {
-            self.taxerList = result.data;
+          self.taxerList = result.data;
         } else {
           self.$alert(result.message);
         }
       })
     },
-    getUserIdentity(type){
-        let identity = '未知身份';
-        switch (type) {
-            case '1':
-                identity = '办税人员';
-                break;
-                case '2':
-                identity = '法定代表人';
-                break;
-                case '3':
-                identity = '财务负责人';
-                break;
-                case '4':
-                identity = '税务代理人';
-                break;
-                case '6':
-                identity = '购票员';
-                break;
-            default:
-                break;
-        }
-        return identity;
+    getUserIdentity(type) {
+      let identity = '未知身份';
+      switch (type) {
+        case '1':
+          identity = '办税人员';
+          break;
+        case '2':
+          identity = '法定代表人';
+          break;
+        case '3':
+          identity = '财务负责人';
+          break;
+        case '4':
+          identity = '税务代理人';
+          break;
+        case '6':
+          identity = '购票员';
+          break;
+        default:
+          break;
+      }
+      return identity;
     },
-    deleteTaxer(ryxxId){
-        let self = this;
-       this.$confirm({
-        content:'您确定要删除该办税人员？',
-        onConfirm(){
-            self.$http.post('/api/yhgl/delete/taxOfficer',{ryxxId:ryxxId}).then(function(result){
-                if(result.success){
-                    self.$toast({
-                        type:'success',
-                        text:'删除成功！'
-                    });
-                    self.getTaxerList();
-                }else{
-                    self.$alert(result.message);
-                }
-            })
+    deleteTaxer(ryxxId) {
+      let self = this;
+      this.$confirm({
+        content: '您确定要删除该办税人员？',
+        onConfirm() {
+          self.$http.post('/api/yhgl/delete/taxOfficer', {
+            ryxxId: ryxxId
+          }, {
+            'Content-Type': 'application/x-www-form-urlencoded;'
+          }).then(function(result) {
+            if (result.success) {
+              self.$toast({
+                type: 'success',
+                text: '删除成功！'
+              });
+              self.getTaxerList();
+            } else {
+              self.$alert(result.message);
+            }
+          })
         }
-       })     
+      })
     }
   },
   created() {

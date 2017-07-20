@@ -1,41 +1,35 @@
 <template>
   <div class="container" id='about'>
     <group>
-      <cell :title='GET_ACCOUNTINFO().fullName' :inline-desc='GET_ACCOUNTINFO().mobile' is-link>
+      <cell :title='GET_ACCOUNTINFO.fullName' :inline-desc='GET_ACCOUNTINFO.mobile' is-link>
         <i slot='icon' class="iconfont icon-geren"></i>
       </cell>
     </group>
     <group>
-<!--     <cell title='当前办税身份' is-link :link="{name:'chooseIdentity',params:{isFromLogin:false}}">
-    <span slot='value'>{{getCurrentRoleName()}}</span>
-    <span slot='default' class='companyName'>{{GET_CURRENTROLE().nsrmc}}</span>
-  </cell> -->
       <cell-box is-link :link="{name:'chooseIdentity',params:{isFromLogin:false}}">
         <div slot='default'>
-          当前办税身份<span class='companyName'>{{GET_CURRENTROLE().nsrmc}}</span>
+          切换身份<span class='companyName' v-if='GET_CURRENTROLE'>{{GET_CURRENTROLE.nsrmc}}</span>
         </div>
       </cell-box>
       <cell-box is-link link='/bindCompany'>
         <div slot='default'>
-          我的全部身份<!-- <span class='companyName'>{{GET_CURRENTROLE().nsrmc}}</span> -->
+          管理员列表<!-- <span class='companyName'>{{GET_CURRENTROLE.nsrmc}}</span> -->
         </div>
       </cell-box>
-      <cell title='管理办税人员' is-link link='/taxList'> 
-        
+      <cell v-if='isShowManageTaxer()' title='办税人员管理' is-link link='/taxList'>
       </cell>
-      <cell title='授权确认' is-link link='authorize'>
-        
+      <cell title='绑定信息' is-link link='authorize'>
       </cell>
     </group>
     <group>
       <cell title='修改密码' is-link link='modifyPassword'></cell>
     </group>
     <group>
-      <cell-box is-link>
+      <cell-box is-link v-if='false'>
         关于
       </cell-box>
     </group>
-    <v-footbar></v-footbar>
+    <!--  <v-footbar></v-footbar> -->
   </div>
 </template>
 <script>
@@ -44,25 +38,39 @@ import {
   CellBox,
   Cell
 } from 'vux'
-import {mapGetters} from 'vuex'
+import {
+  mapGetters
+} from 'vuex'
 export default {
   components: {
     Group,
     CellBox,
     Cell
   },
-  methods:{
-     ...mapGetters(['GET_NSRINFO','GET_CURRENTROLE','GET_ACCOUNTINFO']),
-     getCurrentRoleName(){
-      if(this.GET_CURRENTROLE()){
-        return this.GET_CURRENTROLE().roleName.split('-')[0];
-      }else {
+  computed: {
+    ...mapGetters(['GET_NSRINFO', 'GET_CURRENTROLE', 'GET_ACCOUNTINFO'])
+  },
+  methods: {
+
+    getCurrentRoleName() {
+      if (this.GET_CURRENTROLE) {
+        return this.GET_CURRENTROLE.roleName.split('-')[0];
+      } else {
         return '';
       }
-     }
+    },
+    isShowManageTaxer() {
+      let roleType = this.GET_CURRENTROLE.roleType;
+      if (roleType == '2' || roleType == '3') { //财务负责人和法人才显示办税人员管理
+        return true;
+      } else {
+        return false;
+      }
+    },
   },
-  created(){
-    console.log(this.GET_CURRENTROLE())
+  mounted() {
+    //console.log(this)
+      //console.log(this.GET_CURRENTROLE(),this.$store.state)
   }
 }
 </script>

@@ -4,19 +4,18 @@
       <v-headerbar title='选择办税身份'></v-headerbar>
     </div>
     <div class="content">
-      <ul>
-        <li v-for='(item, index) in items'>
+        <div style='margin-top:0.6rem' v-if="item.id || item.nsrmc == '个人身份'" v-for='(item, index) in items'>
           <div class='inner-div' :class="{'isSelected':selected === index}" @click='selected = index'>
             <div class='icon-div'>
               <i class="iconfont icon-gongsi1"></i>
             </div>
             <div class='right-descript'>
-              <span>{{item.gsNsrmc}}</span>
-              <p>{{item.roleName}}</p>
+              <span :class="{'personal':item.nsrsbh == ''}">{{item.nsrmc}}</span>
+              <p>{{getRoleName(item.type)}}</p>
             </div>
           </div>
-        </li>
-      </ul>
+        </div>
+     
     </div>
     <div class='footer'>
       <x-button type="primary" class='w80' action-type='button' @click.native='chooseIdentity()'>确定</x-button>
@@ -39,51 +38,80 @@ export default {
     return {
       isFromLogin: false,
       selected: -1,
-      items: [{
-        djxh: '10114403000026196177',
-        nsrmc: '深圳市宏泰包装材料有限公司'
-      }, {
-        djxh: '10114403000026196177',
-        nsrmc: '深圳市宏泰包装材料有限公司'
-      }, {
-        djxh: '10114403000026196177',
-        nsrmc: '深圳市宏泰包装材料有限公司'
-      }]
+      items: []
     }
   },
   methods: {
     ...mapGetters(['GET_NSRLIST']),
     ...mapMutations(['UPDATE_USERINFO']),
+    getRoleName(roleType) {
+      let bsType = '';
+      switch (roleType) {
+        case '1':
+          bsType = '办税人员';
+          break;
+        case '2':
+          bsType = '法定代表人';
+          break;
+        case '3':
+          bsType = '财务负责人';
+          break;
+        case '4':
+          bsType = '税务代理人';
+          break;
+        case '6':
+          bsType = '购票员';
+          break;
+        default:
+          bsType = ''
+          break;
+      }
+      return bsType;
+    },
     chooseIdentity() {
       /*console.log(this.items[this.selected])*/
-        /*return;*/
+      /*return;*/
       let self = this;
       if (self.selected === -1) {
         this.$alert("请选择办税身份！");
         return;
       }
-
+      if (self.items[this.selected].nsrsbh == '') { //个人身份登录
+        self.UPDATE_USERINFO({
+          currentRole: {
+            roleType: self.items[self.selected].type,
+            nsrmc: self.items[self.selected].nsrmc,
+            nsrsbh: self.items[self.selected].nsrsbh
+          },
+          nsrInfo: null
+        });
+        if (self.isFromLogin) {
+          self.$router.push('/aboutMe');
+        } else {
+          self.$router.go(-1);
+        }
+        return;
+      }
       /*if (!self.isFromLogin) { //非login路由而来为切换办税身份*/
       this.$http.post('/api/mobile/general/chooseCompany', {
           djxh: self.items[this.selected].djxh,
-          nsrsbh: self.items[this.selected].nsrsbhGs
+          nsrsbh: self.items[this.selected].nsrsbh
         }).then(function(result) {
-          if (result.success) {//切换身份成功
+          if (result.success) { //切换身份成功
             self.UPDATE_USERINFO({
               currentRole: {
-                roleName: self.items[self.selected].roleName,
-                nsrmc: self.items[self.selected].gsNsrmc,
-                nsrsbh: self.items[self.selected].nsrsbhGs
+                roleType: self.items[self.selected].type,
+                nsrmc: self.items[self.selected].nsrmc,
+                nsrsbh: self.items[self.selected].nsrsbh
               }
             });
-            console.log(self.items[self.selected].gsNsrmc)
-            if(self.isFromLogin){
-                self.getLatestUserInfo();//登录时获取最新企业信息
-                self.$router.push('/home');
-            }else{
+            self.getLatestUserInfo(); //获取最新企业信息
+            if (self.isFromLogin) {
+              self.$router.push('/aboutMe');
+            } else {
               self.$router.go(-1);
             }
-          }else{
+          } else {
             self.$alert(result.message);
           }
         })
@@ -104,29 +132,50 @@ export default {
         }
 
       })
+    },
+    getLatestNsrList() {
+      let self = this;
+      this.$http.get('/api/yhgl/get/bindlist').then(function(result) {
+        if (result.success) {
+          self.items = self.items.concat(result.data.bindlist || [], [{
+            nsrmc: '个人身份',
+            type: '',
+            nsrsbh: ''
+          }]);
+          self.UPDATE_USERINFO({
+            nsrList: result.data.bindlist || []
+          });
+        } else {
+          self.items = self.items.concat([{
+            nsrmc: '个人身份',
+            type: '',
+            nsrsbh: ''
+          }])
+          self.$alert(result);
+        }
+      })
     }
   },
   created() {
-    let self = this;
+    this.isFromLogin = this.$route.params.isFromLogin;
     this.items = [];
-    this.isFromLogin = this.$route.params.isFromLogin;
-    this.GET_NSRLIST().forEach(function(item) {
-        let roleList = item.roleList;
-        if (roleList.length > 0) {
-          for (let i = 0; i < roleList.length; i++) {
-            self.items.push(Object.assign({}, item, {
-              roleName: roleList[i].roleName
-            }))
-          }
-        }
-      })
-      /*self.items.push({gsNsrmc:'个人身份',roleName:'',nsrsbh:''})*/
+    this.getLatestNsrList();
+
+  },
+  mounted() {
+    /* let self = this;
+     this.items = [];
+     this.GET_NSRLIST().forEach(function(item) {
+       let roleList = item.roleList;
+       if (roleList.length > 0) {
+         for (let i = 0; i < roleList.length; i++) {
+           self.items.push(Object.assign({}, item, {
+             roleName: roleList[i].roleName
+           }))
+         }
+       }
+     })*/
   }
-  /*mounted() {
-    console.log(this.$route.params.isFromLogin)
-    
-    this.isFromLogin = this.$route.params.isFromLogin;
-  }*/
 
 }
 </script>
@@ -134,29 +183,33 @@ export default {
 .container {
   height: 100vh;
   display: flex;
+  display: -webkit-flex;
   flex-direction: column;
+  -webkit-flex-direction: column;
   .content {
     flex: 1;
+    -webkit-box-flex: 1;
+    webkit-flex:1;
     overflow-y: auto;
-    ul li {
-      margin-top: -1rem;
-    }
     .inner-div.isSelected {
       border: 1px solid #33CCFF;
     }
     .inner-div {
       padding: 0px 10px;
       width: 84%;
-      margin: auto;
+      margin:  0 auto;
       border: 1px solid #DBDBDB;
       display: flex;
+      display: -webkit-flex;
       flex-direction: row;
+      -webkit-flex-direction: row;
       .icon-div {
         /*  border: 1px solid #ccc;
                    border-radius: 50%;
                    height: 3rem;
                    width: 3rem; */
         flex-shrink: 0;
+        -webkit-flex-shrink: 0;
         text-align: center;
         margin-right: 0.6rem;
         .icon-gongsi1 {
@@ -171,6 +224,9 @@ export default {
       }
       .right-descript {
         position: relative;
+        span.personal {
+          margin-top: 1.2rem;
+        }
         span {
           display: inline-block;
           margin-top: 5px;
@@ -190,6 +246,7 @@ export default {
     margin-top: 1rem;
     width: 100%;
     align-self: flex-end;
+    -webkit-align-self: flex-end;
   }
 }
 </style>

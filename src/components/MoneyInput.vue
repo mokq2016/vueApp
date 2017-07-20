@@ -80,6 +80,10 @@ export default {
       if (this.oldValue === newVal) return;
       this.currentValue = newVal.toFixed(this.decimalPlaces);
     },
+    reset(){
+      this.currentValue = '0.00';
+      this.oldValue = '0.00';
+    }
   },
 };
 </script>

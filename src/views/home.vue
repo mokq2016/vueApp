@@ -4,14 +4,14 @@
       <swiper :list="imgList" :auto='true' :loop='true' :interval='3000'></swiper>
     </div>
     <!--  <view-box ref="viewBox"> -->
-  <transition name='fade'>
-      <div class='login-info' v-if='GET_CURRENTROLE()'>
+    <transition name='fade'>
+      <div class='login-info' v-if='GET_NSRINFO()'>
         <span>{{GET_CURRENTROLE().nsrmc}}({{GET_CURRENTROLE().nsrsbh}})</span>
       </div>
-    </transition> 
+    </transition>
     <div class="menu-container">
-      <div class="menu-div" v-for='item in menuList'>
-        <div class="menu-content" :style='item.color' @click='navto(item.id)'>
+      <div class="menu-div" v-if='getMenuShow(item.id)' v-for='item in menuList'>
+        <div class="menu-content" :style='item.color' @click='navto(item)'>
           <!-- <router-link :to="item.to"> -->
           <i class="iconfont" :class='item.iconName'></i>
           <span class="describe">{{item.name}}</span>
@@ -33,6 +33,7 @@ import {
 import {
   mapGetters
 } from 'vuex'
+import server from '../config/hostConfig'
 const baseList = [{
   url: 'javascript:',
   img: 'https://static.vux.li/demo/1.jpg',
@@ -54,11 +55,13 @@ export default {
   },
   data() {
     return {
-      showNsrInfo:false,
+      showNsrInfo: false,
       imgList: baseList,
+      personLogin: true,
       menuList: [{
         id: 1,
         name: '自然人代开发票',
+        href:'/irs-shenz.git/www/index.html#/irs/dkfp',
         iconName: 'icon-fapiao1',
         color: {
           color: '#FF9900'
@@ -66,68 +69,47 @@ export default {
       }, {
         id: 2,
         name: '小规模申报',
+        link:'/xgmsbMenu',
         iconName: 'icon-shenbao',
         color: {
           color: '#00CC33'
         }
       }, {
         id: 3,
-        name: '自然人代开发票',
+        name: '预约办税',
+        href:'/irs-shenz.git/www/index.html#/irs/yybsHome',
         iconName: 'icon-fapiao1',
         color: {
           color: '#009FE7'
-        }
-      }, {
-        id: 4,
-        name: '自然人代开发票',
-        iconName: 'icon-fapiao1',
-        color: {
-          color: '#CC336B'
-        }
-      }, {
-        id: 4,
-        name: '自然人代开发票',
-        iconName: 'icon-fapiao1',
-        color: {
-          color: '#CC336B'
-        }
-      }, {
-        id: 4,
-        name: '自然人代开发票',
-        iconName: 'icon-fapiao1',
-        color: {
-          color: '#CC336B'
-        }
-      }, {
-        id: 4,
-        name: '自然人代开发票',
-        iconName: 'icon-fapiao1',
-        color: {
-          color: '#CC336B'
-        }
-      }, {
-        id: 4,
-        name: '自然人代开发票',
-        iconName: 'icon-fapiao1',
-        color: {
-          color: '#CC336B'
         }
       }]
     }
   },
   methods: {
-    ...mapGetters(['GET_NSRINFO','GET_CURRENTROLE']),
-    navto(id) {
-      if (id === 1) {
-      /*  window.location.href = 'http://baidu.com'*/
+    ...mapGetters(['GET_NSRINFO', 'GET_CURRENTROLE']),
+    navto(menu) {
+      if (menu.href) { //为ionic项目功能，采用localtion跳转
+          window.location.href = server.current+menu.href;
+      }else{//vue项目功能，路由跳转
+        this.$router.push(menu.link);
+      }
+    },
+    //根据登录状态处理菜单显示
+    getMenuShow: function(id) {
+      let personArr = [1];
+      if(personArr.indexOf(id) != -1){
+        return this.personLogin;
+      }else{
+        return !this.personLogin;
       }
     }
-    
   },
-  created(){
-      /*  window.location.href = 'http://baidu.com'*/
-      console.log(this.GET_NSRINFO())
-    }
+
+  created() {
+    /*  window.location.href = 'http://baidu.com'*/
+    console.log(this.GET_NSRINFO())
+    this.personLogin = this.GET_NSRINFO() ? false : true;
+  }
 }
 </script>
 <style lang="less" scoped>
@@ -187,7 +169,7 @@ export default {
   .fade-enter,
   .fade-leave-to/* .fade-leave-active in <2.1.8 */
   {
-    opacity: 0 
+    opacity: 0
   }
 }
 </style>

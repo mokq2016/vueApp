@@ -47,7 +47,9 @@
       <table class='foot-table'>
         <tr>
           <td><span @click='register()'>注册</span></td>
-          <td style='text-align:right'><!-- 忘记密码 --></td>
+          <td style='text-align:right'>
+            <span @click="$router.push('forgetPwd')">忘记密码</span>
+          </td>
         </tr>
       </table>
     </div>
@@ -90,8 +92,8 @@ export default {
   },
   methods: {
     ...mapActions(['USER_SIGNIN']),
-    register(){
-      window.location.href = server.current+'/irs-shenz.git/www/index.html#/irs/register/%7B%22Flag%22:%22Y%22%7D';
+    register() {
+      window.location.href = server.current + server.proAddr + '#/irs/register/%7B%22Flag%22:%22Y%22%7D';
     },
     changeInp() {
       if (this.inpType == 'password') {
@@ -127,9 +129,9 @@ export default {
             if (result.success) {
               that.$toast('登录成功！');
               that.USER_SIGNIN({
-              token: result.data.wxToken,
-              nsrInfo: result.data
-            });
+                token: result.data.wxToken,
+                nsrInfo: result.data.nsrxxVO
+              });
               that.$router.push('xgmsbMenu');
             } else {
               that.$alert(result.message);
@@ -151,8 +153,7 @@ export default {
             self.USER_SIGNIN({
               token: result.data.token,
               accountInfo: result.data.accountInfo,
-              nsrInfo: result.data.nsrInfo,
-              nsrList: result.data.nsrList || []
+              nsrInfo: result.data.nsrInfo
             });
             self.$router.push({
               name: 'chooseIdentity',
@@ -204,7 +205,7 @@ export default {
     top: 0;
     left: 0;
     width: 100%;
-   /*  color: white; */
+    /*  color: white; */
     height: 100vh;
     /* background: rgba(56, 51, 255, 0.7); */
     .logo-div {
@@ -239,14 +240,14 @@ export default {
       .weui-cells.vux-no-group-title {
         background-color: rgba(255, 255, 255, 0.4);
       }
-     /*  input::-webkit-input-placeholder {
+      /*  input::-webkit-input-placeholder {
        color: #fff;
        opacity: 1;
      } */
     }
     .foot-table {
       width: 80%;
-      margin: auto;
+      margin: 2% auto auto auto;
       td {
         color: #009FE7;
       }

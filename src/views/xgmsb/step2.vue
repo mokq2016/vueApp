@@ -36,16 +36,16 @@
         </group>
       </div>
       <div v-if="sbInfo['SZLBDM'] === '02' || sbInfo['SZLBDM'] === '03'">
-        <group title='服务、不动产和无形资产'>
+        <group title='服务、不动产和无形资产 (3%征收率）'>
           <cell-box>
             <label>本期应纳税额：</label>
             <input v-model='fwYnse' disabled='true' type="text" />
           </cell-box>
-          <cell-box>
+          <cell-box v-show="sbInfo['GTHBZ'] === '1'">
             <label>未达起征点免税额：</label>
             <input v-model='fwMse' disabled='true' type="text" />
           </cell-box>
-          <cell-box>
+          <cell-box v-show="sbInfo['GTHBZ'] === '0'">
             <label>小微企业免税额：</label>
             <input v-model='fwXqyMse' disabled='true' type="text" />
           </cell-box>
@@ -102,11 +102,11 @@
               </tr>
               <tr>
                 <td>货物劳务核定定额</td>
-                <td>{{systemData['dqdeYshwlwHdxse']}}</td>
+                <td>{{formData['YSHWHDXSE']}}</td>
               </tr>
               <tr>
                 <td>应税服务核定定额</td>
-                <td>{{systemData['dqdeYsfwHdxse']}}</td>
+                <td>{{formData['YSFWHDXSE']}}</td>
               </tr>
             </tbody>
           </table>
@@ -122,12 +122,12 @@
                 <td>应税服务、不动产和无形资产税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_fw_zyfpzkbhsxse_fw']}}</td>
                 <td>{{getAccept(2).msg}}</td>
               </tr>
-              <tr :class="getAccept(3).cls">
-                <td>应税货物及劳务税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
+              <tr v-if='isCompare()' :class="getAccept(3).cls">
+                <td>普通发票不含税销售额>={{systemData['3']}}</td>
                 <td>{{getAccept(3).msg}}</td>
               </tr>
-              <tr :class="getAccept(4).cls">
-                <td>应税货物及劳务税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
+              <tr v-if='isCompare()' :class="getAccept(4).cls">
+                <td>全部发票不含税销售额>={{systemData['4']}}</td>
                 <td>{{getAccept(4).msg}}</td>
               </tr>
             </tbody>
@@ -238,6 +238,21 @@ export default {
     }
   },
   methods: {
+    isCompare() {
+      let YSHWHDXSE = parseFloat(this.formData['YSHWHDXSE']);
+      let YSFWHDXSE = parseFloat(this.formData['YSFWHDXSE']);
+
+      let kphj = parseFloat(this.systemData['tyfpdkbhsxse_hw']) + parseFloat(this.systemData['ZYFPDKBHSXSE']) + parseFloat(
+        this.systemData['ZYFPZKBHSXSE']) + parseFloat(
+        this.systemData['PTFPDKBHSXSE']) + parseFloat(
+        this.systemData['PTFPZKBHSXSE']);
+// 是核定征收纳税人,同时核定销售额大于等于开票合计的，不比对3/4条
+      if ((YSHWHDXSE > 0 || YSFWHDXSE > 0) && Math.max(YSFWHDXSE, YSHWHDXSE) >= kphj) {
+        return false;
+      } else {
+        return true;
+      }
+    },
     getTitle(title) {
       return title;
     },
@@ -249,6 +264,10 @@ export default {
           return;
         }
         if (self.isjk == "Y") { // 强制监控，不通过不允许提交申报表
+          if(!self.isCompare()){
+              self.acceptArr.splice(2,1);
+              self.acceptArr.splice(2,1);
+            }
           if (self.acceptArr.indexOf('notaccept') !== -1) {
             self.$alert("票表比对监控不通过不允许提交申报表");
             return;
@@ -276,7 +295,6 @@ export default {
             self.calculateHwSe();
             self.calculateFwSe();
           }
-
           //计算本年累计
           self.calculateLj();
           Object.assign(self.pbbdData, self.formData);
@@ -290,7 +308,6 @@ export default {
               return;
             }
           }
-
           self.pbbdData['jsArrays'] = [];
           self.pbbdData['msArrays'] = [];
           self.pbbdData['sssqq'] = self.sbInfo['sssqArray'][0];
@@ -301,6 +318,7 @@ export default {
             sbzlDm: '10103',
             sbwjs: JSON.stringify(sbwjs)
           }
+
           Object.assign(param, self.pbbdData);
           sbcommon.submitSbSource(param).then(function(result) {
             if (result.success) {
@@ -310,7 +328,13 @@ export default {
                   self.$router.push('/login');
                 }
               });*/
-              self.$router.push('/sbSuccess');
+              self.$router.push({
+                path: '/sbSuccess',
+                query: {
+                  sssqq: self.pbbdData['sssqq'],
+                  sssqz: self.pbbdData['sssqz']
+                }
+              });
             } else {
               self.$alert(result.message);
             }
@@ -568,7 +592,7 @@ export default {
     calculateFwSe() {
       this.formData['b15'] = this.fwYnse;
       this.formData['b16'] = '0.00';
-      this.formData['b17'] = '0.00';
+      this.formData['b17'] = (parseFloat(this.fwXqyMse)+parseFloat(this.fwMse)).toFixed(2);
       this.formData['b18'] = this.fwXqyMse;
       this.formData['b19'] = this.fwMse;
       this.formData['b20'] = this.fwYnse;
@@ -667,6 +691,7 @@ export default {
     },
     pbbd() {
       this.showSystemData = false;
+      this.acceptArr = [];
       this.getSystemData('showPbbd');
       this.clickPbbd = true;
     },
@@ -697,9 +722,10 @@ export default {
       }).then((result) => {
         if (result.success) {
           self.hasSystemData = true;
+          self.systemData['zyfpdkbhsxse_hw'] = result.data.zyfpdkbhsxse_hw;
           self.systemData['zyfpzkbhsxse_hw'] = result.data.zyfpzkbhsxse_hw;
+          self.systemData['zyfpdkbhsxse_fw'] = result.data.zyfpdkbhsxse_fw;
           self.systemData['zyfpzkbhsxse_fw'] = result.data.zyfpzkbhsxse_fw;
-          self.systemData['zyfpzkbhsxse_hw'] = result.data.zyfpzkbhsxse_hw1;
           self.systemData['ptfpzkbhsxse_hw'] = result.data.ptfpzkbhsxse_hw;
           self.systemData['tyfpdkbhsxse_hw'] = result.data.tyfpdkbhsxse_hw;
           self.systemData['ptfpzkbhsxse_fw'] = result.data.ptfpzkbhsxse_fw;
@@ -716,6 +742,12 @@ export default {
 
           self.systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw'] = parseFloat(self.systemData['zyfpdkbhsxse_hw']) + parseFloat(self.systemData['zyfpzkbhsxse_hw']);
           self.systemData['zyfpdkbhsxse_fw_zyfpzkbhsxse_fw'] = parseFloat(self.systemData['zyfpdkbhsxse_fw']) + parseFloat(self.systemData['zyfpzkbhsxse_fw']);
+
+          self.systemData['3'] = parseFloat(self.systemData['PTFPDKBHSXSE']) + parseFloat(self.systemData['PTFPZKBHSXSE']) + parseFloat(self.systemData['tyfpdkbhsxse_hw']);
+
+          self.systemData['4'] = parseFloat(self.systemData['ZYFPDKBHSXSE']) + parseFloat(self.systemData['ZYFPZKBHSXSE']) + parseFloat(self.systemData['PTFPDKBHSXSE']) + parseFloat(self.systemData['PTFPZKBHSXSE']) + parseFloat(self.systemData['tyfpdkbhsxse_hw']);
+
+
           self.showPopup = true;
           self[flag] = true;
         } else {
@@ -835,13 +867,6 @@ export default {
 </script>
 <style lang='less'>
 #xgmsb {
-  .fixedHead {
-    position: fixed;
-    width: 100%;
-    height: 3.1rem;
-    z-index: 500;
-    top: 0;
-  }
   .content {
     width: 100%;
     .vux-cell-box.weui-cell {

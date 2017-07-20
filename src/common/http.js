@@ -5,7 +5,7 @@ import user from '../store/modules/user'
 import server from '../config/hostConfig'
 
 Axios.defaults.timeout = 30000; // 1分钟
-/*Axios.defaults.baseURL = server.target;*/ 
+Axios.defaults.baseURL = server.target; 
 
 Axios.interceptors.request.use(function(config) {
   // Do something before request is sent 
@@ -19,7 +19,7 @@ Axios.interceptors.request.use(function(config) {
   }else{
     Vue.prototype.$showLoading();
   }
-  if(user.state.nsrInfo){
+  if(user.state.token){
     config.headers["token"] = user.state.token;
   }
   

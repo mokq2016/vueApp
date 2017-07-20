@@ -1,6 +1,10 @@
 <template>
   <div class="container" id="xgmsb">
-    <div style="padding: 0 0.5rem">
+    <div class='fixedHead'>
+      <v-headerbar title='开票信息'>
+      </v-headerbar>
+    </div>
+    <div style="padding: 0 0.5rem;margin-top: 3.1rem">
       <step v-model="step1" background-color='#fbf9fe'>
         <step-item :title="getTitle('步骤一')" description="开票信息"></step-item>
         <step-item :title="getTitle('步骤二')" description="税额"></step-item>
@@ -12,16 +16,16 @@
           <cell-box>
             <label>税务机关代开的增值税专用发票不含税销售额：</label>
             <span>
-            <v-moneyInput v-model='hwData.A2'></v-moneyInput>
+            <v-moneyInput v-model='hwData.A2' ref='A2'></v-moneyInput>
           </span>
           </cell-box>
           <cell-box>
             <label>税控器具开具的普通发票不含税销售额：</label>
-            <v-moneyInput v-model='hwData.A3'></v-moneyInput>
+            <v-moneyInput v-model='hwData.A3' ref='A3'></v-moneyInput>
           </cell-box>
           <cell-box>
             <label>开具其他发票及未开票销售额：</label>
-            <v-moneyInput v-model='hwData.D1'></v-moneyInput>
+            <v-moneyInput v-model='hwData.D1' ref='D1'></v-moneyInput>
           </cell-box>
           <cell-box>
             <label>当期合计不含税销售额：</label>
@@ -30,20 +34,20 @@
         </group>
       </div>
       <div v-if="sbInfo['SZLBDM'] === '02' || sbInfo['SZLBDM'] === '03'">
-        <group title='服务、不动产和无形资产'>
+        <group title='服务、不动产和无形资产 (3%征收率）'>
           <cell-box>
             <label>税务机关代开的增值税专用发票不含税销售额：</label>
             <span>
-            <v-moneyInput v-model='fwData.B2'></v-moneyInput>
+            <v-moneyInput v-model='fwData.B2' ref='B2'></v-moneyInput>
           </span>
           </cell-box>
           <cell-box>
             <label>税控器具开具的普通发票不含税销售额：</label>
-            <v-moneyInput v-model='fwData.B3'></v-moneyInput>
+            <v-moneyInput v-model='fwData.B3' ref='B3'></v-moneyInput>
           </cell-box>
           <cell-box>
             <label>开具其他发票及未开票销售额：</label>
-            <v-moneyInput v-model='fwData.D2'></v-moneyInput>
+            <v-moneyInput v-model='fwData.D2' ref='D2'></v-moneyInput>
           </cell-box>
           <cell-box>
             <label>当期合计不含税销售额（除销售不动产）：</label>
@@ -209,7 +213,6 @@ export default {
     calculateFwXse() {
       this.formData['b2'] = this.fwData.B2;
       this.formData['b5'] = this.fwData.B5;
-      this.formData['b9'] = this.fwData.B2;
       this.formData['b12'] = this.fwData.B12;
       this.formData['b13'] = this.fwData.B13;
       this.formData['b14'] = this.fwData.B14;
@@ -243,90 +246,141 @@ export default {
           this.formData['b31'] = (parseFloat(this.fwData.B6) + parseFloat(this.fwData.D3) - parseFloat(this.fwData.E2)).toFixed(2);
         }
       }
-    }
-  },
-  beforeCreate() {
-    let that = this;
-    /* this.$alert("有差额扣除项目、减免税项目（不包括未达起征点免税）、销售使用过固定资产、销售出租不动产的纳税人请使用电脑端申报；责令认定一般纳税人请到主管税务机关办理增值税一般纳税人登记事宜。");*/
-    sbcommon.getSbzlHdxx('10103').then(function(data) {
-      //console.log(data)
-      that.resultData = sbcommon.isExsitSbzlHdxx(['10103'], data);
-      //判断是否有核定
-      if (that.resultData == null) {
-        that.$alert({
-          content: '当前税种信息没有小规模增值税申报种类，不能进行小规模申报，如需申报，需联系主管税务机关，核实已核定了有效的增值税税种，且为小规模纳税人。',
-          onHide() {
-            that.$router.replace('xgmsbMenu');
-          }
-        })
-      }
-      //判断是否已经申报
-      if (that.resultData.ysbbbz == 'Y') {
-        that.$alert({
-          content: '您在当前属期内已申报成功，不允许重复申报',
-          onHide() {
-            that.$router.replace('xgmsbMenu');
-          }
-        })
-      }
-      //判断期初信息获取是否成功
-      if (that.resultData.QCCGBZ != "Y") {
-        that.$alert({
-          content: '期初信息获取失败，异常原因：' + that.resultData.QCCGBZMS,
-          onHide() {
-            that.$router.replace('xgmsbMenu');
-          }
-        })
-      }
-      //判断纳税人是否逾期
-      if (that.resultData.YQWRDBZ == "1") {
-        that.$alert({
-          content: '您逾期未认定为增值税一般纳税人，请至大厅前台进行申报！',
-          onHide() {
-            that.$router.replace('xgmsbMenu');
-          }
-        })
-      }
+      this.formData['b9'] = (parseFloat(this.formData['b10']) + parseFloat(this.formData['b11']) + parseFloat(this.formData['b12'])).toFixed(2);
+    },
+    init() {
+      let that = this;
+      this.showNoScroll = true;
+      this.hwData.A2 = '0.00';
+      this.hwData.A3 = '0.00';
+      this.hwData.D1 = '0.00';
+      this.hwData.A7 = '0.00';
+      this.hwData.A8 = '0.00';
+      this.hwData.A12 = '0.00';
+      this.hwData.A13 = '0.00';
+      this.hwData.A14 = '0.00';
+      this.hwData.Q1 = '0.00';
 
-      sbcommon.ifCwbbSb(['10103']).then(function(result) {
-        if (!result) {
+      this.fwData.B2 = '0.00';
+      this.fwData.B3 = '0.00';
+      this.fwData.D2 = '0.00';
+      this.fwData.B5 = '0.00';
+      this.fwData.E1 = '0.00';
+      this.fwData.B6 = '0.00';
+      this.fwData.E2 = '0.00';
+      this.fwData.D3 = '0.00';
+      this.fwData.B12 = '0.00';
+      this.fwData.B13 = '0.00';
+      this.fwData.B14 = '0.00';
+      this.fwData.Q2 = '0.00';
+
+      /* this.$alert("有差额扣除项目、减免税项目（不包括未达起征点免税）、销售使用过固定资产、销售出租不动产的纳税人请使用电脑端申报；责令认定一般纳税人请到主管税务机关办理增值税一般纳税人登记事宜。");*/
+      sbcommon.getSbzlHdxx('10103').then(function(data) {
+        //console.log(data)
+        that.resultData = sbcommon.isExsitSbzlHdxx(['10103'], data);
+        //判断是否有核定
+        if (that.resultData == null) {
           that.$alert({
-            content: '根据国家税务总局的规定，纳税人财务报表按季报送。为了避免影响您的纳税信用，请按时报送。报送本期增值税前再检查是否完成上一属期的财务报表报送。例如您在申报所属期2017年第一季度的增值税前检查是否完成2016年第4季度的财务报表报送。以此类推。',
+            content: '当前税种信息没有小规模增值税申报种类，不能进行小规模申报，如需申报，需联系主管税务机关，核实已核定了有效的增值税税种，且为小规模纳税人。',
             onHide() {
               that.$router.replace('xgmsbMenu');
             }
           })
         }
-      })
-      that.sbInfo['SZLBDM'] = sbcommon.getWsxxValueByCode(that.resultData, 'SZLBDM');
-      that.sbInfo['hwqzd'] = sbcommon.getWsxxValueByCode(that.resultData, 'hwqzd'); // 货物起征点
-      that.sbInfo['fwqzd'] = sbcommon.getWsxxValueByCode(that.resultData, 'fwqzd'); // 服务起征点
-      that.sbInfo['YSHWHDXSE'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSHWHDXSE'); // 货物核定销售额
-      that.sbInfo['YSFWHDXSE'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSFWHDXSE'); // 服务核定销售额
-      that.sbInfo['GTHBZ'] = sbcommon.getWsxxValueByCode(that.resultData, 'GTHBZ'); //个体户标志 GTHBZ为0（非个体户）1个体户
-      that.formData['YSHWHDXSE'] = that.sbInfo['YSHWHDXSE'];
-      that.formData['ljYSFWHDXSE'] = that.sbInfo['YSHWHDXSE'];
-      that.formData['YSFWHDXSE'] = that.sbInfo['YSFWHDXSE'];
-      that.formData['ljYSFWHDXSE'] = that.sbInfo['YSFWHDXSE'];
+        //判断是否已经申报
+        if (that.resultData.ysbbbz == 'Y') {
+          that.$alert({
+            content: '您在当前属期内已申报成功，不允许重复申报',
+            onHide() {
+              that.$router.replace('xgmsbMenu');
+            }
+          })
+        }
+        //判断期初信息获取是否成功
+        if (that.resultData.QCCGBZ != "Y") {
+          that.$alert({
+            content: '期初信息获取失败，异常原因：' + that.resultData.QCCGBZMS,
+            onHide() {
+              that.$router.replace('xgmsbMenu');
+            }
+          })
+        }
+        //判断纳税人是否逾期
+        if (that.resultData.YQWRDBZ == "1") {
+          that.$alert({
+            content: '您逾期未认定为增值税一般纳税人，请至大厅前台进行申报！',
+            onHide() {
+              that.$router.replace('xgmsbMenu');
+            }
+          })
+        }
 
-      that.formData['YSHWHDYNSE'] = sbcommon.getWsxxValueByCode(that.resultData, "YSHWHDYNSE"); // 货物核定应纳税额
-      that.formData['ljYSHWHDYNSE'] = that.formData['YSHWHDYNSE'];
-      
-      that.formData['YSFWHDYNSE'] = sbcommon.getWsxxValueByCode(that.resultData, "YSFWHDYNSE"); // 服务核定应纳税额
-      that.formData['ljYSFWHDYNSE'] = that.formData['YSFWHDYNSE']
-      //that.$forceUpdate();
-      // that.$nextTick(function(){
-      //   console.log(that.sbInfo['SZLBDM'])
-      // })
-    })
+        sbcommon.ifCwbbSb(['10103']).then(function(result) {
+          if (!result) {
+            that.$alert({
+              content: '根据国家税务总局的规定，纳税人财务报表按季报送。为了避免影响您的纳税信用，请按时报送。报送本期增值税前再检查是否完成上一属期的财务报表报送。例如您在申报所属期2017年第一季度的增值税前检查是否完成2016年第4季度的财务报表报送。以此类推。',
+              onHide() {
+                that.$router.replace('xgmsbMenu');
+              }
+            })
+          }
+        })
+        that.sbInfo['SZLBDM'] = sbcommon.getWsxxValueByCode(that.resultData, 'SZLBDM');
+        that.sbInfo['hwqzd'] = sbcommon.getWsxxValueByCode(that.resultData, 'QZD'); // 货物起征点
+        that.sbInfo['fwqzd'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSFWQZD'); // 服务起征点
+        that.sbInfo['YSHWHDXSE'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSHWHDXSE'); // 货物核定销售额
+        that.sbInfo['YSFWHDXSE'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSFWHDXSE'); // 服务核定销售额
+        that.sbInfo['GTHBZ'] = sbcommon.getWsxxValueByCode(that.resultData, 'GTHBZ'); //个体户标志 GTHBZ为0（非个体户）1个体户
+        that.formData['YSHWHDXSE'] = that.sbInfo['YSHWHDXSE'];
+        that.formData['ljYSFWHDXSE'] = that.sbInfo['YSHWHDXSE'];
+        that.formData['YSFWHDXSE'] = that.sbInfo['YSFWHDXSE'];
+        that.formData['ljYSFWHDXSE'] = that.sbInfo['YSFWHDXSE'];
+
+        that.formData['YSHWHDYNSE'] = sbcommon.getWsxxValueByCode(that.resultData, "YSHWHDYNSE"); // 货物核定应纳税额
+        that.formData['ljYSHWHDYNSE'] = that.formData['YSHWHDYNSE'];
+
+        that.formData['YSFWHDYNSE'] = sbcommon.getWsxxValueByCode(that.resultData, "YSFWHDYNSE"); // 服务核定应纳税额
+        that.formData['ljYSFWHDYNSE'] = that.formData['YSFWHDYNSE']
+          //that.$forceUpdate();
+          // that.$nextTick(function(){
+          //   console.log(that.sbInfo['SZLBDM'])
+          // })
+        if (!that.$refs) {
+          return;
+        }
+        Object.keys(that.$refs).forEach((key) => {
+          that.$refs[key].reset();
+        })
+      })
+    }
   },
-  activated (){
-    this.$forceUpdate();
+  created() {
+    this.init();
+  },
+  beforeRouteEnter(to, from, next) {
+    if (from.name == 'xgmsbMenu') {
+      to.meta['isReturn'] = false;
+    } else {
+      to.meta['isReturn'] = true;
+    }
+    next();
+  },
+  activated() {
+    if (!this.$route.meta['isReturn']) {
+      this.init();
+    }
   }
 }
 </script>
 <style lang='less'>
 #xgmsb {
+  .fixedHead {
+    position: fixed;
+    width: 100%;
+    height: 3.1rem;
+    z-index: 500;
+    top: 0;
+  }
   .content {
     width: 100%;
     .vux-cell-box.weui-cell {

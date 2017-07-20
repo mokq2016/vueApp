@@ -23,25 +23,6 @@ export default new VueRouter({
         auth: false
       }
     },
-    /* {
-        path: '/hello',
-        component: resolve => require(['../views/Hello.vue'], resolve),
-        meta: {
-          auth: false
-        }
-      }, {
-        path: '/',
-        component: resolve => require(['../views/HelloFromVux.vue'], resolve),
-        meta: {
-          auth: false
-        }
-      }, {
-        path: '/hello2',
-        component: resolve => require(['../views/HelloFromVux.vue'], resolve),
-        meta: {
-          auth: false
-        }
-      }, */
     {
       path: '/accountInfo',
       component: resolve => require(['../views/login/accountInfo.vue'], resolve)
@@ -57,16 +38,6 @@ export default new VueRouter({
       path: '/xgmsb_step1',
       name: 'xgmsb_step1',
       component: resolve => require(['../views/xgmsb/step1.vue'], resolve),
-      beforeRouteEnter(to, from, next) {
-        if (from.name == 'login') {
-          to.meta.keepAlive = true;
-        }
-        next();
-      },
-      beforeRouteLeave(to, from, next) {
-        from.meta.keepAlive = false;
-        next();
-      },
       meta: {
         keepAlive: true,
         auth: true
@@ -146,6 +117,14 @@ export default new VueRouter({
       name: 'xgmsbMenu',
       path: '/xgmsbMenu',
       component: resolve => require(['../views/xgmsb/xgmsbMenu.vue'], resolve)
+    }, {
+      name: 'forgetPwd',
+      path: '/forgetPwd',
+      component: resolve => require(['../views/login/forgetPwd.vue'], resolve)
+    }, {
+      name: 'findPwd',
+      path: '/findPwd/:params',
+      component: resolve => require(['../views/login/findPwd.vue'], resolve)
     }
   ]
 })

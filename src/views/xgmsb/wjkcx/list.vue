@@ -1,21 +1,21 @@
 <template>
   <div class="container">
     <div class="app_head">
-      <v-headerbar title='查询结果'></v-headerbar>
+      <v-headerbar title='待缴税信息'></v-headerbar>
     </div>
     <div class="content content-body">
       <!-- 这里是结果 v-if="!noSearch" -->
       <div class="result-list">
-        <div class="result-part" v-for="( item, index ) in searchResult">
+        <div class="result-part" :class="{'disabled':item.sksdbz == 'Y'}" v-for="( item, index ) in searchResult">
           <a class="href-btn" v-on:click="jk(item)">〉</a>
           <div class="line">
-            <label>{{(index+1)}}：{{ item.zsxmmc }}</label>
+            <label style='width:100%'>{{(index+1)}}：{{ item.zsxmmc }}</label>
           </div>
           <div class="line">
             <label>正税金额</label> <span>{{ item.kkse }}</span>
           </div>
           <div class="line">
-            <label>滞纳金额</label> <span>{{ item.znjfklx }}</span>
+            <label>滞纳金额</label> <span>{{ item.znjfklx || '0.00'}}</span>
           </div>
           <div class="line">
             <label>税(费)金额合计</label> <span> {{ (Number(item.znjfklx) + Number(item.kkse)).toFixed(2) }} </span>
@@ -37,6 +37,7 @@
           </div>
         </div>
       </div>
+      <v-nodata title='无待缴税信息' v-if='searchResult.length === 0'></v-nodata>
       <!-- end -->
       <!-- 二维码弹窗 -->
       <div>
@@ -168,6 +169,10 @@ export default {
     },
 
     jk: function(jkxx) { //缴款页面
+      if(jkxx.sksdbz == 'Y'){
+        this.$alert("该税款被锁定，请到办税大厅进行单笔交易处理");
+        return;
+      }
       this.showpop = true;
       this.jkxx = jkxx;
     },
@@ -214,6 +219,9 @@ export default {
   padding: 7px 0px;
   position: relative;
 }
+.result-part.disabled{
+  background: #ccc;
+}
 
 .result-part .line {
   padding: 3px 15px;
@@ -252,7 +260,7 @@ export default {
   position: fixed;
   width: 80%;
   left: 10%;
-  top: 100px;
+  top: 10rem;
   z-index: 1000;
 }
 

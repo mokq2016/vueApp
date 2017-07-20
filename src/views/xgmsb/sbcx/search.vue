@@ -65,10 +65,10 @@
     },
     data(){
       return {
-        selectArr: [{key: '01', value: '增值税'}],
+        selectArr: [{key: '-1', value: '全部'},{key: '10101', value: '增值税'},{key: '10102', value: '消费税'},{key: '10104', value: '所得税'},{key: '29801', value: '财务报表'},{key: '30217', value: '文化事业建设费'},{key: '10106', value: '储蓄存款'},{key: '30175', value: '废旧电子'},{key: '10110', value: '房产税'},{key: '10111', value: '印花税'},{key: '10112', value: '城镇土地使用税'}],
   
         queryData: {
-          select: '01',
+          select: '-1',
           sbrqq: '',
           sbrqz: '',
           sssqq: '',
@@ -79,10 +79,10 @@
     methods: {
       search: function(){
         var $this = this;
-        if(!$this.queryData.sbrqq || !$this.queryData.sbrqz || !$this.queryData.sssqq || !$this.queryData.sssqz){
+        if(!$this.queryData.sssqq || !$this.queryData.sssqz){
           this.$vux.alert.show({
             title: '',
-            content: '查询日期不能为空'
+            content: '所属属期不能为空'
           });
           return;
         }
@@ -108,6 +108,15 @@
           path:'/sbResult'
         });
         
+      }
+    },
+    created(){
+      if(this.$route.query.sssqq){//有属期时为从申报成功跳转而来
+        this.queryData.select = '10101';
+        this.queryData.sbrqq = new Date().format('yyyy-MM-dd');
+        this.queryData.sbrqz = new Date().format('yyyy-MM-dd');
+        this.queryData.sssqq = this.$route.query.sssqq;
+        this.queryData.sssqz = this.$route.query.sssqz;
       }
     }
   }

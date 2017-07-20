@@ -1,7 +1,7 @@
 <template>
   <div class="container" id='bingCompany'>
     <div style='position: fixed;width: 100%;height: 3.1rem;z-index: 501'>
-      <v-headerbar title='我的身份列表'>
+      <v-headerbar title='管理员列表'>
         <!-- <span slot='right' @click='addCompany()'>添加</span> -->
       </v-headerbar>
     </div>
@@ -101,6 +101,10 @@ export default {
             relationId: id
           }).then(function(result) {
             if (result.success) {
+              self.$toast({
+                type: 'success',
+                text: '解除绑定成功！'
+              });
               self.initBindInfo();
             } else {
               self.$alert(result.message);
@@ -123,6 +127,10 @@ export default {
           }).then(function(result) {
             if (result.success) {
               self.initBindInfo();
+              self.$toast({
+                type: 'success',
+                text: '绑定成功！'
+              });
             } else {
               self.$alert(result.message);
             }

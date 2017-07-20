@@ -11,28 +11,28 @@
         
         <div class="result-part">
           <div class="line">
-            <label>{{ index }}：{{ item.zsxmmc }}</label>
+            <label>{{ index+1 }}：{{ item.zsxmmc }}</label>
           </div>
           <div class="line">
             <label>已缴金额</label> <span>{{ item.kkse }}</span>
           </div>
           <div class="line">
-            <label>税款种类</label> <span></span>
+            <label>税款种类</label> <span>{{item.skzldm}}</span>
           </div>
           <div class="line">
-            <label>所属时期起</label> <span>{{ item.sssqq }}</span>
+            <label>所属时期起</label> <span>{{ item.sssqq.substring(0,10) }}</span>
           </div>
           <div class="line">
-            <label>所属时期止</label> <span>{{ item.sssqz }}</span>
+            <label>所属时期止</label> <span>{{ item.sssqz.substring(0,10) }}</span>
           </div>
           <div class="line">
-            <label>应征发生日期</label> <span>{{ item.yzfsrq }}</span>
+            <label>应征发生日期</label> <span>{{ item.yzfsrq.substring(0,10) }}</span>
           </div>
           <div class="line">
-            <label>缴款期限</label> <span>{{ item.jkqx }}</span>
+            <label>缴款期限</label> <span>{{ item.jkqx.substring(0,10) }}</span>
           </div>
           <div class="line">
-            <label>缴款日期</label> <span>{{ item.jkfsrq }}</span>
+            <label>缴款日期</label> <span>{{ item.jkfsrq.substring(0,10) }}</span>
           </div>
         </div>
   

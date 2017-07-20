@@ -24,7 +24,7 @@ router.beforeEach((to, from, next) => {
   /*if(to.meta.auto+ "" == 'undefined'){
     to.meta.auth = true;
   }*/
-  if (!store.state.user.nsrInfo && to.meta.auth) {
+  if (!store.state.user.nsrInfo && to.meta.auth &&!store.state.user.accountInfo) {
     let to = { path: '/login' }
     return next(to);
   }
