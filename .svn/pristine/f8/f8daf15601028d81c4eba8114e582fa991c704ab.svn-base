@@ -1,0 +1,108 @@
+<template>
+  <div class="container" id='about'>
+    <group>
+      <cell :title='GET_ACCOUNTINFO.fullName' :inline-desc='GET_ACCOUNTINFO.mobile' is-link>
+        <i slot='icon' class="iconfont icon-geren"></i>
+      </cell>
+    </group>
+    <group>
+      <cell-box is-link :link="{name:'chooseIdentity',params:{isFromLogin:false}}">
+        <div slot='default'>
+          <i class='iconfont icon-qiehuan' style='color:#E65212'></i> 切换身份
+          <span class='companyName' v-if='GET_CURRENTROLE'>{{GET_CURRENTROLE.nsrmc}}</span>
+        </div>
+      </cell-box>
+      <cell-box is-link link='/bindCompany'>
+        <div slot='default'>
+          <i class='iconfont icon-guanliyuan' style='color:#FF9900'></i> 管理员列表
+          <!-- <span class='companyName'>{{GET_CURRENTROLE.nsrmc}}</span> -->
+        </div>
+      </cell-box>
+      <cell-box v-if='isShowManageTaxer()' is-link link='/taxList'>
+        <div slot='default'>
+          <i slot='icon' class='iconfont icon-management' style='color:#33CCFF'></i> 办税人员管理
+        </div>
+      </cell-box>
+      <cell-box is-link link='authorize'>
+        <div slot='default'>
+          <i slot='icon' class='iconfont icon-bangding' style='color:#FFFF33'></i> 绑定信息
+        </div>
+      </cell-box>
+    </group>
+    <group>
+      <cell-box is-link link='modifyPassword'>
+        <div slot='default'>
+          <i slot='icon' class='iconfont icon-xiugai' style='color:#ccc'></i> 修改密码
+        </div>
+      </cell-box>
+    </group>
+    <group>
+      <cell-box is-link v-if='false'>
+        关于
+      </cell-box>
+    </group>
+    <!--  <v-footbar></v-footbar> -->
+  </div>
+</template>
+<script>
+import {
+  Group,
+  CellBox,
+  Cell
+} from 'vux'
+import {
+  mapGetters
+} from 'vuex'
+export default {
+  components: {
+    Group,
+    CellBox,
+    Cell
+  },
+  computed: {
+    ...mapGetters(['GET_NSRINFO', 'GET_CURRENTROLE', 'GET_ACCOUNTINFO'])
+  },
+  methods: {
+
+    getCurrentRoleName() {
+      if (this.GET_CURRENTROLE) {
+        return this.GET_CURRENTROLE.roleName.split('-')[0];
+      } else {
+        return '';
+      }
+    },
+    isShowManageTaxer() {
+      let roleType = this.GET_CURRENTROLE.roleType;
+      if (roleType == '2' || roleType == '3') { //财务负责人和法人才显示办税人员管理
+        return true;
+      } else {
+        return false;
+      }
+    },
+  },
+  mounted() {
+    //console.log(this)
+    //console.log(this.GET_CURRENTROLE(),this.$store.state)
+  }
+}
+</script>
+<style lang='less'>
+#about.container {
+  .iconfont.icon-geren {
+    font-size: 3rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    border: 1px solid #ccc;
+    color: #fff;
+    background: #ccc;
+  }
+  .iconfont {
+    font-size: 1.2rem;
+  }
+  .companyName {
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+    color: #7A7A7A
+  }
+}
+</style>

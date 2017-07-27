@@ -1,0 +1,123 @@
+<template>
+  <div class="container">
+    <div class="app_head">
+      <v-headerbar title='查询结果'></v-headerbar>
+    </div>
+    
+    <div class="content content-body">
+  
+      <!-- 这里是结果 v-if="!noSearch" -->
+      <div class="result-list" v-for="( item, index ) in searchResult">
+        
+        <div class="result-part">
+          <div class="line">
+            <label>{{ index }}：{{ item.zsxmmc }}</label>
+          </div>
+          <div class="line">
+            <label>已缴金额</label> <span>{{ item.kkse }}</span>
+          </div>
+          <div class="line">
+            <label>税款种类</label> <span></span>
+          </div>
+          <div class="line">
+            <label>所属时期起</label> <span>{{ item.sssqq }}</span>
+          </div>
+          <div class="line">
+            <label>所属时期止</label> <span>{{ item.sssqz }}</span>
+          </div>
+          <div class="line">
+            <label>应征发生日期</label> <span>{{ item.yzfsrq }}</span>
+          </div>
+          <div class="line">
+            <label>缴款期限</label> <span>{{ item.jkqx }}</span>
+          </div>
+          <div class="line">
+            <label>缴款日期</label> <span>{{ item.jkfsrq }}</span>
+          </div>
+        </div>
+  
+      </div>
+      <!-- end -->
+      <v-nodata title='无已缴款信息' v-if='searchResult.length === 0'></v-nodata>
+    </div>
+  
+  </div>
+</template>
+
+<script>
+  import { Group , XButton , Alert } from 'vux'
+  
+  export default {
+    components: {
+      Group,
+      XButton,
+      Alert
+    },
+    data(){
+      return {
+        searchResult: []
+      }
+    },
+    methods: {
+  
+      queryFailure: function(){  //弹窗提示失败信息
+        var $this = this;
+        $this.$vux.alert.show({
+          title: '',
+          content: '字段不对',
+          onHide () {
+            $this.$router.push({
+              path:'/sbcx'
+            });
+          }
+        })
+      }
+      
+    },
+  
+    mounted: function(){
+    	var $this = this;
+      $this.queryData = $this.$store.state.skqueryData;
+      
+      var data = {
+        sssqq: $this.queryData.skssqq,
+        sssqz: $this.queryData.skssqz
+      }
+      
+      $this.$http.post('/wyjk/wyjsAction_searchYjsJl.do', data,{ 'Content-Type': 'application/x-www-form-urlencoded;' }).then(function (data) {
+        if( data.success ){
+          $this.searchResult = data.data.ZSXX || [];
+          return;
+        }
+        $this.$alert(data.message);
+      });
+      
+      //this.queryFailure();  查询失败
+    
+    }
+    
+  }
+</script>
+
+
+<style scoped="">
+  .text-right{
+    text-align: right;
+  }
+  .result-part {
+    background: #fff;
+    margin: 8px 0;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    padding: 7px 0px;
+  }
+  
+  .result-part .line {
+    padding: 3px 15px;
+  }
+  
+  .result-part label {
+    display: inline-block;
+    width: 100px;
+  }
+</style>

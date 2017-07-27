@@ -1,0 +1,404 @@
+<template>
+  <div class="container" id="xgmsb">
+    <div class='fixedHead'>
+      <v-headerbar title='开票信息'>
+      </v-headerbar>
+    </div>
+    <div style="padding: 0 0.5rem;margin-top: 3.1rem">
+      <step v-model="step1" background-color='#fbf9fe'>
+        <step-item :title="getTitle('步骤一')" description="开票信息"></step-item>
+        <step-item :title="getTitle('步骤二')" description="税额"></step-item>
+      </step>
+    </div>
+    <div class="content">
+      <div v-if="sbInfo['SZLBDM'] === '01' || sbInfo['SZLBDM'] === '03'">
+        <group title='货物及劳务'>
+          <cell-box>
+            <label>税务机关代开的增值税专用发票不含税销售额：</label>
+            <span>
+            <v-moneyInput v-model='hwData.A2' ref='A2'></v-moneyInput>
+          </span>
+          </cell-box>
+          <cell-box>
+            <label>税控器具开具的普通发票不含税销售额：</label>
+            <v-moneyInput v-model='hwData.A3' ref='A3'></v-moneyInput>
+          </cell-box>
+          <cell-box>
+            <label>开具其他发票及未开票销售额：</label>
+            <v-moneyInput v-model='hwData.D1' ref='D1'></v-moneyInput>
+          </cell-box>
+          <cell-box>
+            <label>当期合计不含税销售额：</label>
+            <input v-model='hwHjXse' disabled='true' type="text" />
+          </cell-box>
+        </group>
+      </div>
+      <div v-if="sbInfo['SZLBDM'] === '02' || sbInfo['SZLBDM'] === '03'">
+        <group title='服务、不动产和无形资产 (3%征收率）'>
+          <cell-box>
+            <label>税务机关代开的增值税专用发票不含税销售额：</label>
+            <span>
+            <v-moneyInput v-model='fwData.B2' ref='B2'></v-moneyInput>
+          </span>
+          </cell-box>
+          <cell-box>
+            <label>税控器具开具的普通发票不含税销售额：</label>
+            <v-moneyInput v-model='fwData.B3' ref='B3'></v-moneyInput>
+          </cell-box>
+          <cell-box>
+            <label>开具其他发票及未开票销售额：</label>
+            <v-moneyInput v-model='fwData.D2' ref='D2'></v-moneyInput>
+          </cell-box>
+          <cell-box>
+            <label>当期合计不含税销售额（除销售不动产）：</label>
+            <input v-model='fwHjXse' disabled='true' type='text' />
+          </cell-box>
+        </group>
+      </div>
+      <div class="mt3 mb3">
+        <x-button type="primary" class='w80' action-type='button' @click.native='next()'>下一步</x-button>
+      </div>
+    </div>
+    <div>
+      <x-dialog v-model="showNoScroll">
+        <div class="msg-box" style="padding:1rem;text-align: left">
+          <span>
+           温馨提示：</br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+           尊敬的纳税人，我们为您提供的简易申报流程仅适用于3%征收率本期申报的情形，如果您有发生差额扣除项目、5%征收率的业务，销售已使用过固定资产、销售出租不动产与购置税控专用设备等减税项目,免税项目（不含未达起征点免税优惠）以及往期申报业务，请您使用电子税务局电脑端办理小规模纳税人申报业务。
+         </span>
+        </div>
+        <div style='margin-bottom: 10px'>
+          <!-- <span class='close' @click='showNoScroll = false'>
+            <i class='iconfont icon-close'></i>
+                     </span> -->
+          <x-button type="primary" mini action-type='button' @click.native='showNoScroll = false'>确定</x-button>
+        </div>
+      </x-dialog>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  Step,
+  StepItem,
+  Group,
+  XInput,
+  XButton,
+  CellBox,
+  XDialog
+} from 'vux'
+import sbcommon from '../../common/sbcommon'
+export default {
+  components: {
+    Step,
+    StepItem,
+    Group,
+    XInput,
+    XButton,
+    CellBox,
+    XDialog
+  },
+  data() {
+    return {
+      step1: 0,
+      showNoScroll: true,
+      hwData: {
+        A2: '0.00',
+        A3: '0.00',
+        D1: '0.00',
+        A7: '0.00',
+        A8: '0.00',
+        A12: '0.00',
+        A13: '0.00',
+        A14: '0.00',
+        Q1: '0.00'
+      },
+      fwData: {
+        B2: '0.00',
+        B3: '0.00',
+        D2: '0.00',
+        B5: '0.00',
+        E1: '0.00',
+        B6: '0.00',
+        E2: '0.00',
+        D3: '0.00',
+        B12: '0.00',
+        B13: '0.00',
+        B14: '0.00',
+        Q2: '0.00'
+      },
+      formData: {},
+      resultData: null,
+      sbInfo: {
+        SZLBDM: ''
+      },
+      ifOverHwQzd: false,
+      ifOverFwQzd: false
+    }
+  },
+  computed: {
+    hwHjXse: function() {
+      let result = (parseFloat(this.hwData.A2) + parseFloat(this.hwData.A3) + parseFloat(this.hwData.D1) + parseFloat(this.hwData.A7) + parseFloat(this.hwData.A12) + parseFloat(this.hwData.A13)).toFixed(2);
+      this.hwData.Q1 = result;
+      return result;
+    },
+    fwHjXse: function() {
+      let result = (parseFloat(this.fwData.B2) + parseFloat(this.fwData.B3) + parseFloat(this.fwData.D2) + parseFloat(this.fwData.B5) + parseFloat(this.fwData.B6) + parseFloat(this.fwData.D3) + parseFloat(this.fwData.B12) + parseFloat(this.fwData.B13) - parseFloat(this.fwData.E1) - parseFloat(this.fwData.E2)).toFixed(2);
+      this.fwData.Q2 = result;
+      return result;
+    }
+  },
+  methods: {
+    getTitle(title) {
+      return title;
+    },
+    //下一步，计算表单数据
+    next() {
+      if (this.sbInfo['SZLBDM'] == '01') { //货物
+        this.calculateHwXse();
+      } else if (this.sbInfo['SZLBDM'] == '02') { //服务
+        this.calculateFwXse();
+      } else if (this.sbInfo['SZLBDM'] == '03') { //混营
+        this.calculateHwXse();
+        this.calculateFwXse()
+      }
+      let param = {
+        formData: this.formData,
+        resultData: this.resultData,
+        sbInfo: this.sbInfo,
+        ifOverHwQzd: this.ifOverHwQzd,
+        ifOverFwQzd: this.ifOverFwQzd
+      }
+      this.$router.push({
+        name: 'xgmsb_step2',
+        params: {
+          params: JSON.stringify(param)
+        }
+      })
+    },
+    update(value) {
+      this.form.step = value;
+    },
+    //计算货物销售额提交数据
+    calculateHwXse() {
+      this.formData['a2'] = this.hwData.A2;
+      this.formData['a12'] = this.hwData.A12;
+      this.formData['a13'] = this.hwData.A13;
+      this.formData['a14'] = this.hwData.A14;
+      if (Math.max(this.hwData.Q1, this.sbInfo['YSHWHDXSE']) > this.sbInfo['hwqzd']) { //大于起征点
+        this.ifOverHwQzd = true;
+        this.formData['a1'] = (parseFloat(this.hwData.A2) + parseFloat(this.hwData.A3) + parseFloat(this.hwData.D1)).toFixed(2);
+        this.formData['a3'] = this.hwData.A3;
+        this.formData['a7'] = this.hwData.A7;
+        this.formData['a8'] = this.hwData.A8;
+        this.formData['a10'] = '0.00';
+        this.formData['a11'] = '0.00';
+      } else {
+        this.ifOverHwQzd = false;
+        this.formData['a1'] = this.hwData.A2;
+        this.formData['a3'] = '0.00';
+        this.formData['a7'] = '0.00';
+        this.formData['a8'] = '0.00';
+        if (this.sbInfo['GTHBZ'] === '1') { //个体户
+          this.formData['a10'] = '0.00';
+          this.formData['a11'] = (parseFloat(this.hwData.A3) + parseFloat(this.hwData.D1) + parseFloat(this.hwData.A7)).toFixed(2);
+        } else {
+          this.formData['a11'] = '0.00';
+          this.formData['a10'] = (parseFloat(this.hwData.A3) + parseFloat(this.hwData.D1) + parseFloat(this.hwData.A7)).toFixed(2);
+        }
+      }
+      this.formData['a9'] = (parseFloat(this.formData['a10']) + parseFloat(this.formData['a11']) + parseFloat(this.formData['a12'])).toFixed(2);
+    },
+    //计算服务提交数据
+    calculateFwXse() {
+      this.formData['b2'] = this.fwData.B2;
+      this.formData['b5'] = this.fwData.B5;
+      this.formData['b12'] = this.fwData.B12;
+      this.formData['b13'] = this.fwData.B13;
+      this.formData['b14'] = this.fwData.B14;
+      if (Math.max(this.fwData.Q2, this.sbInfo['YSHWHDXSE']) > this.sbInfo['fwqzd']) { //超过起征点
+        this.ifOverFwQzd = true;
+        this.formData['b1'] = (parseFloat(this.fwData.B2) + parseFloat(this.fwData.B3) + parseFloat(this.fwData.D2)).toFixed(2);
+        this.formData['b3'] = this.fwData.B3;
+        this.formData['b4'] = (parseFloat(this.fwData.B5) + parseFloat(this.fwData.B6) + parseFloat(this.fwData.D3)).toFixed(2);
+        this.formData['b6'] = this.fwData.B6;
+        this.formData['b10'] = '0.00';
+        this.formData['b11'] = '0.00';
+      } else {
+        this.ifOverFwQzd = false;
+        this.formData['b1'] = this.fwData.B2;
+        this.formData['b3'] = '0.00';
+        this.formData['b6'] = this.fwData.E2;
+        this.formData['b4'] = (parseFloat(this.formData['b5']) + parseFloat(this.formData['b6'])).toFixed(2);
+        if (this.sbInfo['GTHBZ'] === '1') { //个体户
+          this.formData['b10'] = '0.00';
+          this.formData['b11'] = (parseFloat(this.fwData.B3) + parseFloat(this.fwData.D2) + parseFloat(this.fwData.B6) - parseFloat(this.fwData.E2) + parseFloat(this.fwData.D3)).toFixed(2);
+          this.formData['b30'] = '0.00';
+          this.formData['b31'] = '0.00';
+          this.formData['b34'] = (parseFloat(this.fwData.B3) + parseFloat(this.fwData.D2)).toFixed(2);
+          this.formData['b35'] = (parseFloat(this.fwData.B6) + parseFloat(this.fwData.D3) - parseFloat(this.fwData.E2)).toFixed(2);
+        } else {
+          this.formData['b11'] = '0.00';
+          this.formData['b10'] = (parseFloat(this.fwData.B3) + parseFloat(this.fwData.D2) + parseFloat(this.fwData.B6) - parseFloat(this.fwData.E2) + parseFloat(this.fwData.D3)).toFixed(2);
+          this.formData['b34'] = '0.00';
+          this.formData['b35'] = '0.00';
+          this.formData['b30'] = (parseFloat(this.fwData.B3) + parseFloat(this.fwData.D2)).toFixed(2);
+          this.formData['b31'] = (parseFloat(this.fwData.B6) + parseFloat(this.fwData.D3) - parseFloat(this.fwData.E2)).toFixed(2);
+        }
+      }
+      this.formData['b9'] = (parseFloat(this.formData['b10']) + parseFloat(this.formData['b11']) + parseFloat(this.formData['b12'])).toFixed(2);
+    },
+    init() {
+      let that = this;
+      this.showNoScroll = true;
+      this.hwData.A2 = '0.00';
+      this.hwData.A3 = '0.00';
+      this.hwData.D1 = '0.00';
+      this.hwData.A7 = '0.00';
+      this.hwData.A8 = '0.00';
+      this.hwData.A12 = '0.00';
+      this.hwData.A13 = '0.00';
+      this.hwData.A14 = '0.00';
+      this.hwData.Q1 = '0.00';
+
+      this.fwData.B2 = '0.00';
+      this.fwData.B3 = '0.00';
+      this.fwData.D2 = '0.00';
+      this.fwData.B5 = '0.00';
+      this.fwData.E1 = '0.00';
+      this.fwData.B6 = '0.00';
+      this.fwData.E2 = '0.00';
+      this.fwData.D3 = '0.00';
+      this.fwData.B12 = '0.00';
+      this.fwData.B13 = '0.00';
+      this.fwData.B14 = '0.00';
+      this.fwData.Q2 = '0.00';
+
+      /* this.$alert("有差额扣除项目、减免税项目（不包括未达起征点免税）、销售使用过固定资产、销售出租不动产的纳税人请使用电脑端申报；责令认定一般纳税人请到主管税务机关办理增值税一般纳税人登记事宜。");*/
+      sbcommon.getSbzlHdxx('10103').then(function(data) {
+        //console.log(data)
+        that.resultData = sbcommon.isExsitSbzlHdxx(['10103'], data);
+        //判断是否有核定
+        if (that.resultData == null) {
+          that.$alert({
+            content: '当前税种信息没有小规模增值税申报种类，不能进行小规模申报，如需申报，需联系主管税务机关，核实已核定了有效的增值税税种，且为小规模纳税人。',
+            onHide() {
+              that.$router.replace('xgmsbMenu');
+            }
+          })
+        }
+        //判断是否已经申报
+        if (that.resultData.ysbbbz == 'Y') {
+          that.$alert({
+            content: '您在当前属期内已申报成功，不允许重复申报',
+            onHide() {
+              that.$router.replace('xgmsbMenu');
+            }
+          })
+        }
+        //判断期初信息获取是否成功
+        if (that.resultData.QCCGBZ != "Y") {
+          that.$alert({
+            content: '期初信息获取失败，异常原因：' + that.resultData.QCCGBZMS,
+            onHide() {
+              that.$router.replace('xgmsbMenu');
+            }
+          })
+        }
+        //判断纳税人是否逾期
+        if (that.resultData.YQWRDBZ == "1") {
+          that.$alert({
+            content: '您逾期未认定为增值税一般纳税人，请至大厅前台进行申报！',
+            onHide() {
+              that.$router.replace('xgmsbMenu');
+            }
+          })
+        }
+
+        sbcommon.ifCwbbSb(['10103']).then(function(result) {
+          if (!result) {
+            that.$alert({
+              content: '根据国家税务总局的规定，纳税人财务报表按季报送。为了避免影响您的纳税信用，请按时报送。报送本期增值税前再检查是否完成上一属期的财务报表报送。例如您在申报所属期2017年第一季度的增值税前检查是否完成2016年第4季度的财务报表报送。以此类推。',
+              onHide() {
+                that.$router.replace('xgmsbMenu');
+              }
+            })
+          }
+        })
+        that.sbInfo['SZLBDM'] = sbcommon.getWsxxValueByCode(that.resultData, 'SZLBDM');
+        that.sbInfo['hwqzd'] = sbcommon.getWsxxValueByCode(that.resultData, 'QZD'); // 货物起征点
+        that.sbInfo['fwqzd'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSFWQZD'); // 服务起征点
+        that.sbInfo['YSHWHDXSE'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSHWHDXSE'); // 货物核定销售额
+        that.sbInfo['YSFWHDXSE'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSFWHDXSE'); // 服务核定销售额
+        that.sbInfo['GTHBZ'] = sbcommon.getWsxxValueByCode(that.resultData, 'GTHBZ'); //个体户标志 GTHBZ为0（非个体户）1个体户
+        that.formData['YSHWHDXSE'] = that.sbInfo['YSHWHDXSE'];
+        that.formData['ljYSFWHDXSE'] = that.sbInfo['YSHWHDXSE'];
+        that.formData['YSFWHDXSE'] = that.sbInfo['YSFWHDXSE'];
+        that.formData['ljYSFWHDXSE'] = that.sbInfo['YSFWHDXSE'];
+
+        that.formData['YSHWHDYNSE'] = sbcommon.getWsxxValueByCode(that.resultData, "YSHWHDYNSE"); // 货物核定应纳税额
+        that.formData['ljYSHWHDYNSE'] = that.formData['YSHWHDYNSE'];
+
+        that.formData['YSFWHDYNSE'] = sbcommon.getWsxxValueByCode(that.resultData, "YSFWHDYNSE"); // 服务核定应纳税额
+        that.formData['ljYSFWHDYNSE'] = that.formData['YSFWHDYNSE']
+          //that.$forceUpdate();
+          // that.$nextTick(function(){
+          //   console.log(that.sbInfo['SZLBDM'])
+          // })
+        if (!that.$refs) {
+          return;
+        }
+        Object.keys(that.$refs).forEach((key) => {
+          that.$refs[key].reset();
+        })
+      })
+    }
+  },
+  created() {
+    this.init();
+  },
+  beforeRouteEnter(to, from, next) {
+    if (from.name == 'xgmsbMenu') {
+      to.meta['isReturn'] = false;
+    } else {
+      to.meta['isReturn'] = true;
+    }
+    next();
+  },
+  activated() {
+    if (!this.$route.meta['isReturn']) {
+      this.init();
+    }
+  }
+}
+</script>
+<style lang='less'>
+#xgmsb {
+  .fixedHead {
+    position: fixed;
+    width: 100%;
+    height: 3.1rem;
+    z-index: 500;
+    top: 0;
+  }
+  .content {
+    width: 100%;
+    .vux-cell-box.weui-cell {
+      div {
+        padding-right: 0;
+        width: 100%;
+      }
+    }
+    label {
+      width: 68%;
+      display: inline-block;
+      font-size: 14px;
+    }
+    input {
+      align-self: flex-start;
+      width: 28%;
+      font-size: 18px;
+    }
+  }
+}
+</style>

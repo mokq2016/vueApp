@@ -24,6 +24,7 @@
           <div class="line text-right">
             <x-button v-if="item.sbztDm != '0000'" :con="44" mini type="primary" class='btn' action-type='button' @click.native='showError(item.sbztms)'>失败原因</x-button>
             <x-button v-if="item.sbztDm == '0000'" mini action-type='button' @click.native='goJk()'>去缴款</x-button>
+            <x-button v-if="item.sbztDm == '0000' && item.qqwjm && item.sbzlDm.indexOf('29') < 0 && ('10117,10118').indexOf(item.sbzlDm) < 0 && false" mini action-type='button' @click.native='goSbzf(item)'>作废</x-button>
           </div>
         </div>
         <!--  <x-button mini action-type='button' @click.native='goJk()'>去缴款</x-button> -->
@@ -37,14 +38,18 @@
 import {
   Group,
   XButton,
-  Alert
+  Alert,
+  Confirm
 } from 'vux'
-
+import {
+  mapGetters
+} from 'vuex'
 export default {
   components: {
     Group,
     XButton,
-    Alert
+    Alert,
+    Confirm
   },
   data() {
     return {
@@ -66,6 +71,7 @@ export default {
     }
   },
   methods: {
+    ...mapGetters(['GET_NSRINFO']),
     showError(error) { //弹窗提示失败信息
       let sbztms = error;
       if (sbztms != null && sbztms.split("异常原因：")[1] != null && sbztms.split("异常原因：")[1] != "") {
@@ -96,32 +102,60 @@ export default {
              sssqz: $this.queryData.sssqz.replace(/-/g, "")
            }
          });*/
+    },
+    goSbzf(item) {
+      let that = this;
+      this.$confirm({
+          content: "是否作废" + item.sbzlMc + "的申报",
+          onConfirm() {
+            let param = {
+              sbwj : item.qqwjm,
+              nsrsbh : that.GET_NSRINFO().nsrsbh,
+              djxh : item.djxh,
+              sssqq : item.skssqq,
+              sssqz : item.skssqz,
+              sbzldm : item.sbzlDm
+            }
+            that.$http.post('/sb/sbcommon_sbzf.do', param,{
+              'Content-Type': 'application/x-www-form-urlencoded;'
+            }).then((result) => {
+              if (result.success) {
+              that.$alert(result.data.fkxx);
+              that.getRes();//刷新数据
+            } else {
+              that.$alert(result.message);
+            }
+          })
+          }
+      })
+    },
+    getRes(){
+      var $this = this;
+      $this.queryData = $this.$store.state.sbqueryData;
+      let zsxmDm = $this.queryData.select == '-1' ? '' : $this.queryData.select;
+      var url = '/sb/sbcommon_querySbqkSbxxBySbztAndSbny.do';
+      var data = {
+        djxh: '',
+        zsxmDm: zsxmDm,
+        sbrqq: $this.queryData.sbrqq.replace(/-/g, ""),
+        sbrqz: $this.queryData.sbrqz.replace(/-/g, ""),
+        sssqq: $this.queryData.sssqq.replace(/-/g, ""),
+        sssqz: $this.queryData.sssqz.replace(/-/g, ""),
+        sbztDm: ''
+      }
+      $this.$http.post(url, data, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(data) {
+        if (data.success) {
+          $this.searchResult = data.data;
+        } else {
+          $this.$alert(data.message);
+        }
+      });
     }
   },
-
   mounted: function() {
-    var $this = this;
-    $this.queryData = $this.$store.state.sbqueryData;
-    let zsxmDm = $this.queryData.select == '-1' ? '' : $this.queryData.select;
-    var url = '/sb/sbcommon_querySbqkSbxxBySbztAndSbny.do';
-    var data = {
-      djxh: '',
-      zsxmDm: zsxmDm,
-      sbrqq: $this.queryData.sbrqq.replace(/-/g, ""),
-      sbrqz: $this.queryData.sbrqz.replace(/-/g, ""),
-      sssqq: $this.queryData.sssqq.replace(/-/g, ""),
-      sssqz: $this.queryData.sssqz.replace(/-/g, ""),
-      sbztDm: ''
-    }
-    $this.$http.post(url, data, {
-      'Content-Type': 'application/x-www-form-urlencoded;'
-    }).then(function(data) {
-      if (data.success) {
-        $this.searchResult = data.data;
-      } else {
-        $this.$alert(data.message);
-      }
-    });
+     this.getRes();
   }
 }
 </script>

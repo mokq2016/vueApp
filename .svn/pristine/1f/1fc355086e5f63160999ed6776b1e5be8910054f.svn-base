@@ -1,0 +1,160 @@
+<template>
+  <div class="container" id='bingCompany'>
+    <div style='position: fixed;width: 100%;height: 3.1rem;z-index: 501'>
+      <v-headerbar title='管理员列表'>
+        <!-- <span slot='right' @click='addCompany()'>添加</span> -->
+      </v-headerbar>
+    </div>
+    <div class="content" style="position:absolute;margin-top: 3.1rem;width: 100%">
+      <swipeout>
+        <div class='item-div clearFix' v-for='item in bindCompanyList'>
+          <swipeout-item>
+            <div slot="right-menu" v-if='item.id'>
+              <swipeout-button @click.native='cancelBind(item.id)'>解绑</swipeout-button>
+            </div>
+            <div slot="right-menu" v-if='!item.id'>
+              <swipeout-button @click.native='bindCompany(item)'>绑定</swipeout-button>
+            </div>
+            <div slot="content">
+              <div style='padding-left: 0.7rem'>
+                <table style="width:100%">
+                  <tr>
+                    <td @click='showCompanyDetail(item)'>
+                      <span>{{item.nsrmc}}</span>
+                      <p style='color:#8C8C8C;font-size: 0.9rem'>税号：{{item.nsrsbh}}</p>
+                    </td>
+                    <td style="width: 20%;color:#8C8C8C">{{getBindStatus(item.id)}}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </swipeout-item>
+        </div>
+      </swipeout>
+      <v-nodata v-if='isShow' title='暂无数据'></v-nodata>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  Swipeout,
+  SwipeoutItem,
+  SwipeoutButton
+} from 'vux'
+import {
+  mapGetters
+} from 'vuex'
+export default {
+  components: {
+    Swipeout,
+    SwipeoutItem,
+    SwipeoutButton
+  },
+  data() {
+    return {
+      isShow: false,
+      bindCompanyList: []
+    }
+  },
+  methods: {
+    ...mapGetters(['GET_ACCOUNTINFO']),
+    addCompany() {
+      this.$router.push('addCompany');
+    },
+    initBindInfo() {
+      let self = this;
+      let param = {
+        name: this.GET_ACCOUNTINFO().fullName,
+        sfzjhm: this.GET_ACCOUNTINFO().identityCardNo
+      }
+      this.$http.post('/api/smrz/mobile/getMyIdentityList', param, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then((result) => {
+        if (result.success) {
+          let array = result.data.bindlist;
+          if (array.length === 0) {
+            self.isShow = true;
+          } else {
+            self.isShow = false;
+          }
+          self.bindCompanyList = array;
+
+        } else {
+          self.$alert(result.message);
+        }
+      })
+    },
+    showCompanyDetail(companyInfo) {
+      this.$router.push({
+        name: "companyInfo",
+        params: {
+          companyDetail: JSON.stringify(companyInfo)
+        }
+      })
+    },
+    cancelBind(id) {
+      let self = this;
+      this.$confirm({
+        content: '您确定要解除绑定？',
+        onConfirm() {
+          self.$http.post('/api/yhgl/company/unbind', {
+            relationId: id
+          }).then(function(result) {
+            if (result.success) {
+              self.$toast({
+                type: 'success',
+                text: '解除绑定成功！'
+              });
+              self.initBindInfo();
+            } else {
+              self.$alert(result.message);
+            }
+          })
+        }
+      })
+    },
+    bindCompany(company) {
+      let self = this;
+      this.$confirm({
+        content: '您确定要绑定该企业？',
+        onConfirm() {
+          self.$http.post('/api/yhgl/company/bind', {
+            djxh: company.djxh,
+            nsrsbh: company.nsrsbh,
+            nsrmc: company.nsrmc,
+            ryxxId: company.ryxxId,
+            type: company.type
+          }).then(function(result) {
+            if (result.success) {
+              self.initBindInfo();
+              self.$toast({
+                type: 'success',
+                text: '绑定成功！'
+              });
+            } else {
+              self.$alert(result.message);
+            }
+          })
+        }
+      })
+    },
+    getBindStatus(id) {
+      return id ? '已绑定' : '未绑定';
+    }
+  },
+  created() {
+    this.initBindInfo();
+  }
+}
+</script>
+<style lang='less'>
+#bingCompany.container {
+  .item-div {
+    border-bottom: 1px solid #ccc;
+    .vux-swipeout-item,
+    .vux-swipeout-content {
+      /*  height: 2.8rem; */
+    }
+  }
+}
+</style>

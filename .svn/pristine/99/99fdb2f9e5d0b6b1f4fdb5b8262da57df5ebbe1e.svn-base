@@ -1,0 +1,306 @@
+<template>
+  <div class="container">
+    <div class="app_head">
+      <v-headerbar title='待缴税信息'></v-headerbar>
+    </div>
+    <div class="content content-body">
+      <!-- 这里是结果 v-if="!noSearch" -->
+      <div class="result-list">
+        <div class="result-part" :class="{'disabled':item.sksdbz == 'Y'}" v-for="( item, index ) in searchResult">
+          <a class="href-btn" v-on:click="jk(item)">〉</a>
+          <div class="line">
+            <label style='width:100%'>{{(index+1)}}：{{ item.zsxmmc }}</label>
+          </div>
+          <div class="line">
+            <label>正税金额</label> <span>{{ item.kkse }}</span>
+          </div>
+          <div class="line">
+            <label>滞纳金额</label> <span>{{ item.znjfklx || '0.00'}}</span>
+          </div>
+          <div class="line">
+            <label>税(费)金额合计</label> <span> {{ (Number(item.znjfklx) + Number(item.kkse)).toFixed(2) }} </span>
+          </div>
+          <div class="line">
+            <label>缴款期限</label> <span>{{ item.jkqx.substring(0,10) }}</span>
+          </div>
+          <div class="line">
+            <label>应征发生日期</label> <span>{{ item.yzfsrq.substring(0,10) }}</span>
+          </div>
+          <div class="line">
+            <label>所属时期起</label> <span>{{ item.sssqq }}</span>
+          </div>
+          <div class="line">
+            <label>所属时期止</label> <span>{{ item.sssqz }}</span>
+          </div>
+          <div class="line">
+            <label>税款种类</label> <span> {{ item.skzl }} </span>
+          </div>
+        </div>
+      </div>
+      <v-nodata title='无待缴税信息' v-if='searchResult.length === 0'></v-nodata>
+      <!-- end -->
+      <!-- 二维码弹窗 -->
+      <div>
+        <x-dialog v-model="showQrCode">
+          <div class="msg-box" style="padding:1rem;text-align: center">
+            <img :src="QRCSrc" alt="二维码" />
+          </div>
+          <div style='margin-bottom: 10px'>
+            <x-button type="primary" mini action-type='button' @click.native='completeJk()'>我已完成缴款</x-button>
+          </div>
+        </x-dialog>
+      </div>
+      <!-- 缴款弹窗 -->
+      <div class="jk-pop" v-show="showpop">
+        <div class="inner">
+          <div class="head">请选择缴税方式</div>
+          <div class="box">
+            <div v-bind:class="{'active': fkfs == 0}" class="part" @click="chooseFk(0)">预储账户
+              <br />（三方协议）</div>
+            <div v-bind:class="{'active': fkfs == 1}" class="part" @click="chooseFk(1)">手机微信
+              <br />二维码支付</div>
+          </div>
+          <div class="footer">
+            <div class="left btn" @click="hidePop()">取消</div>
+            <div class="right btn" @click="jkSubmit()">缴款</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  Group,
+  XButton,
+  Alert,
+  XDialog
+} from 'vux'
+import {
+  mapGetters
+} from 'vuex'
+export default {
+  components: {
+    Group,
+    XButton,
+    Alert,
+    XDialog
+  },
+  data() {
+    return {
+      showQrCode: false,
+      showpop: false,
+      QRCSrc: null,
+      fkfs: 0,
+      searchResult: [],
+      jkxx: null
+    }
+  },
+  methods: {
+    ...mapGetters(['GET_NSRINFO']),
+    jkSubmit: function() { //缴款提交
+      this.showpop = false;
+      let self = this;
+      let multipleTaxPayment = [{
+        sfxyh: this.jkxx.sfxyh,
+        sssqq: this.jkxx.sssqq,
+        sssqz: this.jkxx.sssqz,
+        yzpzxh: this.jkxx.yzpzxh,
+        yzpzmxxh: this.jkxx.yzpzmxxh,
+        jkqx: this.jkxx.jkqx,
+        zsuuid: this.jkxx.zsxh,
+        kkje: this.jkxx.kkse,
+        dzsphm: this.jkxx.dzsphm
+      }]
+      if (!this.fkfs) { //三方协议缴款
+        multipleTaxPayment[0]['jkfs'] = '';
+        let param = {
+          djxh: this.GET_NSRINFO().djxh,
+          nsrsbh: this.GET_NSRINFO().nsrsbh,
+          multipleTaxPayment: JSON.stringify(multipleTaxPayment)
+        }
+        this.$http.post('/wyjk/wyjsAction_multipleTaxPayment3rdParty.do', param, {
+          MSG: '缴税中，请耐心等待...',
+          'Content-Type': 'application/x-www-form-urlencoded;'
+
+        }).then(function(result) {
+          let singleData = '';
+          let allSuccess = true;
+          let message = '';
+          for (let j = 0; j < result.length; j++) {
+            singleData = result[0];
+            if (singleData.success) {
+              allSuccess = true;
+              message = singleData.data.KKFK.FKXX;
+            } else {
+              allSuccess = false;
+              message = result[j].message;
+            }
+          }
+          if (allSuccess) {
+            self.$alert(message);
+            self.getDjkxx();
+          } else {
+            self.$alert(message);
+          }
+        })
+      } else { //微信支付获取二维码
+        multipleTaxPayment[0]['jkfs'] = '02';
+        let param = {
+          djxh: this.GET_NSRINFO().djxh,
+          nsrsbh: this.GET_NSRINFO().nsrsbh,
+          multipleTaxPayment: JSON.stringify(multipleTaxPayment)
+        }
+        this.$http.post('/wyjk/wyjsAction_dyhJs.do', param, {
+          MSG: '缴税中...',
+          'Content-Type': 'application/x-www-form-urlencoded;'
+        }).then((result) => {
+          if (result.success) {
+            self.QRCSrc = 'data:image/jpg;base64,' + result.data;
+          } else {
+            self.$alert(result.message);
+          }
+        })
+      }
+    },
+
+    hidePop: function() { //关闭弹窗
+      this.showpop = false;
+    },
+
+    jk: function(jkxx) { //缴款页面
+      if(jkxx.sksdbz == 'Y'){
+        this.$alert("该税款被锁定，请到办税大厅进行单笔交易处理");
+        return;
+      }
+      this.showpop = true;
+      this.jkxx = jkxx;
+    },
+
+    chooseFk: function(index) {
+      this.fkfs = index;
+    },
+    getDjkxx() {
+      var $this = this;
+      var data = {
+        sssqq: this.$route.query.sssqq || '',
+        sssqz: this.$route.query.sssqz || ''
+      }
+      $this.$http.post('/wyjk/wyjsAction_searchWjsJl.do', data).then(function(data) {
+        if (data.success) {
+          var data = data.data.ZSXX || [];
+          data.map(function(obj, index) {
+            //skzl
+            obj['skzl'] = $this.getSz(obj.skzldm);
+          });
+          $this.searchResult = data;
+        } else {
+          $this.$alert(data.message);
+        }
+      });
+    },
+    completeJk() {
+      this.showQrCode = false;
+      this.getDjkxx();
+    }
+  },
+
+  mounted: function() {
+    this.getDjkxx();
+  }
+}
+</script>
+<style scoped>
+.result-part {
+  background: #fff;
+  margin: 8px 0;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: 7px 0px;
+  position: relative;
+}
+.result-part.disabled{
+  background: #ccc;
+}
+
+.result-part .line {
+  padding: 3px 15px;
+}
+
+.result-part label {
+  display: inline-block;
+  width: 120px;
+}
+
+.href-btn {
+  position: absolute;
+  font-size: 40px;
+  width: 100%;
+  text-align: right;
+  line-height: 278px;
+  color: #ccc;
+  z-index: 10;
+  right: -10px;
+}
+
+.jk-pop .part {
+  width: 50%;
+  float: left;
+  box-sizing: border-box;
+  border: 1px solid #fff;
+}
+
+.jk-pop .part.active {
+  border: 1px solid #6998FF;
+  box-shadow: 0px 0px 5px #D8E4FF inset;
+}
+
+.jk-pop {
+  text-align: center;
+  position: fixed;
+  width: 80%;
+  left: 10%;
+  top: 10rem;
+  z-index: 1000;
+}
+
+.jk-pop:after {
+  content: '';
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  left: 0px;
+  position: fixed;
+  background: rgba(0, 0, 0, .4);
+  z-index: 999;
+}
+
+.jk-pop .inner {
+  position: relative;
+  z-index: 9999;
+  background: #fff;
+  padding-top: 10px;
+  border-radius: 4px;
+}
+
+.box {
+  overflow: hidden;
+  padding: 20px 12px;
+}
+
+.footer {
+  border-top: 1px solid #ddd;
+  overflow: hidden;
+}
+
+.footer .btn {
+  float: left;
+  width: 50%;
+  padding: 8px 0px;
+  box-sizing: border-box;
+}
+
+.footer .left {
+  border-right: 1px solid #ccc;
+}
+</style>

@@ -11,6 +11,7 @@
   </div>
 </template>
 <script>
+/*import server from './config/hostConfig'*/
 export default {
   /* components: {
      ViewBox,
@@ -23,7 +24,31 @@ export default {
              isLoading: state => state.vux.isLoading
          })
      } */
-  name: 'app'
+  name: 'app',
+  created() {
+    /*this.$http.post(server.wxReq).then(function(data) {
+      if (data.success == 'false') {
+        alert(data.errmsg);
+        return;
+      }
+      wx.config({
+        beta: true,
+        debug: false,
+        appId: data.appid,
+        timestamp: data.timestamp,
+        nonceStr: data.nonceStr,
+        signature: data.signature,
+        jsApiList: [
+          'chooseImage',
+          'getLocalImgData',
+          'uploadImage',
+          'checkIsSupportFaceDetect',
+          'requestWxFacePictureVerify',
+          'getLocation'
+        ]
+      })
+    })*/
+  }
 }
 </script>
 <style lang="less">
@@ -42,18 +67,22 @@ body {
 .tabbar .weui-tabbar__icon > sup {
   top: 0.1rem;
 }
-.content-body{
-  position:absolute;
+
+.content-body {
+  position: absolute;
   margin-top: 3.1rem;
   width: 100%
 }
-.pad-con{
+
+.pad-con {
   padding: 20px;
 }
-.red{
+
+.red {
   color: red;
 }
-.app_head{
+
+.app_head {
   position: fixed;
   width: 100%;
   height: 3.1rem;
