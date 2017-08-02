@@ -1,0 +1,83 @@
+<template>
+  
+  <div>
+    <!-- grid  @on-item-click=""  link=""  -->
+    <grid :rows="4" v-for="(item, index) in subTabData">
+      <grid-item v-for="subI in item">
+        <i v-bind:class="'ionic '+subI.ionic" ></i>
+        <span class="tab_text" v-html="subI.text">{{ subI.text }}  </span>
+      </grid-item>
+    </grid>
+  </div>
+
+</template>
+
+<script>
+  import {Grid , GridItem} from 'vux';
+  export default{
+    components: {
+      Grid,
+      GridItem
+    },
+    data(){
+      return {
+        subTabData: [
+          [
+            {text: '网上办理文书<br/>进度查询', ionic: 'jdcx'},
+            {text: '税务事项<br/>通知书查询', ionic: 'tzscx'},
+            {text: '本期应申报查询', ionic: 'ysbcx'},
+            {text: '已申报<br/>结果查询', ionic: 'jgcx'},
+            {text: '逾期未<br/>申报查询', ionic: 'wsbcx'},
+            {text: '发票验旧<br/>信息查询', ionic: 'yjcx'},
+            {text: '信用等级查询', ionic: 'djcx'},
+            {text: '缴税信息查询', ionic: 'xxcx'}
+          ]
+        ]
+      }
+    },
+    
+    mounted: function () {
+    },
+    
+    methods: {
+      changeItem: function(index){
+        this.defaultMunu = index;
+      }
+    }
+    
+  }
+
+</script>
+
+<style scoped="">
+  .tab_text{
+    font-size: 13px;
+  }
+  .weui-grid{
+    padding: 15px 0px 10px 0px;
+    text-align: center;
+    
+  }
+  .weui-grid span{
+    line-height: 15px;
+    display: block;
+    height: 30px;
+    padding-top: 6px;
+    color: #666;
+  }
+  .jdcx{background: url(../../../static/index/sscx/jdcx.png) 0 0 no-repeat;}
+  .tzscx{background: url(../../../static/index/sscx/tzscx.png) 0 0 no-repeat;}
+  .ysbcx{background: url(../../../static/index/sscx/ysbcx.png) 0 0 no-repeat;}
+  .jgcx{background: url(../../../static/index/sscx/jgcx.png) 0 0 no-repeat;}
+  .wsbcx{background: url(../../../static/index/sscx/wsbcx.png) 0 0 no-repeat;}
+  .yjcx{background: url(../../../static/index/sscx/yjcx.png) 0 0 no-repeat;}
+  .djcx{background: url(../../../static/index/sscx/djcx.png) 0 0 no-repeat;}
+  .xxcx{background: url(../../../static/index/sscx/xxcx.png) 0 0 no-repeat;}
+  i.ionic{
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin: 0 auto;
+    background-size: 30px;
+  }
+</style>

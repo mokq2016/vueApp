@@ -1,0 +1,74 @@
+<template>
+  
+  <div>
+    <!-- grid  @on-item-click=""  link=""  -->
+    <grid :rows="4" v-for="(item, index) in subTabData">
+      <grid-item v-for="subI in item">
+        <i v-bind:class="'ionic '+subI.ionic" ></i>
+        <span class="tab_text" v-html="subI.text">{{ subI.text }}  </span>
+      </grid-item>
+    </grid>
+  </div>
+
+</template>
+
+<script>
+  import {Grid , GridItem} from 'vux';
+  export default{
+    components: {
+      Grid,
+      GridItem
+    },
+    data(){
+      return {
+        subTabData: [
+          [
+            {text: '登录', ionic: 'dl'},
+            {text: '密码修改/重置', ionic: 'xgmm'},
+            {text: '实名注册', ionic: 'zc'},
+            {text: '实名认证<br />管理员权限', ionic: 'rz'},
+            {text: '绑定企业', ionic: 'bdqy'},
+            {text: '切换企业', ionic: 'qhqy'}
+          ]
+        ]
+      }
+    },
+    mounted: function () {
+    },
+    methods: {
+    }
+    
+  }
+
+</script>
+
+<style scoped="">
+  .tab_text{
+    font-size: 13px;
+  }
+  .weui-grid{
+    padding: 15px 0px 10px 0px;
+    text-align: center;
+    
+  }
+  .weui-grid span{
+    line-height: 15px;
+    display: block;
+    height: 30px;
+    padding-top: 6px;
+    color: #666;
+  }
+  .dl{background: url(/static/index/smgl/dl.png) 0 0 no-repeat;}
+  .xgmm{background: url(/static/index/smgl/xgmm.png) 0 0 no-repeat;}
+  .zc{background: url(/static/index/smgl/zc.png) 0 0 no-repeat;}
+  .rz{background: url(/static/index/smgl/rz.png) 0 0 no-repeat;}
+  .bdqy{background: url(/static/index/smgl/bdqy.png) 0 0 no-repeat;}
+  .qhqy{background: url(/static/index/smgl/qhqy.png) 0 0 no-repeat;}
+  i.ionic{
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin: 0 auto;
+    background-size: 30px;
+  }
+</style>

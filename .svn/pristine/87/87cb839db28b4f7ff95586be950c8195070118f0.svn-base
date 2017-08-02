@@ -1,0 +1,202 @@
+<template>
+  <header class="header">
+    <div class="left-div">
+      <slot name='left'>
+        <i class="iconfont icon-return" @click='$router.go(-1)'></i>
+      </slot>
+    </div>
+    <div class="center-div">
+      <h4 class="title">{{title}}</h4>
+    </div>
+    <div class="right-div">
+      <slot name='right'>
+      </slot>
+    </div>
+    <div class='accountInfo' v-show='showNsrInfo'>
+      <table>
+        <tbody>
+          <tr>
+            <td style='padding-left: 0.7rem'>
+              <p>纳税人识别号：{{$store.state.user.nsrInfo.nsrsbh}}</p>
+              <p>名称：{{$store.state.user.nsrInfo.nsrmc}}</p>
+            </td>
+            <td style='vertical-align: top;'>
+              <i class='iconfont icon-close' @click='showNsrInfo = false'></i>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div v-show='showMenu' class="menu-div">
+      <div class='inner clearFix'>
+        <div class="sanjiao">
+        </div>
+        <div class="menu-content">
+          <div v-for='menu in menuList' @click='menuHandle(menu.id)'>
+            <i class='iconfont' :class='menu.icon'></i>
+            <span>{{menu.label}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+</template>
+<script>
+export default {
+  props: {
+    title: {
+      type: String,
+      default: ''
+    },
+    menuList: {
+      type: Array,
+      default: function() {
+        return [{
+          id: 1,
+          icon: 'icon-people',
+          label: '我的账号'
+        }, {
+          id: 2,
+          icon: 'icon-nav-set-exit',
+          label: '退出登录'
+        }];
+      }
+    }
+  },
+  data() {
+    return {
+      showNsrInfo: false,
+      showMenu: false
+    }
+  },
+  methods: {
+    showInfo() {
+      this.showMenu = true;
+    },
+    menuHandle(id) {
+      switch (id) {
+        case 1:
+          this.myInfo();
+          break;
+        case 2:
+          this.signout();
+          break;
+        default:
+
+          break;
+      }
+    },
+    //退出登录
+    signout() {
+      let self = this;
+      this.$confirm({
+        content: '您确定要退出登录？',
+        onConfirm() {
+          self.showMenu = false;
+          self.$store.dispatch('USER_SIGNOUT');
+          self.$router.replace('/login');
+        }
+      })
+    },
+    myInfo() {
+      this.showNsrInfo = true;
+      this.showMenu = false;
+    }
+  },
+  mounted() {
+    let self = this;
+    document.addEventListener('click', function(e) {
+      if (e.target.classList[0] == 'menu-div') {
+        self.showMenu = false;
+      }
+    })
+  }
+}
+</script>
+<style lang='less' scoped>
+.header {
+  font-size: 1.2rem;
+  color: white;
+  height: 3.1rem;
+  /* background-color:#6998FF; */
+  background: -webkit-linear-gradient(to right, rgba(69, 131, 255, 1), rgba(69, 208, 255, 1));
+  background: linear-gradient(to right, rgba(69, 131, 255, 1), rgba(69, 208, 255, 1));
+  padding: 0 10px;
+  display: flex;
+  display: -webkit-flex;
+  align-items: center;
+  /* flex:1; */
+  justify-content: center;
+  .iconfont {
+    font-size: 1.6rem;
+  }
+  .center-div {
+    width: 60%;
+    text-align: center;
+    .title {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      width: 100%;
+    }
+  }
+  .left-div,
+  .right-div {
+    width: 20%;
+  }
+  .right-div {
+    text-align: right;
+  }
+  .accountInfo {
+    width: 100%;
+    padding: 0.5rem;
+    z-index: 100;
+    position: absolute;
+    top: 3.1rem;
+    background: #FFFFC7;
+    color: #212730;
+    font-size: 1rem;
+  }
+  .menu-div {
+    position: fixed;
+    top: 3.1rem;
+    right: 0.3rem;
+    z-index: 1000;
+    color: #212730;
+    .inner {
+      .sanjiao {
+        position: absolute;
+        top: -0.5rem;
+        right: 0.5rem;
+        width: 0;
+        height: 0;
+        z-index: 1000;
+        border-width: 10px;
+        border-style: dashed dashed solid dashed;
+        border-color: transparent transparent #fff transparent;
+      }
+      .menu-content {
+        position: relative;
+        top: 0.6rem;
+        z-index: 1000;
+        padding: 0 0.5rem 0.7rem 0.5rem;
+        border-radius: 0.5rem;
+        background: #fff;
+        span {
+          font-size: 1rem;
+        }
+      }
+    }
+    &:after {
+      content: '';
+      top: 3.1rem;
+      bottom: 0px;
+      right: 0px;
+      left: 0px;
+      position: fixed;
+      background: rgba(0, 0, 0, .4);
+      z-index: 999;
+    }
+  }
+}
+</style>

@@ -1,0 +1,149 @@
+<template>
+  <div class="container">
+    
+    <div class="app_head">
+      <v-headerbar title='深圳国税'></v-headerbar>
+    </div>
+  
+    <div class="content content-body">
+      
+      <div class="scroll-box">
+        <div class="index-banner">
+          
+          <div class="top-bar">
+            <span class="search-box">
+              <input type="text" />
+              <i class="icon iconfont icon-search"></i>
+            </span>
+            <span class="icon iconfont icon-scan" @click="scan"></span>
+          </div>
+        
+        </div>
+  
+        <router-view></router-view>
+        
+      </div>
+      <!-- 底部-->
+      <v-footermenu></v-footermenu>
+      
+      
+    </div>
+    
+    
+  </div>
+</template>
+
+<script>
+
+  import vFootermenu from './footerMenu.vue';
+	export default{
+    components: {
+      'v-footermenu': vFootermenu
+    },
+		data(){
+		  return {}
+		},
+		
+		props: {
+			 
+    },
+		
+		mounted: function () {
+		
+		},
+		
+		methods: {
+      scan: function(){
+        alert('扫一扫');
+      }
+      
+    }
+		  
+    }
+
+</script>
+
+<style scoped="">
+  .index-banner{
+    height: 153px;
+    background: #ddd;
+    background: url(../../../static/index/index_banner.png);
+    background-size: 375px;
+  }
+  .top-bar{
+    width: 82%;
+    padding-right: 37px;
+    box-sizing:border-box;
+    -moz-box-sizing:border-box; /* Firefox */
+    -webkit-box-sizing:border-box; /* Safari */
+    position: relative;
+    margin: 0 auto;
+    padding-top: 10px;
+  }
+  .icon-scan, .icon-search{
+    position: absolute;
+    color: #fff;
+  }
+  .icon-search{
+    top: 0px;
+    right: 5px;
+  }
+  .icon-scan{
+    font-size: 22px;
+    right: 0px;
+    top: 9px;
+  }
+  .search-box{
+    position: relative;
+  }
+  .search-box input{
+    width: 100%;
+    border-radius: 10px;
+    line-height: 24px;
+    text-indent: 10px;
+    background: rgba(255, 255, 255, .6);
+    color: #666;
+  }
+  .content-body{
+    text-align: center;
+  }
+  .tab_menu  .weui-grid{
+    background: #f5f5f5;
+    padding: 15px 0px 10px 0px;
+    letter-spacing: -.5px;
+  }
+  .weui-grid{
+    padding: 14px 0px;
+    font-size: 12px;
+  }
+  .weui-grid:before, .weui-grid:after{
+    display: none;
+  }
+  .tab_text{
+    display: block;
+    font-size: 13px;
+    line-height: 15px;
+    height: 28px;
+  }
+  .tab_ion{
+    height: 24px;
+  }
+  .tab_menu .weui-grid.active{
+    background: #fff;
+  }
+  .container{
+    height: 100%;
+  }
+  .content-body{
+    padding-top: 3.1rem;
+    height: 100%;
+    box-sizing: border-box;
+    margin-top: 0px;
+    padding-bottom: 50px;
+    overflow: auto;
+  }
+  .scroll-box{
+    overflow: auto;
+    height: 100%;
+  }
+</style>

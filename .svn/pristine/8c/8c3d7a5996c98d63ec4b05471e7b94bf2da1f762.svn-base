@@ -1,0 +1,899 @@
+<template>
+  <div class="container" id="xgmsb" style='height:100%'>
+    <div class='fixedHead'>
+      <v-headerbar title='税额填写'>
+        <span slot='right'>
+          <i class='iconfont icon-homepage' @click="$router.push('xgmsbMenu')"></i>
+        </span>
+      </v-headerbar>
+    </div>
+    <div style="padding: 0 0.5rem;margin-top: 3.1rem">
+      <step v-model="step2" background-color='#fbf9fe'>
+        <step-item :title="getTitle('步骤一')" description="开票信息"></step-item>
+        <step-item :title="getTitle('步骤二')" description="税额"></step-item>
+      </step>
+    </div>
+    <div class="content">
+      <div v-if="sbInfo['SZLBDM'] === '01' || sbInfo['SZLBDM'] === '03'">
+        <group title='货物及劳务'>
+          <cell-box>
+            <label>本期应纳税额：</label>
+            <input v-model='hwYnse' disabled='true' type="text" />
+          </cell-box>
+          <cell-box v-show="sbInfo['GTHBZ'] === '1'">
+            <label>未达起征点免税额：</label>
+            <input v-model='hwMse' disabled='true' type="text" />
+          </cell-box>
+          <cell-box v-show="sbInfo['GTHBZ'] === '0'">
+            <label>小微企业免税额：</label>
+            <input v-model='hwXqyMse' disabled='true' type="text" />
+          </cell-box>
+          <cell-box>
+            <label>本期预缴税额：</label>
+            <v-moneyInput v-model='hwData.A21'></v-moneyInput>
+          </cell-box>
+          <cell-box>
+            <label>本期应补（退）税额：</label>
+            <input v-model='hwYbse' disabled='true' type="text" />
+          </cell-box>
+        </group>
+      </div>
+      <div v-if="sbInfo['SZLBDM'] === '02' || sbInfo['SZLBDM'] === '03'">
+        <group title='服务、不动产和无形资产 (3%征收率）'>
+          <cell-box>
+            <label>本期应纳税额：</label>
+            <input v-model='fwYnse' disabled='true' type="text" />
+          </cell-box>
+          <cell-box v-show="sbInfo['GTHBZ'] === '1'">
+            <label>未达起征点免税额：</label>
+            <input v-model='fwMse' disabled='true' type="text" />
+          </cell-box>
+          <cell-box v-show="sbInfo['GTHBZ'] === '0'">
+            <label>小微企业免税额：</label>
+            <input v-model='fwXqyMse' disabled='true' type="text" />
+          </cell-box>
+          <cell-box>
+            <label>本期预缴税额：</label>
+            <v-moneyInput v-model='fwData.B21'></v-moneyInput>
+          </cell-box>
+          <cell-box>
+            <label>本期应补（退）税额：</label>
+            <input v-model='fwYbse' disabled='true' type="text" />
+          </cell-box>
+        </group>
+      </div>
+      <div class="mb3" style="text-align: center;margin-top:-5px">
+        <x-button type="primary" mini action-type='button' @click.native='SystemData()'>系统参考值</x-button>
+        <x-button type="primary" mini action-type='button' @click.native='pbbd()'>票表比对</x-button>
+        <x-button type="primary" mini action-type='button' @click.native='submit()'>提交</x-button>
+      </div>
+      <div>
+      </div>
+    </div>
+    <div>
+      <popup v-model="showPopup" height='100%'>
+        <div v-show='showSystemData'>
+          <table class="table">
+            <tbody>
+              <tr>
+                <td style="width:76%">应税货物及劳务税务机关代开的增值税专用发票不含税销售额</td>
+                <td>{{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
+              </tr>
+              <tr>
+                <td>应税服务、不动产和无形资产税务机关代开的增值税专用发票不含税销售额</td>
+                <td>{{systemData['zyfpdkbhsxse_fw_zyfpzkbhsxse_fw']}}</td>
+              </tr>
+              <tr>
+                <td>税务机关代开的增值税专用发票不含税销售额</td>
+                <td>{{systemData['ZYFPDKBHSXSE']}}</td>
+              </tr>
+              <tr>
+                <td>防伪税控系统自开的增值税专用发票不含税销售额</td>
+                <td>{{systemData['ZYFPZKBHSXSE']}}</td>
+              </tr>
+              <tr>
+                <td>税务机关代开的增值税普通发票不含税销售额</td>
+                <td>{{systemData['PTFPDKBHSXSE']}}</td>
+              </tr>
+              <tr>
+                <td>防伪税控系统自开的增值税普通发票不含税销售额</td>
+                <td>{{systemData['PTFPZKBHSXSE']}}</td>
+              </tr>
+              <tr>
+                <td>网票系统自开的通用机打发票不含税销售额</td>
+                <td>{{systemData['tyfpdkbhsxse_hw']}}</td>
+              </tr>
+              <tr>
+                <td>货物劳务核定定额</td>
+                <td>{{formData['YSHWHDXSE']}}</td>
+              </tr>
+              <tr>
+                <td>应税服务核定定额</td>
+                <td>{{formData['YSFWHDXSE']}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-show='showPbbd'>
+          <table class="table">
+            <tbody>
+              <tr :class="getAccept(1).cls">
+                <td style='width:74%'>应税货物及劳务税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw']}}</td>
+                <td>{{getAccept(1).msg}}</td>
+              </tr>
+              <tr :class="getAccept(2).cls">
+                <td>应税服务、不动产和无形资产税务机关代开的增值税专用发票不含税销售额>={{systemData['zyfpdkbhsxse_fw_zyfpzkbhsxse_fw']}}</td>
+                <td>{{getAccept(2).msg}}</td>
+              </tr>
+              <tr v-if='isCompare()' :class="getAccept(3).cls">
+                <td>普通发票不含税销售额>={{systemData['3']}}</td>
+                <td>{{getAccept(3).msg}}</td>
+              </tr>
+              <tr v-if='isCompare()' :class="getAccept(4).cls">
+                <td>全部发票不含税销售额>={{systemData['4']}}</td>
+                <td>{{getAccept(4).msg}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="text-align:center;margin-top: 10px">
+          <!-- <span class='close' @click='showPopup = false'>
+            <i class='iconfont icon-close'></i>
+          </span> -->
+          <x-button type="primary" mini action-type='button' @click.native='showPopup = false'>返回</x-button>
+        </div>
+      </popup>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  Step,
+  StepItem,
+  Group,
+  XInput,
+  XButton,
+  CellBox,
+  Popup
+} from 'vux'
+import sbcommon from '../../common/sbcommon'
+export default {
+  components: {
+    Step,
+    StepItem,
+    Group,
+    XInput,
+    XButton,
+    CellBox,
+    Popup
+  },
+  data() {
+    return {
+      hasSystemData: false,
+      showSystemData: false,
+      showPbbd: false,
+      showPopup: false,
+      step2: 1,
+      isdy: false,
+      isdy: false,
+      clickPbbd: false,
+      acceptArr: [],
+      hwData: {
+        A16: '0.00',
+        A21: '0.00'
+      },
+      fwData: {
+        B21: '0.00'
+      },
+      formData: {},
+      resultData: null,
+      sbInfo: {
+        SZLBDM: ''
+      },
+      systemData: {
+
+      },
+      pbbdData: {},
+      ifOverFwQzd: false,
+      ifOverHwQzd: false
+    }
+  },
+  computed: {
+    hwYnse: function() {
+      return Math.max((parseFloat(this.formData['a1']) + parseFloat(this.formData['a7'])) * 0.03, this.sbInfo['YSHWHDYNSE']).toFixed(2);
+    },
+    hwMse: function() {
+      if (this.sbInfo['GTHBZ'] === '1') {
+        return (this.formData['a11'] * 0.03).toFixed(2);
+      } else {
+        return '0.00';
+      }
+    },
+    hwXqyMse: function() {
+      if (this.sbInfo['GTHBZ'] === '0') {
+        return (this.formData['a10'] * 0.03).toFixed(2);
+      } else {
+        return '0.00';
+      }
+    },
+    hwYbse: function() {
+      return (parseFloat(this.hwYnse) - parseFloat(this.hwData.A16) - parseFloat(this.hwData.A21)).toFixed(2);
+    },
+    fwYnse: function() {
+      return Math.max(parseFloat(this.formData['b1']) * 0.03 + parseFloat(this.formData['b4']) * 0.05, this.sbInfo['YSFWHDYNSE']).toFixed(2);
+    },
+    fwMse: function() {
+      if (this.ifOverFwQzd) {
+        return '0.00';
+      } else {
+        return (parseFloat(this.formData['b34'] * 0.03) + parseFloat(this.formData['b35'] * 0.05)).toFixed(2);
+      }
+    },
+    fwXqyMse: function() {
+      if (this.ifOverFwQzd) {
+        return '0.00';
+      } else {
+        return (parseFloat(this.formData['b30'] * 0.03) + parseFloat(this.formData['b31'] * 0.05)).toFixed(2);
+      }
+    },
+    fwYbse: function() {
+      return (parseFloat(this.fwYnse) - 0 - parseFloat(this.fwData.B21)).toFixed(2);
+    }
+  },
+  methods: {
+    isCompare() {
+      let YSHWHDXSE = parseFloat(this.formData['YSHWHDXSE']);
+      let YSFWHDXSE = parseFloat(this.formData['YSFWHDXSE']);
+
+      let kphj = parseFloat(this.systemData['tyfpdkbhsxse_hw']) + parseFloat(this.systemData['ZYFPDKBHSXSE']) + parseFloat(
+        this.systemData['ZYFPZKBHSXSE']) + parseFloat(
+        this.systemData['PTFPDKBHSXSE']) + parseFloat(
+        this.systemData['PTFPZKBHSXSE']);
+      // 是核定征收纳税人,同时核定销售额大于等于开票合计的，不比对3/4条
+      if ((YSHWHDXSE > 0 || YSFWHDXSE > 0) && Math.max(YSFWHDXSE, YSHWHDXSE) >= kphj) {
+        return false;
+      } else {
+        return true;
+      }
+    },
+    getTitle(title) {
+      return title;
+    },
+    submit() {
+      let self = this;
+      if (self.isdy == 'Y') { // 强制调用票表比对
+        if (!self.clickPbbd) {
+          self.$alert("请先进行票表比对");
+          return;
+        }
+        if (self.isjk == "Y") { // 强制监控，不通过不允许提交申报表
+          if (!self.isCompare()) {
+            self.acceptArr.splice(2, 1);
+            self.acceptArr.splice(2, 1);
+          }
+          if (self.acceptArr.indexOf('notaccept') !== -1) {
+            self.$alert("票表比对监控不通过不允许提交申报表");
+            return;
+          }
+        }
+      }
+      this.$confirm({
+        content: '您确定要提交？',
+        onConfirm() {
+          let BQYSHWYJ = sbcommon.getWsxxValueByCode(self.resultData, 'BQYSHWYJ');
+          if (+self.hwData['A21'] < 0 || +self.hwData['A21'] > (+BQYSHWYJ * 1.5).toFixed(2)) {
+            self.$alert("货物及劳务中，本期预缴税额【" + self.hwData['A21'] + "】必须在【0.00-" + (BQYSHWYJ * 1.5).toFixed(2) + "】范围内，请修改！");
+            return;
+          }
+          let BQYSFWYJ = sbcommon.getWsxxValueByCode(self.resultData, 'BQYSFWYJ');
+          if (+self.fwData['B21'] < 0 || +self.fwData['B21'] > (+BQYSFWYJ * 1.5).toFixed(2)) {
+            self.$alert("服务、不动产和无形资产中，本期预缴税额【" + self.fwData['B21'] + "】必须在【0.00-" + (BQYSFWYJ * 1.5).toFixed(2) + "】范围内，请修改！");
+            return;
+          }
+          if (self.sbInfo['SZLBDM'] == '01') { //货物
+            self.calculateHwSe();
+          } else if (self.sbInfo['SZLBDM'] == '02') { //服务
+            self.calculateFwSe();
+          } else if (self.sbInfo['SZLBDM'] == '03') { //混营
+            self.calculateHwSe();
+            self.calculateFwSe();
+          }
+          //计算本年累计
+          self.calculateLj();
+          Object.assign(self.pbbdData, self.formData);
+          if (!self.ifOverHwQzd) {
+            if (self.pbbdData['a1'] != self.pbbdData['a2']) {
+              self.$alert("您销售货物，提供加工、修理修配劳务月销售额不超过起征点，属于起征点以下申报，如您存在税务机关代开的增值税专用发票不含税销售额，请根据销售额类型填在‘税务机关代开的增值税专用发票不含税销售额’；请将其余符合未超过免征值条件的销售额填入‘其他免税销售额’。");
+              return;
+            }
+            if (self.pbbdData['a3'] != '0.00') {
+              self.$alert("您应税货物及劳务属于起征点以下申报，‘税控器具开具的普通发票不含税销售额’必须为0，请检查！");
+              return;
+            }
+          }
+          self.pbbdData['jsArrays'] = [];
+          self.pbbdData['msArrays'] = [];
+          self.pbbdData['sssqq'] = self.sbInfo['sssqArray'][0];
+          self.pbbdData['sssqz'] = self.sbInfo['sssqArray'][1];
+          let sbwjs = self.getSbwjs(self.pbbdData);
+          let param = {
+            sbformdata: JSON.stringify(self.pbbdData),
+            sbzlDm: '10103',
+            sbwjs: JSON.stringify(sbwjs)
+          }
+
+          Object.assign(param, self.pbbdData);
+          sbcommon.submitSbSource(param).then(function(result) {
+            if (result.success) {
+              /*self.$alert({
+                content: '申报成功！',
+                onHide() {
+                  self.$router.push('/login');
+                }
+              });*/
+              self.$router.push({
+                path: '/sbSuccess',
+                query: {
+                  sssqq: self.pbbdData['sssqq'],
+                  sssqz: self.pbbdData['sssqz']
+                }
+              });
+            } else {
+              self.$alert(result.message);
+            }
+          })
+        }
+      })
+    },
+    getSbwjs(formData) {
+      let tbrq = new Date().format('yyyyMMdd');
+      let sbwjs = [];
+      let nsrmc = this.$store.state.user.nsrInfo.nsrmc;
+      let nsrsbh = this.$store.state.user.nsrInfo.nsrsbh;
+      let xml001 = `<zzssyyxgmnsr>
+    <sbbhead>
+        <nsrsbh>${nsrsbh}</nsrsbh>
+        <nsrmc>${nsrmc}</nsrmc>
+        <skssqq>${formData['sssqq']}</skssqq>
+        <skssqz>${formData['sssqz']}</skssqz>
+        <sbsxDm1></sbsxDm1>
+        <sbrq1>${tbrq}</sbrq1>
+    </sbbhead>
+
+    <zzsxgmGrid>
+        <zzsxgmGridlb>
+            <ewblxh>1</ewblxh>
+            <lmc>货物及劳务本期数</lmc>
+            <yzzzsbhsxse>${formData['a1']}</yzzzsbhsxse>
+            <swjgdkdzzszyfpbhsxse>${formData['a2']}</swjgdkdzzszyfpbhsxse>
+            <skqjkjdptfpbhsxse>${formData['a3']}</skqjkjdptfpbhsxse>
+            <xsczbdcbhsxse></xsczbdcbhsxse>
+            <swjgdkdzzszyfpbhsxse1></swjgdkdzzszyfpbhsxse1>
+            <skqjkjdptfpbhsxse2></skqjkjdptfpbhsxse2>
+            <xssygdysgdzcbhsxse>${formData['a7']}</xssygdysgdzcbhsxse>
+            <skqjkjdptfpbhsxse1>${formData['a8']}</skqjkjdptfpbhsxse1>
+            <msxse>${formData['a9']}</msxse>
+            <xwqymsxse>${formData['a10']}</xwqymsxse>
+            <wdqzdxse>${formData['a11']}</wdqzdxse>
+            <qtmsxse>${formData['a12']}</qtmsxse>
+            <ckmsxse>${formData['a13']}</ckmsxse>
+            <skqjkjdptfpxse1>${formData['a14']}</skqjkjdptfpxse1>
+            <hdxse>${formData['YSHWHDXSE']}</hdxse>
+            <bqynse>${formData['a15']}</bqynse>
+            <hdynse>${formData['YSHWHDYNSE']}</hdynse>
+            <bqynsejze>${formData['a16']}</bqynsejze>
+            <bqmse>${formData['a17']}</bqmse>
+            <xwqymse>${formData['a18']}</xwqymse>
+            <wdqzdmse>${formData['a19']}</wdqzdmse>
+            <ynsehj>${formData['a20']}</ynsehj>
+            <bqyjse1>${formData['a21']}</bqyjse1>
+            <bqybtse>${formData['a22']}</bqybtse>
+        </zzsxgmGridlb>
+        <zzsxgmGridlb>
+            <ewblxh>2</ewblxh>
+            <lmc>服务、不动产和无形资产本期数</lmc>
+            <yzzzsbhsxse>${formData['b1']}</yzzzsbhsxse>
+            <swjgdkdzzszyfpbhsxse>${formData['b2']}</swjgdkdzzszyfpbhsxse>
+            <skqjkjdptfpbhsxse>${formData['b3']}</skqjkjdptfpbhsxse>
+            <xsczbdcbhsxse>${formData['b4']}</xsczbdcbhsxse>
+            <swjgdkdzzszyfpbhsxse1>${formData['b5']}</swjgdkdzzszyfpbhsxse1>
+            <skqjkjdptfpbhsxse2>${formData['b6']}</skqjkjdptfpbhsxse2>
+            <xssygdysgdzcbhsxse></xssygdysgdzcbhsxse>
+            <skqjkjdptfpbhsxse1></skqjkjdptfpbhsxse1>
+            <msxse>${formData['b9']}</msxse>
+            <xwqymsxse>${formData['b10']}</xwqymsxse>
+            <wdqzdxse>${formData['b11']}</wdqzdxse>
+            <qtmsxse>${formData['b12']}</qtmsxse>
+            <ckmsxse>${formData['b13']}</ckmsxse>
+            <skqjkjdptfpxse1>${formData['b14']}</skqjkjdptfpxse1>
+            <hdxse>${formData['YSFWHDXSE']}</hdxse>
+            <bqynse>${formData['b15']}</bqynse>
+            <hdynse>${formData['YSFWHDYNSE']}</hdynse>
+            <bqynsejze>${formData['b16']}</bqynsejze>
+            <bqmse>${formData['b17']}</bqmse>
+            <xwqymse>${formData['b18']}</xwqymse>
+            <wdqzdmse>${formData['b19']}</wdqzdmse>
+            <ynsehj>${formData['b20']}</ynsehj>
+            <bqyjse1>${formData['b21']}</bqyjse1>
+            <bqybtse>${formData['b22']}</bqybtse>
+        </zzsxgmGridlb>
+        <zzsxgmGridlb>
+            <ewblxh>3</ewblxh>
+            <lmc>货物及劳务本年累计</lmc>
+            <yzzzsbhsxse>${formData['lja1']}</yzzzsbhsxse>
+            <swjgdkdzzszyfpbhsxse>${formData['lja2']}</swjgdkdzzszyfpbhsxse>
+            <skqjkjdptfpbhsxse>${formData['lja3']}</skqjkjdptfpbhsxse>
+            <xsczbdcbhsxse></xsczbdcbhsxse>
+            <swjgdkdzzszyfpbhsxse1></swjgdkdzzszyfpbhsxse1>
+            <skqjkjdptfpbhsxse2></skqjkjdptfpbhsxse2>
+            <xssygdysgdzcbhsxse>${formData['lja7']}</xssygdysgdzcbhsxse>
+            <skqjkjdptfpbhsxse1>${formData['lja8']}</skqjkjdptfpbhsxse1>
+            <msxse>${formData['lja9']}</msxse>
+            <xwqymsxse>${formData['lja10']}</xwqymsxse>
+            <wdqzdxse>${formData['lja11']}</wdqzdxse>
+            <qtmsxse>${formData['lja12']}</qtmsxse>
+            <ckmsxse>${formData['lja13']}</ckmsxse>
+            <skqjkjdptfpxse1>${formData['lja14']}</skqjkjdptfpxse1>
+            <hdxse>${formData['ljYSFWHDXSE']}</hdxse>
+            <bqynse>${formData['lja15']}</bqynse>
+            <hdynse>${formData['ljYSFWHDYNSE']}</hdynse>
+            <bqynsejze>${formData['lja16']}</bqynsejze>
+            <bqmse>${formData['lja17']}</bqmse>
+            <xwqymse>${formData['lja18']}</xwqymse>
+            <wdqzdmse>${formData['lja19']}</wdqzdmse>
+            <ynsehj>${formData['lja20']}</ynsehj>
+            <bqyjse1>${formData['lja21']}</bqyjse1>
+            <bqybtse>${formData['lja22']}</bqybtse>
+        </zzsxgmGridlb>
+        <zzsxgmGridlb>
+            <ewblxh>4</ewblxh>
+            <lmc>服务、不动产和无形资产本年累计</lmc>
+            <yzzzsbhsxse>${formData['ljb1']}</yzzzsbhsxse>
+            <swjgdkdzzszyfpbhsxse>${formData['ljb2']}</swjgdkdzzszyfpbhsxse>
+            <skqjkjdptfpbhsxse>${formData['ljb3']}</skqjkjdptfpbhsxse>
+            <xsczbdcbhsxse>${formData['ljb4']}</xsczbdcbhsxse>
+            <swjgdkdzzszyfpbhsxse1>${formData['ljb5']}</swjgdkdzzszyfpbhsxse1>
+            <skqjkjdptfpbhsxse2>${formData['ljb6']}</skqjkjdptfpbhsxse2>
+            <xssygdysgdzcbhsxse></xssygdysgdzcbhsxse>
+            <skqjkjdptfpbhsxse1></skqjkjdptfpbhsxse1>
+            <msxse>${formData['ljb9']}</msxse>
+            <xwqymsxse>${formData['ljb10']}</xwqymsxse>
+            <wdqzdxse>${formData['ljb11']}</wdqzdxse>
+            <qtmsxse>${formData['ljb12']}</qtmsxse>
+            <ckmsxse>${formData['ljb13']}</ckmsxse>
+            <skqjkjdptfpxse1>${formData['ljb14']}</skqjkjdptfpxse1>
+            <hdxse>${formData['ljYSFWHDXSE']}</hdxse>
+            <bqynse>${formData['ljb15']}</bqynse>
+            <hdynse>${formData['ljYSFWHDYNSE']}</hdynse>
+            <bqynsejze>${formData['ljb16']}</bqynsejze>
+            <bqmse>${formData['ljb17']}</bqmse>
+            <xwqymse>${formData['ljb18']}</xwqymse>
+            <wdqzdmse>${formData['ljb19']}</wdqzdmse>
+            <ynsehj>${formData['ljb20']}</ynsehj>
+            <bqyjse1>${formData['ljb21']}</bqyjse1>
+            <bqybtse>${formData['ljb22']}</bqybtse>
+        </zzsxgmGridlb>
+    </zzsxgmGrid>
+    <slxxForm>
+        <sfzxsb></sfzxsb>
+        <bsrxm></bsrxm>
+        <cwfzrxm></cwfzrxm>
+        <fddbrxm></fddbrxm>
+        <bsrlxdh></bsrlxdh>
+        <dlrmc></dlrmc>
+        <jbrxm></jbrxm>
+        <slswjgDm></slswjgDm>
+        <slswjgMc></slswjgMc>
+        <jbrlxdh></jbrlxdh>
+        <slrDm></slrDm>
+        <slrxm></slrxm>
+        <slrq></slrq>
+    </slxxForm>
+</zzssyyxgmnsr>`;
+
+      sbwjs.push({
+        bbwjm: '10103_001.xml',
+        bbxml: xml001
+      })
+
+      let xml006 = `<zzsxgmflzl>
+    <flzlForm>
+        <qcye></qcye>
+        <bqfse></bqfse>
+        <bqkce></bqkce>
+        <qmye></qmye>
+        <ysfwxsqbhssr></ysfwxsqbhssr>
+        <ysfwxshsxse></ysfwxshsxse>
+        <ysfwxsbhsxse></ysfwxsbhsxse>
+        <qcye5></qcye5>
+        <bqfse5></bqfse5>
+        <bqkce5></bqkce5>
+        <qmye5></qmye5>
+        <ysfwxsqbhssr5></ysfwxsqbhssr5>
+        <ysfwxshsxse5></ysfwxshsxse5>
+        <ysfwxsbhsxse5></ysfwxsbhsxse5>
+    </flzlForm>
+</zzsxgmflzl>`;
+
+      sbwjs.push({
+        bbwjm: '10103_006.xml',
+        bbxml: xml006
+      })
+
+      let xml008 = `<zzsjmssbmxb>
+    <zzsjmssbmxbjsxmGrid>
+        <zzsjmssbmxbjsxmGridlbVO>
+            <ewbhxh>1</ewbhxh>
+            <hmc>合计</hmc>
+            <qcye>0</qcye>
+            <bqfse>0</bqfse>
+            <bqydjse>0</bqydjse>
+            <bqsjdjse>0</bqsjdjse>
+            <qmye>0</qmye>
+        </zzsjmssbmxbjsxmGridlbVO>
+        <zzsjmssbmxbjsxmGridlbVO>
+            <ewbhxh>2</ewbhxh>
+            <hmc>0001013605</hmc>
+            <qcye>0</qcye>
+            <bqfse>0</bqfse>
+            <bqydjse>0</bqydjse>
+            <bqsjdjse>0</bqsjdjse>
+            <qmye>0</qmye>
+        </zzsjmssbmxbjsxmGridlbVO>
+    </zzsjmssbmxbjsxmGrid>
+    <zzsjmssbmxbmsxmGrid>
+        <zzsjmssbmxbmsxmGridlbVO>
+            <ewbhxh>1</ewbhxh>
+            <hmc>合计</hmc>
+            <mzzzsxmxse>0</mzzzsxmxse>
+            <bqsjkcje>0</bqsjkcje>
+            <kchmsxse>0</kchmsxse>
+            <msxsedyjxse>0</msxsedyjxse>
+            <mse>0</mse>
+        </zzsjmssbmxbmsxmGridlbVO>
+        <zzsjmssbmxbmsxmGridlbVO>
+            <ewbhxh>2</ewbhxh>
+            <hmc>出口免税</hmc>
+            <mzzzsxmxse>0</mzzzsxmxse>
+        </zzsjmssbmxbmsxmGridlbVO>
+        <zzsjmssbmxbmsxmGridlbVO>
+            <ewbhxh>3</ewbhxh>
+            <hmc>其中：跨境服务</hmc>
+            <mzzzsxmxse>0</mzzzsxmxse>
+        </zzsjmssbmxbmsxmGridlbVO>
+        <zzsjmssbmxbmsxmGridlbVO>
+            <ewbhxh>4</ewbhxh>
+            <hmc>0001011806</hmc>
+            <mzzzsxmxse>0</mzzzsxmxse>
+            <bqsjkcje>0</bqsjkcje>
+            <kchmsxse>0</kchmsxse>
+            <msxsedyjxse>0</msxsedyjxse>
+            <mse>0</mse>
+        </zzsjmssbmxbmsxmGridlbVO>
+    </zzsjmssbmxbmsxmGrid>
+</zzsjmssbmxb>`;
+      sbwjs.push({
+        bbwjm: '10103_008.xml',
+        bbxml: ''
+      })
+      sbwjs.push({
+        bbwjm: 'CAQZSJ.xml',
+        bbxml: ''
+      })
+      return sbwjs;
+    },
+    calculateHwSe() {
+      this.formData['a15'] = this.hwYnse;
+      this.formData['a16'] = this.hwData.A16;
+      this.formData['a17'] = (this.formData['a9'] * 0.03).toFixed(2);
+      this.formData['a18'] = this.hwXqyMse;
+      this.formData['a19'] = this.hwMse;
+      this.formData['a20'] = (this.hwYnse - parseFloat(this.hwData.A16)).toFixed(2);
+      this.formData['a21'] = this.hwData.A21;
+      this.formData['a22'] = this.hwYbse;
+    },
+    calculateFwSe() {
+      this.formData['b15'] = this.fwYnse;
+      this.formData['b16'] = '0.00';
+      this.formData['b17'] = (parseFloat(this.fwXqyMse) + parseFloat(this.fwMse)).toFixed(2);
+      this.formData['b18'] = this.fwXqyMse;
+      this.formData['b19'] = this.fwMse;
+      this.formData['b20'] = this.fwYnse;
+      this.formData['b21'] = this.formData.B21;
+      this.formData['b22'] = this.fwYbse;
+    },
+    //计算本年累计
+    calculateLj() {
+      let lsxx = this.resultData.LSXXS.LSXX;
+      let ljStr = '';
+      let ljVal = '0.00';
+      if (lsxx && lsxx.length > 0) {
+        for (let i = 0; i < lsxx.length; i++) {
+          if (i < 22) {
+            ljStr = 'lja' + (i + 1);
+            if (this.sbInfo['SZLBDM'] != '02') {
+              ljVal = (parseFloat(lsxx[i].VALUE) + parseFloat(this.formData['a' + (i + 1)] || 0)).toFixed(2);
+            } else {
+              ljVal = parseFloat(lsxx[i].VALUE).toFixed(2);
+            }
+          } else {
+            ljStr = 'ljb' + (i - 21);
+            if (this.sbInfo['SZLBDM'] != '01') {
+              ljVal = (parseFloat(lsxx[i].VALUE) + parseFloat(this.formData['b' + (i - 21)] || 0)).toFixed(2);
+            } else {
+              ljVal = parseFloat(lsxx[i].VALUE).toFixed(2);
+            }
+          }
+          this.formData[ljStr] = ljVal;
+        }
+      }
+    },
+    initData() { //初始化未显示的表单数据
+      let prefixArr = ['C', 'c', 'D', 'E', 'F', 'G', 'jm'];
+      for (let i = 0; i < prefixArr.length; i++) {
+        for (let j = 1; j < 17; j++) {
+          if (i > 1 && (j === 8 || j === 9)) {
+            continue;
+          }
+          if (prefixArr[i] == 'jm') {
+            this.pbbdData[prefixArr[i] + j] = '';
+            this.pbbdData[prefixArr[i] + j + 'Text'] = '';
+          } else {
+            this.pbbdData[prefixArr[i] + j] = 0;
+          }
+        }
+      }
+      /*for (let k = 1; k < 21; k++) {
+        this.pbbdData['lja' + k] = 0;
+        this.pbbdData['ljb' + k] = 0;
+      }
+      delete this.pbbdData['lja4'];
+      delete this.pbbdData['lja5'];
+      delete this.pbbdData['lja6'];
+
+      delete this.pbbdData['ljb7'];
+      delete this.pbbdData['ljb8'];
+      console.log(this.pbbdData)*/
+    },
+    //初始化非必填数据
+    initFormData() {
+      if (this.sbInfo['SZLBDM'] == '01') { //货物时初始化服务数据
+        for (let i = 1; i < 23; i++) {
+          if (i == 7 || i == 8) {
+            continue;
+          }
+          this.formData['b' + i] = '0.00';
+          /*this.formData['ljb' + i] = '0.00';*/
+        }
+        /* delete this.formData['ljb21'];
+         delete this.formData['ljb22'];*/
+      } else if (this.sbInfo['SZLBDM'] == '02') {
+        for (let i = 1; i < 23; i++) {
+          if (i == 4 || i == 5 || i == 6) {
+            continue;
+          }
+          this.formData['a' + i] = '0.00';
+          /*this.formData['lja' + i] = '0.00';*/
+        }
+        /*delete this.formData['lja21'];
+        delete this.formData['lja22'];*/
+      }
+    },
+    initPbbdJk() {
+      let self = this;
+      this.$http.post('/api/initPbbdJk', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (!result.success) {
+          self.$alert(result.message);
+          return;
+        }
+        self.isdy = result.data.isdy;
+        self.isjk = result.data.isjk;
+      })
+    },
+    pbbd() {
+      this.showSystemData = false;
+      this.acceptArr = [];
+      this.getSystemData('showPbbd');
+      this.clickPbbd = true;
+    },
+    SystemData() {
+      this.showPbbd = false;
+      this.getSystemData('showSystemData');
+    },
+    getSystemData(flag) {
+      if (this.hasSystemData) {
+        this.showPopup = true;
+        this[flag] = true;
+        return;
+      }
+      var self = this;
+      //let sssqArray = sbcommon.getSssq(new Date().format('yyyyMM'), '10103');
+      let param = {
+        skssqq: this.sbInfo['sssqArray'][0],
+        skssqz: this.sbInfo['sssqArray'][1],
+        zyfpdkbhsxse_hw: this.systemData.zyfpdkbhsxse_hw,
+        zyfpdkbhsxse_fw: this.systemData.zyfpdkbhsxse_fw,
+        zyfpdkbhsxse_hw1: this.systemData.zyfpdkbhsxse_hw1,
+        ptfpdkbhsxse_hw: this.systemData.ptfpdkbhsxse_hw,
+        hwlwhdde: this.systemData.hwlwhdde,
+        ysfwhdde: this.systemData.ysfwhdde
+      }
+      this.$http.post('/api/monitorPbbd', param, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then((result) => {
+        if (result.success) {
+          self.hasSystemData = true;
+          self.systemData['zyfpdkbhsxse_hw'] = result.data.zyfpdkbhsxse_hw;
+          self.systemData['zyfpzkbhsxse_hw'] = result.data.zyfpzkbhsxse_hw;
+          self.systemData['zyfpdkbhsxse_fw'] = result.data.zyfpdkbhsxse_fw;
+          self.systemData['zyfpzkbhsxse_fw'] = result.data.zyfpzkbhsxse_fw;
+          self.systemData['ptfpzkbhsxse_hw'] = result.data.ptfpzkbhsxse_hw;
+          self.systemData['tyfpdkbhsxse_hw'] = result.data.tyfpdkbhsxse_hw;
+          self.systemData['ptfpzkbhsxse_fw'] = result.data.ptfpzkbhsxse_fw;
+          self.systemData['ptfpdkbhsxse_hw1'] = result.data.ptfpdkbhsxse_hw1;
+          self.systemData['ptfpzkbhsxse_hw1'] = result.data.ptfpzkbhsxse_hw1;
+
+          self.systemData['ZYFPDKBHSXSE'] = result.data.zyfpdkbhsxse;
+          self.systemData['ZYFPZKBHSXSE'] = result.data.zyfpzkbhsxse;
+          self.systemData['PTFPDKBHSXSE'] = result.data.ptfpdkbhsxse;
+          self.systemData['PTFPZKBHSXSE'] = result.data.ptfpzkbhsxse;
+
+          self.systemData['dqdeYshwlwHdxse'] = result.data.hwlwhdde;
+          self.systemData['dqdeYsfwHdxse'] = result.data.ysfwhdde;
+
+          self.systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw'] = parseFloat(self.systemData['zyfpdkbhsxse_hw']) + parseFloat(self.systemData['zyfpzkbhsxse_hw']);
+          self.systemData['zyfpdkbhsxse_fw_zyfpzkbhsxse_fw'] = parseFloat(self.systemData['zyfpdkbhsxse_fw']) + parseFloat(self.systemData['zyfpzkbhsxse_fw']);
+
+          self.systemData['3'] = parseFloat(self.systemData['PTFPDKBHSXSE']) + parseFloat(self.systemData['PTFPZKBHSXSE']) + parseFloat(self.systemData['tyfpdkbhsxse_hw']);
+
+          self.systemData['4'] = parseFloat(self.systemData['ZYFPDKBHSXSE']) + parseFloat(self.systemData['ZYFPZKBHSXSE']) + parseFloat(self.systemData['PTFPDKBHSXSE']) + parseFloat(self.systemData['PTFPZKBHSXSE']) + parseFloat(self.systemData['tyfpdkbhsxse_hw']);
+
+
+          self.showPopup = true;
+          self[flag] = true;
+        } else {
+          self.$alert(result.message);
+        }
+      })
+    },
+    getAccept(type) {
+      let msg = '';
+      let cls = '';
+      switch (type) {
+        case 1:
+          if (parseFloat(this.formData['a2']) >= parseFloat(this.systemData['zyfpdkbhsxse_hw_zyfpzkbhsxse_hw'])) {
+            msg = '通过';
+            this.acceptArr[0] = 'accept';
+          } else {
+            msg = '不通过';
+            cls = 'is-danger';
+            this.acceptArr[0] = 'notaccept';
+          }
+          break;
+        case 2:
+          if (parseFloat(this.formData['b2']) >= parseFloat(this.systemData['zyfpdkbhsxse_fw_zyfpzkbhsxse_fw'])) {
+            msg = '通过';
+            this.acceptArr[1] = 'accept';
+          } else {
+            msg = '不通过';
+            cls = 'is-danger';
+            this.acceptArr[1] = 'notaccept';
+          }
+          break;
+        case 3:
+          let left = parseFloat(this.formData['a3']) + parseFloat(this.formData['b3']) + parseFloat(this.formData['b6']) + parseFloat(this.formData['a8']) + parseFloat(this.formData['a9']) + parseFloat(this.formData['b9']);
+          let right = parseFloat(this.systemData['PTFPDKBHSXSE']) + parseFloat(this.systemData['PTFPZKBHSXSE']) + parseFloat(this.systemData['tyfpdkbhsxse_hw']);
+          if (left >= right) {
+            msg = '通过';
+            this.acceptArr[2] = 'accept';
+          } else {
+            msg = '不通过';
+            cls = 'is-danger';
+            this.acceptArr[2] = 'notaccept';
+          }
+          break;
+        case 4:
+          let left4 = parseFloat(this.formData['a1']) + parseFloat(this.formData['b1']) + parseFloat(this.formData['b4']) + parseFloat(this.formData['a7']) + parseFloat(this.formData['a9']) + parseFloat(this.formData['b9']) + parseFloat(this.formData['a13']) + parseFloat(this.formData['b13']) + parseFloat(this.formData['a7']) + parseFloat(this.formData['a7']) + parseFloat(this.formData['a7']) + parseFloat(this.formData['a7']);
+          let right4 = parseFloat(this.systemData['ZYFPDKBHSXSE']) + parseFloat(this.systemData['ZYFPZKBHSXSE']) + parseFloat(this.systemData['PTFPDKBHSXSE']) + parseFloat(this.systemData['PTFPZKBHSXSE']) + parseFloat(this.systemData['tyfpdkbhsxse_hw']);
+          if (left4 >= right4) {
+            msg = '通过';
+            this.acceptArr[3] = 'accept';
+          } else {
+            msg = '不通过';
+            cls = 'is-danger';
+            this.acceptArr[3] = 'notaccept';
+          }
+          break;
+        default:
+          msg = '未知'
+          break;
+      }
+
+      return {
+        msg: msg,
+        cls: cls
+      };
+    }
+  },
+  created() {
+    let params = JSON.parse(this.$route.params.params);
+    this.formData = params.formData;
+    this.resultData = params.resultData;
+    this.sbInfo = params.sbInfo;
+    this.ifOverFwQzd = params.ifOverFwQzd;
+    this.ifOverHwQzd = params.ifOverHwQzd;
+    this.sbInfo['XGMFB1QCYE'] = sbcommon.getWsxxValueByCode(this.resultData, "XGMFB1QCYE"); //应税行为（3%征收率）扣除额--期初余额
+    this.sbInfo['XGMFB1QCYE5'] = sbcommon.getWsxxValueByCode(this.resultData, "XGMFB1QCYE5"); //应税行为（5%征收率）扣除额--期初余额
+    this.sbInfo['YSHWHDYNSE'] = sbcommon.getWsxxValueByCode(this.resultData, 'YSHWHDYNSE'); //货物核定应纳税额
+    this.sbInfo['YSFWHDYNSE'] = sbcommon.getWsxxValueByCode(this.resultData, 'YSFWHDYNSE'); //服务核定应纳税额
+
+    this.sbInfo['sssqArray'] = sbcommon.getSssq(sbcommon.getSbny(), '10103');
+
+    //应税货物及劳务代开的增值税专用发票不含税销售额
+    let zyfpdkbhsxse_hw = sbcommon.getWsxxValueByCode(this.resultData, 'HWDKZPXSE');
+    // 应税货物及劳务代开的增值税专用发票不含税销售额
+    let zyfpdkbhsxse_fw = sbcommon.getWsxxValueByCode(this.resultData, "FWDKZPXSE");
+    // 销售、出租不动产代开的增值税专用发票不含税销售额
+    let zyfpdkbhsxse_hw1 = sbcommon.getWsxxValueByCode(this.resultData, "XSCZBDCDKZPXSE");
+    // 应税货物劳务、应税服务、不动产和无形资产代开的增值税普通发票不含税销售额
+    let ptfpdkbhsxse_hw = sbcommon.getWsxxValueByCode(this.resultData, "PPJE");
+    // 货物劳务核定定额
+    let hwlwhdde = sbcommon.getWsxxValueByCode(this.resultData, "FWDKZPXSE");
+    //应税服务核定定额
+    let ysfwhdde = sbcommon.getWsxxValueByCode(this.resultData, "FWDKZPXSE");
+
+    this.systemData['zyfpdkbhsxse_hw'] = zyfpdkbhsxse_hw === '' ? 0 : zyfpdkbhsxse_hw;
+    this.systemData['zyfpdkbhsxse_fw'] = zyfpdkbhsxse_fw === '' ? 0 : zyfpdkbhsxse_fw;
+    this.systemData['zyfpdkbhsxse_hw1'] = zyfpdkbhsxse_hw1 === '' ? 0 : zyfpdkbhsxse_hw1;
+    this.systemData['ptfpdkbhsxse_hw'] = ptfpdkbhsxse_hw === '' ? 0 : ptfpdkbhsxse_hw;
+    this.systemData['hwlwhdde'] = hwlwhdde === '' ? 0 : hwlwhdde;
+    this.systemData['ysfwhdde'] = ysfwhdde === '' ? 0 : ysfwhdde;
+
+    //初始化票表比对监控
+    this.initPbbdJk();
+    //初始化未显示的表单数据
+    this.initData();
+    this.initFormData();
+  },
+  beforeRouteLeave(to, from, next) {
+    if (this.showPopup) {
+      this.showPopup = false;
+      next(false);
+      return;
+    } else {
+      next();
+    }
+  }
+}
+</script>
+<style lang='less'>
+#xgmsb {
+  .content {
+    width: 100%;
+    .vux-cell-box.weui-cell {
+      div {
+        padding-right: 0;
+        width: 100%;
+      }
+    }
+    label {
+      width: 68%;
+      display: inline-block;
+      font-size: 14px;
+    }
+    input {
+      align-self: flex-start;
+      width: 28%;
+      font-size: 18px;
+    }
+  }
+  table {
+    border-collapse: collapse;
+    td {
+      border: 1px solid #CCC;
+    }
+  }
+}
+</style>

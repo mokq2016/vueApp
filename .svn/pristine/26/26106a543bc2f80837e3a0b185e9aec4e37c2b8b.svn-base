@@ -1,0 +1,71 @@
+<template>
+  <div class="container" id='xgmMenu'>
+    <v-headerbar title='小规模申报缴税' ref='header'>
+      <span slot='right'>
+        <i class='iconfont icon-add' @click='showMenu()'></i>
+      </span>
+    </v-headerbar>
+    <div class="content">
+      <group>
+        <cell title='我要申报' :inline-desc="sssqArray" is-link link='xgmsb_step1'>
+          <i slot='icon' class="iconfont icon-shenbao" style='color:#33CCFF'></i>
+        </cell>
+        <cell title='申报结果查询' is-link link='sbcx' >
+          <i slot='icon' class="iconfont icon-search" style='color:#00C901'></i>
+        </cell>
+        <cell title='待缴税信息' is-link link='wjkList'>
+          <i slot='icon' class="iconfont icon-daijiaofei" style='color:#FF9900'></i>
+        </cell>
+        <cell title='已缴税查询' is-link link='yjkSearch'>
+          <i slot='icon' class="iconfont icon-yibiangeng" style='color:#FF3C3C'></i>
+        </cell>
+      </group>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  Group,
+  Cell
+} from 'vux'
+import sbcommon from '../../common/sbcommon'
+export default {
+  components: {
+    Group,
+    Cell
+  },
+  data() {
+    return {
+      menuList: {
+
+      },
+      sssqArray:''
+    }
+  },
+  methods: {
+    showMenu() {
+      this.$refs.header.showInfo();
+    }
+  },
+  created(){
+    let sbsq = sbcommon.getSssq(new Date().format('yyyyMM'), '10103');
+    this.sssqArray='(申报属期：'+sbsq[0]+'至'+sbsq[1]+')';
+  }
+}
+</script>
+<style lang='less'>
+  #xgmMenu.container {
+  /*.iconfont.icon-geren {
+    font-size: 3rem;
+    border-radius: 50%;
+    margin-right: 0.5rem;
+    border: 1px solid #ccc;
+    color: #fff;
+    background: #ccc;
+  }*/
+  .iconfont {
+    font-size: 1.2rem;
+    margin-right: 0.3rem;
+  }
+  }
+</style>

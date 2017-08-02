@@ -1,0 +1,87 @@
+<template>
+  
+  <div>
+    <!-- grid  @on-item-click=""  link=""  -->
+    <grid :rows="4" v-for="(item, index) in subTabData">
+      <grid-item v-for="subI in item">
+          <i v-bind:class="'ionic '+subI.ionic" ></i>
+          <span class="tab_text" v-html="subI.text">{{ subI.text }}  </span>
+          </grid-item>
+    </grid>
+  </div>
+
+</template>
+
+<script>
+  import {Grid , GridItem} from 'vux';
+  export default{
+    components: {
+      Grid,
+      GridItem
+    },
+    data(){
+      return {
+        subTabData: [
+          [
+            {text: '增值税小规模<br />一键零申报', ionic: 'sb'},
+            {text: '缴纳税款', ionic: 'jnsk'},
+            {text: '预约办税', ionic: 'yybs'},
+            {text: '税种启用', ionic: 'szqy'}
+          ]
+        ]
+      }
+    },
+    
+    props: {},
+    
+    mounted: function () {
+    },
+    
+    methods: {
+      changeItem: function(index){
+        this.defaultMunu = index;
+        console.log('333')
+      }
+    }
+    
+  }
+
+</script>
+
+<style scoped="">
+  .tab_text{
+    font-size: 13px;
+  }
+  .weui-grid{
+    padding: 15px 0px 10px 0px;
+    text-align: center;
+   
+  }
+  .weui-grid span{
+    line-height: 15px;
+    display: block;
+    height: 30px;
+    padding-top: 6px;
+    color: #666;
+  }
+  .sb{
+    background: url(/static/index/ywbl/sb.png) 0 0 no-repeat;
+  }
+  .jnsk{
+    background: url(/static/index/ywbl/jnsk.png) 0 0 no-repeat;
+  }
+  .yybs{
+    background: url(/static/index/ywbl/yybs.png) 0 0 no-repeat;
+  }
+  .szqy{
+    background: url(/static/index/ywbl/szqy.png) 0 0 no-repeat;
+  }
+  
+  i.ionic{
+    display: block;
+    width: 30px;
+    height: 30px;
+    margin: 0 auto;
+    background-size: 30px;
+  }
+</style>

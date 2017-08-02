@@ -1,0 +1,25 @@
+<template>
+  <div class="container">
+    <v-headerbar title='小规模申报缴税'></v-headerbar>
+  <div class="content">
+    <group>
+      <cell title='我要申报' is-link link='xgmsb_step1'></cell>
+      <cell title='申报结果查询' is-link link='sbcx'></cell>
+      <cell title='待缴税信息' is-link link='wjkList'></cell>
+      <cell title='已缴税查询' is-link link='yjkSearch'></cell>
+    </group>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  Group,
+  Cell
+} from 'vux'
+export default {
+  components: {
+    Group,
+    Cell
+  }
+}
+</script>
