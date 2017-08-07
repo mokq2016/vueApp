@@ -334,124 +334,105 @@ export default {
       this.fwData.Q2 = '0.00';
 
       /* this.$alert("有差额扣除项目、减免税项目（不包括未达起征点免税）、销售使用过固定资产、销售出租不动产的纳税人请使用电脑端申报；责令认定一般纳税人请到主管税务机关办理增值税一般纳税人登记事宜。");*/
-
-      if (this.$route.fullPath.indexOf('?isWqsb=true') !== -1) { //往期申报
-        let sbny = this.$route.fullPath.split('&sbny=')[1];
-        sbcommon.getWqSbzlHdxx('10103', sbny).then(function(result) {
-          if (null != result.data) {
-            that.hdxxHandle(result.data)
-          }
-        })
-      } else { //当期申报
-        sbcommon.getSbzlHdxx('10103').then(function(data) {
-          self.hdxxHandle(data);
-        })
-      }
-    },
-    hdxxHandle(data) {
-      let that = this;
-      that.resultData = sbcommon.isExsitSbzlHdxx(['10103'], data);
-      //判断是否有核定
-      if (that.resultData == null) {
-        that.$alert({
-          content: '当前税种信息没有小规模增值税申报种类，不能进行小规模申报，如需申报，需联系主管税务机关，核实已核定了有效的增值税税种，且为小规模纳税人。',
-          onHide() {
-            that.$router.replace('/index/ywbl');
-          }
-        })
-        return;
-      }
-      //判断是否已经申报
-      if (that.resultData.ysbbbz == 'Y') {
-        that.$alert({
-          content: '您在当前属期内已申报成功，不允许重复申报',
-          onHide() {
-            that.$router.replace('/index/ywbl');
-          }
-        })
-        return;
-      }
-      //判断期初信息获取是否成功
-      if (that.resultData.QCCGBZ != "Y") {
-        that.$alert({
-          content: '期初信息获取失败，异常原因：' + that.resultData.QCCGBZMS,
-          onHide() {
-            that.$router.replace('/index/ywbl');
-          }
-        })
-        return;
-      }
-      //判断纳税人是否逾期
-      if (that.resultData.YQWRDBZ == "1") {
-        that.$alert({
-          content: '您逾期未认定为增值税一般纳税人，请至大厅前台进行申报！',
-          onHide() {
-            that.$router.replace('/index/ywbl');
-          }
-        })
-        return;
-      }
-
-      sbcommon.ifCwbbSb(['10103']).then(function(result) {
-        if (!result) {
+      sbcommon.getSbzlHdxx('10103').then(function(data) {
+        //console.log(data)
+        that.resultData = sbcommon.isExsitSbzlHdxx(['10103'], data);
+        //判断是否有核定
+        if (that.resultData == null) {
           that.$alert({
-            content: '根据国家税务总局的规定，纳税人财务报表按季报送。为了避免影响您的纳税信用，请按时报送。报送本期增值税前再检查是否完成上一属期的财务报表报送。例如您在申报所属期2017年第一季度的增值税前检查是否完成2016年第4季度的财务报表报送。以此类推。',
+            content: '当前税种信息没有小规模增值税申报种类，不能进行小规模申报，如需申报，需联系主管税务机关，核实已核定了有效的增值税税种，且为小规模纳税人。',
             onHide() {
               that.$router.replace('/index/ywbl');
             }
           })
           return;
         }
-      })
-      that.sbInfo['SZLBDM'] = sbcommon.getWsxxValueByCode(that.resultData, 'SZLBDM');
-      that.sbInfo['hwqzd'] = sbcommon.getWsxxValueByCode(that.resultData, 'QZD'); // 货物起征点
-      that.sbInfo['fwqzd'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSFWQZD'); // 服务起征点
-      that.sbInfo['YSHWHDXSE'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSHWHDXSE'); // 货物核定销售额
-      that.sbInfo['YSFWHDXSE'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSFWHDXSE'); // 服务核定销售额
-      that.sbInfo['GTHBZ'] = sbcommon.getWsxxValueByCode(that.resultData, 'GTHBZ'); //个体户标志 GTHBZ为0（非个体户）1个体户
-      that.formData['YSHWHDXSE'] = that.sbInfo['YSHWHDXSE'];
-      that.formData['ljYSFWHDXSE'] = that.sbInfo['YSHWHDXSE'];
-      that.formData['YSFWHDXSE'] = that.sbInfo['YSFWHDXSE'];
-      that.formData['ljYSFWHDXSE'] = that.sbInfo['YSFWHDXSE'];
+        //判断是否已经申报
+        if (that.resultData.ysbbbz == 'Y') {
+          that.$alert({
+            content: '您在当前属期内已申报成功，不允许重复申报',
+            onHide() {
+              that.$router.replace('/index/ywbl');
+            }
+          })
+          return;
+        }
+        //判断期初信息获取是否成功
+        if (that.resultData.QCCGBZ != "Y") {
+          that.$alert({
+            content: '期初信息获取失败，异常原因：' + that.resultData.QCCGBZMS,
+            onHide() {
+              that.$router.replace('/index/ywbl');
+            }
+          })
+          return;
+        }
+        //判断纳税人是否逾期
+        if (that.resultData.YQWRDBZ == "1") {
+          that.$alert({
+            content: '您逾期未认定为增值税一般纳税人，请至大厅前台进行申报！',
+            onHide() {
+              that.$router.replace('/index/ywbl');
+            }
+          })
+          return;
+        }
 
-      that.formData['YSHWHDYNSE'] = sbcommon.getWsxxValueByCode(that.resultData, "YSHWHDYNSE"); // 货物核定应纳税额
-      that.formData['ljYSHWHDYNSE'] = that.formData['YSHWHDYNSE'];
+        sbcommon.ifCwbbSb(['10103']).then(function(result) {
+          if (!result) {
+            that.$alert({
+              content: '根据国家税务总局的规定，纳税人财务报表按季报送。为了避免影响您的纳税信用，请按时报送。报送本期增值税前再检查是否完成上一属期的财务报表报送。例如您在申报所属期2017年第一季度的增值税前检查是否完成2016年第4季度的财务报表报送。以此类推。',
+              onHide() {
+                that.$router.replace('/index/ywbl');
+              }
+            })
+            return;
+          }
+        })
+        that.sbInfo['SZLBDM'] = sbcommon.getWsxxValueByCode(that.resultData, 'SZLBDM');
+        that.sbInfo['hwqzd'] = sbcommon.getWsxxValueByCode(that.resultData, 'QZD'); // 货物起征点
+        that.sbInfo['fwqzd'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSFWQZD'); // 服务起征点
+        that.sbInfo['YSHWHDXSE'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSHWHDXSE'); // 货物核定销售额
+        that.sbInfo['YSFWHDXSE'] = sbcommon.getWsxxValueByCode(that.resultData, 'YSFWHDXSE'); // 服务核定销售额
+        that.sbInfo['GTHBZ'] = sbcommon.getWsxxValueByCode(that.resultData, 'GTHBZ'); //个体户标志 GTHBZ为0（非个体户）1个体户
+        that.formData['YSHWHDXSE'] = that.sbInfo['YSHWHDXSE'];
+        that.formData['ljYSFWHDXSE'] = that.sbInfo['YSHWHDXSE'];
+        that.formData['YSFWHDXSE'] = that.sbInfo['YSFWHDXSE'];
+        that.formData['ljYSFWHDXSE'] = that.sbInfo['YSFWHDXSE'];
 
-      that.formData['YSFWHDYNSE'] = sbcommon.getWsxxValueByCode(that.resultData, "YSFWHDYNSE"); // 服务核定应纳税额
-      that.formData['ljYSFWHDYNSE'] = that.formData['YSFWHDYNSE'];
+        that.formData['YSHWHDYNSE'] = sbcommon.getWsxxValueByCode(that.resultData, "YSHWHDYNSE"); // 货物核定应纳税额
+        that.formData['ljYSHWHDYNSE'] = that.formData['YSHWHDYNSE'];
 
+        that.formData['YSFWHDYNSE'] = sbcommon.getWsxxValueByCode(that.resultData, "YSFWHDYNSE"); // 服务核定应纳税额
+        that.formData['ljYSFWHDYNSE'] = that.formData['YSFWHDYNSE'];
 
-      if (that.$route.fullPath.indexOf('wqsb=true') !== -1) { //往期申报
-        let sbny = that.$route.fullPath.split('&sbny=')[1];
-        that.sbInfo['sssqArray'] = sbcommon.getSssq(sbcommon.getWqSbny(sbny), '10103');
-      } else {
         that.sbInfo['sssqArray'] = sbcommon.getSssq(sbcommon.getSbny(), '10103');
-      }
 
-      //应税货物及劳务代开的增值税专用发票不含税销售额
-      let zyfpdkbhsxse_hw = sbcommon.getWsxxValueByCode(that.resultData, 'HWDKZPXSE');
-      // 应税货物及劳务代开的增值税专用发票不含税销售额
-      let zyfpdkbhsxse_fw = sbcommon.getWsxxValueByCode(that.resultData, "FWDKZPXSE");
-      // 销售、出租不动产代开的增值税专用发票不含税销售额
-      let zyfpdkbhsxse_hw1 = sbcommon.getWsxxValueByCode(that.resultData, "XSCZBDCDKZPXSE");
-      // 应税货物劳务、应税服务、不动产和无形资产代开的增值税普通发票不含税销售额
-      let ptfpdkbhsxse_hw = sbcommon.getWsxxValueByCode(that.resultData, "PPJE");
-      // 货物劳务核定定额
-      let hwlwhdde = sbcommon.getWsxxValueByCode(that.resultData, "FWDKZPXSE");
-      //应税服务核定定额
-      let ysfwhdde = sbcommon.getWsxxValueByCode(that.resultData, "FWDKZPXSE");
+        //应税货物及劳务代开的增值税专用发票不含税销售额
+        let zyfpdkbhsxse_hw = sbcommon.getWsxxValueByCode(that.resultData, 'HWDKZPXSE');
+        // 应税货物及劳务代开的增值税专用发票不含税销售额
+        let zyfpdkbhsxse_fw = sbcommon.getWsxxValueByCode(that.resultData, "FWDKZPXSE");
+        // 销售、出租不动产代开的增值税专用发票不含税销售额
+        let zyfpdkbhsxse_hw1 = sbcommon.getWsxxValueByCode(that.resultData, "XSCZBDCDKZPXSE");
+        // 应税货物劳务、应税服务、不动产和无形资产代开的增值税普通发票不含税销售额
+        let ptfpdkbhsxse_hw = sbcommon.getWsxxValueByCode(that.resultData, "PPJE");
+        // 货物劳务核定定额
+        let hwlwhdde = sbcommon.getWsxxValueByCode(that.resultData, "FWDKZPXSE");
+        //应税服务核定定额
+        let ysfwhdde = sbcommon.getWsxxValueByCode(that.resultData, "FWDKZPXSE");
 
-      that.systemData['zyfpdkbhsxse_hw'] = zyfpdkbhsxse_hw === '' ? 0 : zyfpdkbhsxse_hw;
-      that.systemData['zyfpdkbhsxse_fw'] = zyfpdkbhsxse_fw === '' ? 0 : zyfpdkbhsxse_fw;
-      that.systemData['zyfpdkbhsxse_hw1'] = zyfpdkbhsxse_hw1 === '' ? 0 : zyfpdkbhsxse_hw1;
-      that.systemData['ptfpdkbhsxse_hw'] = ptfpdkbhsxse_hw === '' ? 0 : ptfpdkbhsxse_hw;
-      that.systemData['hwlwhdde'] = hwlwhdde === '' ? 0 : hwlwhdde;
-      that.systemData['ysfwhdde'] = ysfwhdde === '' ? 0 : ysfwhdde;
-      if (!that.$refs) {
-        return;
-      }
-      Object.keys(that.$refs).forEach((key) => {
-        that.$refs[key].reset();
+        that.systemData['zyfpdkbhsxse_hw'] = zyfpdkbhsxse_hw === '' ? 0 : zyfpdkbhsxse_hw;
+        that.systemData['zyfpdkbhsxse_fw'] = zyfpdkbhsxse_fw === '' ? 0 : zyfpdkbhsxse_fw;
+        that.systemData['zyfpdkbhsxse_hw1'] = zyfpdkbhsxse_hw1 === '' ? 0 : zyfpdkbhsxse_hw1;
+        that.systemData['ptfpdkbhsxse_hw'] = ptfpdkbhsxse_hw === '' ? 0 : ptfpdkbhsxse_hw;
+        that.systemData['hwlwhdde'] = hwlwhdde === '' ? 0 : hwlwhdde;
+        that.systemData['ysfwhdde'] = ysfwhdde === '' ? 0 : ysfwhdde;
+        if (!that.$refs) {
+          return;
+        }
+        Object.keys(that.$refs).forEach((key) => {
+          that.$refs[key].reset();
+        })
       })
     },
     SystemData() {
@@ -461,6 +442,7 @@ export default {
         return;
       }
       var self = this;
+      //let sssqArray = sbcommon.getSssq(new Date().format('yyyyMM'), '10103');
       let param = {
         skssqq: this.sbInfo['sssqArray'][0],
         skssqz: this.sbInfo['sssqArray'][1],

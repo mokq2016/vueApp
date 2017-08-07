@@ -48,6 +48,9 @@ export default {
       alert(0)
       console.log(a, b, c)
     }
+  },
+  created(){
+    console.log(this.$store.state.user.accountInfo)
   }
 }
 </script>

@@ -131,7 +131,7 @@ export default new VueRouter({
       children: [{
         path: '/index/',
         name: 'ywbl',
-        component: resolve => require(['../views/index/ywbl.vue'], resolve)
+        component: resolve => require(['../views/index/ywbl.vue'], resolve),
       }, {
         path: '/index/ywbl',
         name: 'ywbl',
@@ -141,15 +141,15 @@ export default new VueRouter({
         name: 'fpgl',
         component: resolve => require(['../views/index/fpgl.vue'], resolve),
         meta: {
-          auth: true
-        }
+        auth: true
+      }
       }, {
         path: '/index/sscx',
         name: 'sscx',
         component: resolve => require(['../views/index/sscx.vue'], resolve),
         meta: {
-          auth: true
-        }
+        auth: true
+      }
       }, {
         path: '/index/smgl',
         name: 'smgl',
@@ -159,14 +159,9 @@ export default new VueRouter({
         name: 'aboutMe',
         component: resolve => require(['../views/aboutMe/aboutMe.vue'], resolve),
         meta: {
-          auth: true
-        }
+        auth: true
+      }
       }]
-    }, //首页模块 end
-    {
-      name: 'wqsbcx',//往期申报查询
-      path: '/wqsbcx',
-      component: resolve => require(['../views/wqsbcx/wqsbcx.vue'], resolve)
-    }
+    } //首页模块 end
   ]
 })

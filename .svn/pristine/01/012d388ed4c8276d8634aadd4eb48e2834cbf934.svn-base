@@ -70,7 +70,6 @@ import {
 } from 'vuex'
 import particles from '../../config/particles'
 import server from '../../config/hostConfig'
-import sbcommon from '../../common/sbcommon'
 export default {
   components: {
     XInput,
@@ -93,7 +92,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['USER_SIGNIN','UPDATE_HDXX']),
+    ...mapActions(['USER_SIGNIN']),
     register() {
       window.location.href = server.current + server.proAddr + '#/irs/register/%7B%22Flag%22:%22Y%22%7D';
     },
@@ -138,20 +137,6 @@ export default {
               if(that.redirect){
                 that.$router.push(that.redirect);//快速跳转
               }else{
-                sbcommon.getHdxx().then(function(result){
-                  if(result != 'null'){
-                    that.UPDATE_HDXX({
-                      hdxxData:result
-                    })
-                  }
-                })
-                sbcommon.getWqHdxx().then(function(result){
-                  if(result != 'null'){
-                    that.UPDATE_HDXX({
-                      wqHdxxData:result
-                    })
-                  }
-                })
                 that.$router.push('/index/ywbl');
               }
             } else {

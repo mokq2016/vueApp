@@ -23,14 +23,6 @@ export default {
       return sbzlhdxxData;
     })
   },
-  getWqSbzlHdxx(SBZLCODE,wqny){//获取往期单个税种核定信息
-    let param = {
-      djxh: user.state.nsrInfo.djxh,
-      sbny: this.getWqSbny(wqny),
-      sbzlDm: SBZLCODE
-    }
-    return http.post('/sb/sbcommon_getSbzlHdxx.do',param,{'Content-Type': 'application/x-www-form-urlencoded;'});
-  },
   isExsitSbzlHdxx(sbzlArray, hdxxData) {
     if (null == hdxxData || "" == hdxxData) {
       return null;
@@ -168,7 +160,7 @@ export default {
       if (null != result.data) {
         hdxxData = result.data;
       }
-      return JSON.stringify(hdxxData);
+      return hdxxData;
     })
   },
   getWqHdxx(sbny) { //获取往期应申报清册信息
@@ -178,16 +170,13 @@ export default {
     }
     var wqhdxxData;
     const param = {
-
-    }
-    if (wqsbny) {
-      param['sbny'] = wqsbny;
+      sbny:wqsbny
     }
     return http.post('/sb/sbcommon_getYsbQC.do', param, { 'Content-Type': 'application/x-www-form-urlencoded;' }).then((result) => {
       if (null != result.data) {
         wqhdxxData = result.data;
       }
-      return JSON.stringify(wqhdxxData);
+      return wqhdxxData;
     })
   },
 
@@ -203,16 +192,5 @@ export default {
       vMon = "0" + vMon;
     }
     return vYear + "" + vMon;
-  },
-  getSbzlmc() {
-    return http.post('/common/BaseCodeAction_getBaseCodeData.do?codename=DM_SBZLMC');
-  },
-  getSzText(sbzlDm, sbzlArr) {
-    for (var i = 0; i <= sbzlArr.length - 1; i++) {
-      if (sbzlDm == sbzlArr[i]["SBZL_DM"]) {
-        return sbzlArr[i]["SBZL_MC"];
-      }
-    }
-    return "";
   }
 }

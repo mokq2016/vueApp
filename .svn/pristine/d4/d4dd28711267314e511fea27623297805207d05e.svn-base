@@ -29,7 +29,6 @@ import {
   mapGetters,
   mapMutations
 } from 'vuex'
-import sbcommon from '../../common/sbcommon'
 export default {
   components: {
     XButton
@@ -43,7 +42,7 @@ export default {
   },
   methods: {
     ...mapGetters(['GET_NSRLIST']),
-    ...mapMutations(['UPDATE_USERINFO', 'UPDATE_HDXX']),
+    ...mapMutations(['UPDATE_USERINFO']),
     getRoleName(roleType) {
       let bsType = '';
       switch (roleType) {
@@ -106,8 +105,6 @@ export default {
               }
             });
             self.getLatestUserInfo(); //获取最新企业信息
-            self.getHdxx();
-            self.getWqHdxx();
             if (self.isFromLogin) {
               self.$router.push('/index');
             } else {
@@ -121,7 +118,7 @@ export default {
 
         }*/
     },
-    getLatestUserInfo() { //获取信息用户信息
+    getLatestUserInfo() {
       let self = this;
       this.$http.get('/api/mobile/userinfo/latest').then(function(result) {
         if (result.success) {
@@ -156,26 +153,10 @@ export default {
           self.$alert(result.message);
         }
       })
-    },
-    getHdxx() {
-      var self = this;
-      sbcommon.getHdxx().then(function(data) {
-        self.UPDATE_HDXX({
-          hdxxData: data
-        })
-      })
-    },
-    getWqHdxx() {
-      var self = this;
-      sbcommon.getWqHdxx().then(function(data) {
-        self.UPDATE_HDXX({
-          wqHdxxData: data
-        })
-      })
     }
   },
   created() {
-    this.isFromLogin = this.$route.params.isFromLogin; //aboutMe页面传过来的参数
+    this.isFromLogin = this.$route.params.isFromLogin;//aboutMe页面传过来的参数
     this.items = [];
     this.getLatestNsrList();
 

@@ -63,21 +63,22 @@ import {
   Group,
   XButton,
   Tab,
-  TabItem
+  TabItem,
+  Sticky
 } from 'vux'
 import {
   mapActions
 } from 'vuex'
 import particles from '../../config/particles'
 import server from '../../config/hostConfig'
-import sbcommon from '../../common/sbcommon'
 export default {
   components: {
     XInput,
     Group,
     XButton,
     Tab,
-    TabItem
+    TabItem,
+    Sticky
   },
   data() {
     return {
@@ -88,12 +89,11 @@ export default {
       email: '',
       submitted: false,
       mobile: '',
-      mobilePw: '',
-      redirect:''
+      mobilePw: ''
     }
   },
   methods: {
-    ...mapActions(['USER_SIGNIN','UPDATE_HDXX']),
+    ...mapActions(['USER_SIGNIN']),
     register() {
       window.location.href = server.current + server.proAddr + '#/irs/register/%7B%22Flag%22:%22Y%22%7D';
     },
@@ -134,26 +134,7 @@ export default {
                 token: result.data.wxToken,
                 nsrInfo: result.data.nsrxxVO
               });
-              /*that.$router.push('xgmsbMenu');*/
-              if(that.redirect){
-                that.$router.push(that.redirect);//快速跳转
-              }else{
-                sbcommon.getHdxx().then(function(result){
-                  if(result != 'null'){
-                    that.UPDATE_HDXX({
-                      hdxxData:result
-                    })
-                  }
-                })
-                sbcommon.getWqHdxx().then(function(result){
-                  if(result != 'null'){
-                    that.UPDATE_HDXX({
-                      wqHdxxData:result
-                    })
-                  }
-                })
-                that.$router.push('/index/ywbl');
-              }
+              that.$router.push('xgmsbMenu');
             } else {
               that.$alert(result.message);
             }
@@ -203,10 +184,6 @@ export default {
   },
   mounted() {
     /*particlesJS('particles-js', particles);*/
-    var urlArr = this.$route.fullPath.split('?redirect=');
-    if(urlArr.length > 1){
-      this.redirect = urlArr[1].replace('%2F','/').replace('%2f','/');
-    }
   }
 }
 </script>

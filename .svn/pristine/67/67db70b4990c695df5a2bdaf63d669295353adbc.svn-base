@@ -19,7 +19,6 @@ import {
   Grid,
   GridItem
 } from 'vux';
-import {mapGetters,mapActions} from 'vuex'
 import vImgArea from './imgArea.vue';
 import vFootermenu from './footerMenu.vue';
 export default {
@@ -67,8 +66,6 @@ export default {
   mounted: function() {},
 
   methods: {
-    ...mapGetters(['GET_HDXX']),
-    ...mapActions(['USER_SIGNOUT']),
     changeItem: function(index) {
       this.defaultMunu = index;
       console.log('333')
@@ -82,14 +79,6 @@ export default {
         this.$router.push(menu.link);
       }
     }
-  },
-   beforeRouteEnter (to, from, next) {
-    next(vm =>{
-      if(from.path == '/'){//每次进入首页时清空登录信息
-      vm.USER_SIGNOUT();
-    }
-      
-    });
   }
 
 }

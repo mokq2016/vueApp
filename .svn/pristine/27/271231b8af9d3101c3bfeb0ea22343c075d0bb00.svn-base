@@ -19,7 +19,6 @@ import {
   Grid,
   GridItem
 } from 'vux';
-import {mapGetters,mapActions} from 'vuex'
 import vImgArea from './imgArea.vue';
 import vFootermenu from './footerMenu.vue';
 export default {
@@ -34,47 +33,57 @@ export default {
       subTabData: [
         [{
           id: 1,
-          text: '增值税小规模<br />一键零申报',
-          ionic: 'sb',
+          text: '网上办理文书<br/>进度查询',
+          ionic: 'jdcx',
           link: ''
         }, {
           id: 2,
-          text: '缴纳税款',
-          ionic: 'jnsk',
-          link: '/wjkList'
+          text: '税务事项<br/>通知书查询',
+          ionic: 'tzscx',
+          link: ''
         }, {
           id: 3,
-          text: '预约办税',
-          ionic: 'yybs',
+          text: '本期应申报查询',
+          ionic: 'ysbcx',
           link: ''
         }, {
           id: 4,
-          text: '税种启用',
-          ionic: 'szqy',
-          link: ''
+          text: '已申报<br/>结果查询',
+          ionic: 'jgcx',
+          link: '/sbcx'
         }, {
           id: 5,
-          text: '增值税小规模本期申报',
-          ionic: 'sb',
-          link: '/xgmsb_step1'
+          text: '逾期未<br/>申报查询',
+          ionic: 'wsbcx',
+          link: ''
+        }, {
+          id: 6,
+          text: '发票验旧<br/>信息查询',
+          ionic: 'yjcx',
+          link: ''
+        }, {
+          id: 7,
+          text: '信用等级查询',
+          ionic: 'djcx',
+          link: ''
+        }, {
+          id: 8,
+          text: '缴税信息查询',
+          ionic: 'xxcx',
+          link: ''
         }]
       ]
     }
   },
 
-  props: {},
-
   mounted: function() {},
 
   methods: {
-    ...mapGetters(['GET_HDXX']),
-    ...mapActions(['USER_SIGNOUT']),
     changeItem: function(index) {
       this.defaultMunu = index;
-      console.log('333')
     },
-    go(menu){
-      let openArr = [2,5];
+    go(menu) {
+      let openArr = [4];
       if (openArr.indexOf(menu.id) === -1) {
         this.$alert('暂未开放，敬请期待！');
         return;
@@ -82,14 +91,6 @@ export default {
         this.$router.push(menu.link);
       }
     }
-  },
-   beforeRouteEnter (to, from, next) {
-    next(vm =>{
-      if(from.path == '/'){//每次进入首页时清空登录信息
-      vm.USER_SIGNOUT();
-    }
-      
-    });
   }
 
 }
@@ -112,20 +113,36 @@ export default {
   color: #666;
 }
 
-.sb {
-  background: url(../../../static/index/ywbl/sb.png) 0 0 no-repeat;
+.jdcx {
+  background: url(../../../static/index/sscx/jdcx.png) 0 0 no-repeat;
 }
 
-.jnsk {
-  background: url(../../../static/index/ywbl/jnsk.png) 0 0 no-repeat;
+.tzscx {
+  background: url(../../../static/index/sscx/tzscx.png) 0 0 no-repeat;
 }
 
-.yybs {
-  background: url(../../../static/index/ywbl/yybs.png) 0 0 no-repeat;
+.ysbcx {
+  background: url(../../../static/index/sscx/ysbcx.png) 0 0 no-repeat;
 }
 
-.szqy {
-  background: url(../../../static/index/ywbl/szqy.png) 0 0 no-repeat;
+.jgcx {
+  background: url(../../../static/index/sscx/jgcx.png) 0 0 no-repeat;
+}
+
+.wsbcx {
+  background: url(../../../static/index/sscx/wsbcx.png) 0 0 no-repeat;
+}
+
+.yjcx {
+  background: url(../../../static/index/sscx/yjcx.png) 0 0 no-repeat;
+}
+
+.djcx {
+  background: url(../../../static/index/sscx/djcx.png) 0 0 no-repeat;
+}
+
+.xxcx {
+  background: url(../../../static/index/sscx/xxcx.png) 0 0 no-repeat;
 }
 
 i.ionic {

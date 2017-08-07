@@ -19,7 +19,6 @@ import {
   Grid,
   GridItem
 } from 'vux';
-import {mapGetters,mapActions} from 'vuex'
 import vImgArea from './imgArea.vue';
 import vFootermenu from './footerMenu.vue';
 export default {
@@ -41,7 +40,7 @@ export default {
           id: 2,
           text: '缴纳税款',
           ionic: 'jnsk',
-          link: '/wjkList'
+          link: ''
         }, {
           id: 3,
           text: '预约办税',
@@ -52,11 +51,6 @@ export default {
           text: '税种启用',
           ionic: 'szqy',
           link: ''
-        }, {
-          id: 5,
-          text: '增值税小规模本期申报',
-          ionic: 'sb',
-          link: '/xgmsb_step1'
         }]
       ]
     }
@@ -67,14 +61,12 @@ export default {
   mounted: function() {},
 
   methods: {
-    ...mapGetters(['GET_HDXX']),
-    ...mapActions(['USER_SIGNOUT']),
     changeItem: function(index) {
       this.defaultMunu = index;
       console.log('333')
     },
     go(menu){
-      let openArr = [2,5];
+      let openArr = [];
       if (openArr.indexOf(menu.id) === -1) {
         this.$alert('暂未开放，敬请期待！');
         return;
@@ -82,14 +74,6 @@ export default {
         this.$router.push(menu.link);
       }
     }
-  },
-   beforeRouteEnter (to, from, next) {
-    next(vm =>{
-      if(from.path == '/'){//每次进入首页时清空登录信息
-      vm.USER_SIGNOUT();
-    }
-      
-    });
   }
 
 }

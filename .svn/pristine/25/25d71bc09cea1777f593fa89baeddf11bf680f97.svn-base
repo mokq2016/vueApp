@@ -4,6 +4,7 @@
     <!-- grid  @on-item-click=""  link=""  -->
     <grid :rows="4" v-for="(item, index) in subTabData">
       <grid-item v-for="subI in item">
+        <span class='badge tip' v-if='subI.id === 5'>1</span>
         <div @click='go(subI)'>
           <i v-bind:class="'ionic '+subI.ionic"></i>
           <span class="tab_text" v-html="subI.text">{{ subI.text }}  </span>
@@ -17,14 +18,17 @@
 <script>
 import {
   Grid,
-  GridItem
+  GridItem,
+  Badge
 } from 'vux';
+import {mapGetters} from 'vuex'
 import vImgArea from './imgArea.vue';
 import vFootermenu from './footerMenu.vue';
 export default {
   components: {
     Grid,
     GridItem,
+    Badge,
     'v-footermenu': vFootermenu,
     'v-imgArea': vImgArea
   },
@@ -33,50 +37,60 @@ export default {
       subTabData: [
         [{
           id: 1,
-          text: '自然人代开<br/>发票申请',
-          ionic: 'fpsq',
+          text: '网上办理文书<br/>进度查询',
+          ionic: 'jdcx',
           link: ''
         }, {
           id: 2,
-          text: '自然人代开<br/>提交订单',
-          ionic: 'tjdd',
+          text: '税务事项<br/>通知书查询',
+          ionic: 'tzscx',
           link: ''
         }, {
           id: 3,
-          text: '自然人代开作废',
-          ionic: 'dkzf',
+          text: '本期应申报查询',
+          ionic: 'ysbcx',
           link: ''
         }, {
           id: 4,
-          text: '自然人代开<br/>申请信息查询',
-          ionic: 'xxcx',
-          link: ''
+          text: '已申报<br/>结果查询',
+          ionic: 'jgcx',
+          link: '/sbcx'
         }, {
           id: 5,
-          text: '自然人代开<br/>订单查询',
-          ionic: 'ddcx',
+          text: '逾期未<br/>申报查询',
+          ionic: 'wsbcx',
           link: ''
         }, {
           id: 6,
-          text: '发票真伪查验',
-          ionic: 'zwcy',
+          text: '发票验旧<br/>信息查询',
+          ionic: 'yjcx',
           link: ''
+        }, {
+          id: 7,
+          text: '信用等级查询',
+          ionic: 'djcx',
+          link: ''
+        }, {
+          id: 8,
+          text: '缴税信息查询',
+          ionic: 'xxcx',
+          link: '/yjkSearch'
         }]
       ]
     }
   },
 
-  props: {},
-
-  mounted: function() {},
+  mounted: function() {
+    console.log(this.GET_WQHDXX())
+  },
 
   methods: {
+    ...mapGetters(['GET_WQHDXX']),
     changeItem: function(index) {
       this.defaultMunu = index;
-      console.log('333')
     },
     go(menu) {
-      let openArr = [];
+      let openArr = [4,8];
       if (openArr.indexOf(menu.id) === -1) {
         this.$alert('暂未开放，敬请期待！');
         return;
@@ -88,11 +102,10 @@ export default {
 
 }
 </script>
-<style scoped="">
+<style scoped>
 .tab_text {
   font-size: 13px;
 }
-
 .weui-grid {
   padding: 15px 0px 10px 0px;
   text-align: center;
@@ -106,28 +119,36 @@ export default {
   color: #666;
 }
 
-.ddcx {
-  background: url(../../../static/index/fpgl/ddcx.png) 0 0 no-repeat;
+.jdcx {
+  background: url(../../../static/index/sscx/jdcx.png) 0 0 no-repeat;
 }
 
-.dkzf {
-  background: url(../../../static/index/fpgl/dkzf.png) 0 0 no-repeat;
+.tzscx {
+  background: url(../../../static/index/sscx/tzscx.png) 0 0 no-repeat;
 }
 
-.fpsq {
-  background: url(../../../static/index/fpgl/fpsq.png) 0 0 no-repeat;
+.ysbcx {
+  background: url(../../../static/index/sscx/ysbcx.png) 0 0 no-repeat;
 }
 
-.tjdd {
-  background: url(../../../static/index/fpgl/tjdd.png) 0 0 no-repeat;
+.jgcx {
+  background: url(../../../static/index/sscx/jgcx.png) 0 0 no-repeat;
+}
+
+.wsbcx {
+  background: url(../../../static/index/sscx/wsbcx.png) 0 0 no-repeat;
+}
+
+.yjcx {
+  background: url(../../../static/index/sscx/yjcx.png) 0 0 no-repeat;
+}
+
+.djcx {
+  background: url(../../../static/index/sscx/djcx.png) 0 0 no-repeat;
 }
 
 .xxcx {
-  background: url(../../../static/index/fpgl/xxcx.png) 0 0 no-repeat;
-}
-
-.zwcy {
-  background: url(../../../static/index/fpgl/zwcy.png) 0 0 no-repeat;
+  background: url(../../../static/index/sscx/xxcx.png) 0 0 no-repeat;
 }
 
 i.ionic {
@@ -136,5 +157,9 @@ i.ionic {
   height: 30px;
   margin: 0 auto;
   background-size: 30px;
+}
+.tip{
+  top:0.5rem;
+  left: 2.8rem;
 }
 </style>
