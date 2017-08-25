@@ -53,12 +53,15 @@ export default new VueRouter({
       path: '/aboutMe',
       component: resolve => require(['../views/aboutMe/aboutMe.vue'], resolve),
       meta: {
-        auth: true
+        auth: false
       }
     }, {
       name: 'bindCompany',
       path: '/bindCompany',
-      component: resolve => require(['../views/aboutMe/bindCompany/bindCompany.vue'], resolve)
+      component: resolve => require(['../views/aboutMe/bindCompany/bindCompany.vue'], resolve),
+      meta: {
+        auth: true
+      }
     }, {
       name: 'addCompany',
       path: '/addCompany',
@@ -71,7 +74,10 @@ export default new VueRouter({
     }, {
       name: 'modifyPassword',
       path: '/modifyPassword',
-      component: resolve => require(['../views/login/modifyPassword.vue'], resolve)
+      component: resolve => require(['../views/login/modifyPassword.vue'], resolve),
+      meta: {
+        auth: true
+      }
     }, {
       name: 'companyInfo',
       path: '/companyInfo/:companyDetail',
@@ -111,7 +117,10 @@ export default new VueRouter({
     }, {
       name: 'authorize',
       path: '/authorize',
-      component: resolve => require(['../views/authorize/authorize.vue'], resolve)
+      component: resolve => require(['../views/authorize/authorize.vue'], resolve),
+      meta: {
+        auth: true
+      }
     }, {
       name: 'xgmsbMenu',
       path: '/xgmsbMenu',
@@ -131,35 +140,44 @@ export default new VueRouter({
       children: [{
         path: '/index/',
         name: 'ywbl',
-        component: resolve => require(['../views/index/ywbl.vue'], resolve)
+        component: resolve => require(['../views/index/ywbl.vue'], resolve),
+        meta: {
+        auth: false
+      }
       }, {
         path: '/index/ywbl',
         name: 'ywbl',
         component: resolve => require(['../views/index/ywbl.vue'], resolve),
+        meta: {
+        auth: false
+      }
       }, {
         path: '/index/fpgl',
         name: 'fpgl',
         component: resolve => require(['../views/index/fpgl.vue'], resolve),
         meta: {
-          auth: true
+          auth: false
         }
       }, {
         path: '/index/sscx',
         name: 'sscx',
         component: resolve => require(['../views/index/sscx.vue'], resolve),
         meta: {
-          auth: true
+          auth: false
         }
       }, {
         path: '/index/smgl',
         name: 'smgl',
         component: resolve => require(['../views/index/smgl.vue'], resolve),
+        meta: {
+        auth: false
+      }
       }, {
         path: '/index/aboutMe',
         name: 'aboutMe',
         component: resolve => require(['../views/aboutMe/aboutMe.vue'], resolve),
         meta: {
-          auth: true
+          auth: false
         }
       }]
     }, //首页模块 end
@@ -167,6 +185,29 @@ export default new VueRouter({
       name: 'wqsbcx',//往期申报查询
       path: '/wqsbcx',
       component: resolve => require(['../views/wqsbcx/wqsbcx.vue'], resolve)
+    },
+    {
+      name: 'nsrzgdj_step1',//增值税一般纳税人资格登记
+      path: '/nsrzgdj_step1',
+      component: resolve => require(['../views/zzsybnsrzgdj/nsrzgdj_step1.vue'], resolve),
+      meta: {
+        keepAlive: true,
+        auth: true
+      }
+    },
+    {
+      name: 'nsrzgdj_step2',//增值税一般纳税人资格登记
+      path: '/nsrzgdj_step2/:param',
+      component: resolve => require(['../views/zzsybnsrzgdj/nsrzgdj_step2.vue'], resolve),
+      meta: {
+        keepAlive: true,
+        auth: true
+      }
+    },
+    {
+      name: 'nsrzgdj_step3',//增值税一般纳税人资格登记
+      path: '/nsrzgdj_step3/:param',
+      component: resolve => require(['../views/zzsybnsrzgdj/nsrzgdj_step3.vue'], resolve)
     }
   ]
 })

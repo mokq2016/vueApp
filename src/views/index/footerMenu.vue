@@ -13,7 +13,7 @@
         <i slot="icon" class="sscx footer-ionic"></i>
         <span slot="label">涉税查询</span>
       </tabbar-item>
-      <tabbar-item v-if='$store.state.user.accountInfo' link="/index/aboutMe" :class="{'weui-bar__item_on':$route.path == '/index/aboutMe'}">
+      <tabbar-item link="/index/aboutMe" :class="{'weui-bar__item_on':$route.path == '/index/aboutMe'}">
         <i slot="icon" class="smgl footer-ionic"></i>
         <span slot="label">我</span>
       </tabbar-item>

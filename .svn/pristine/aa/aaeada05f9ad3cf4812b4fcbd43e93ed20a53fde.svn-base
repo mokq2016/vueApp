@@ -56,7 +56,7 @@
         </group>
       </div>
       <div class="mb3" style="text-align: center">
-        <x-button type="primary" v-if="!isWqsb" mini action-type='button' @click.native='SystemData()'>系统参考值</x-button>
+        <x-button type="primary" mini action-type='button' @click.native='SystemData()'>系统参考值</x-button>
         <x-button type="primary" mini action-type='button' @click.native='next()'>下一步</x-button>
       </div>
     </div>
@@ -189,8 +189,7 @@ export default {
         SZLBDM: ''
       },
       ifOverHwQzd: false,
-      ifOverFwQzd: false,
-      isWqsb:false
+      ifOverFwQzd: false
     }
   },
   computed: {
@@ -334,11 +333,9 @@ export default {
       this.fwData.B14 = '0.00';
       this.fwData.Q2 = '0.00';
 
-      this.isWqsb = false;
       /* this.$alert("有差额扣除项目、减免税项目（不包括未达起征点免税）、销售使用过固定资产、销售出租不动产的纳税人请使用电脑端申报；责令认定一般纳税人请到主管税务机关办理增值税一般纳税人登记事宜。");*/
 
       if (this.$route.fullPath.indexOf('?isWqsb=true') !== -1) { //往期申报
-        this.isWqsb = true;
         let sbny = this.$route.fullPath.split('&sbny=')[1];
         sbcommon.getWqSbzlHdxx('10103', sbny).then(function(result) {
           if (null != result.data) {

@@ -4,7 +4,7 @@
     <!-- grid  @on-item-click=""  link=""  -->
     <grid :rows="4" v-for="(item, index) in subTabData">
       <grid-item v-for="subI in item">
-        <span class='badge tip' v-if="subI.id === 5 && wqHdxxData.HdxxResponseVo">{{wqHdxxData.HdxxResponseVo.SBZL.length}}</span>
+        <span class='badge tip' v-if="subI.id === 5 && wqHdxxData">{{wqHdxxData.HdxxResponseVo.SBZL.length}}</span>
         <div @click='go(subI)'>
           <i v-bind:class="'ionic '+subI.ionic"></i>
           <span class="tab_text" v-html="subI.text">{{ subI.text }}  </span>
@@ -91,11 +91,6 @@ export default {
       this.defaultMunu = index;
     },
     go(menu) {
-      if(!(this.token)){
-        this.$toast("请登录后再操作！");
-        this.$router.replace('/login');
-        return;
-      }
       let openArr = [4, 5, 8];
       if (openArr.indexOf(menu.id) === -1) {
         this.$alert('暂未开放，敬请期待！');
@@ -108,13 +103,8 @@ export default {
   computed: {
     ...mapState({
       wqHdxxData: state => {
-        if(state.hdxx.wqHdxxData){
-          return JSON.parse(state.hdxx.wqHdxxData); 
-        }else{
-          return {};
-        } 
-      },
-      token: state => state.user.token 
+        return state.hdxx.wqHdxxData ? JSON.parse(state.hdxx.wqHdxxData) : null
+      }
     })
   }
 

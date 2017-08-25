@@ -15,7 +15,7 @@ export default {
       Object.keys(state).forEach(k => Vue.delete(state, k))
     },
     [types.UPDATE_USERINFO](state,user){
-      if(user.nsrInfo && user.nsrInfo.nsrsbhGs){
+      if(user.nsrInfo && user.nsrInfo.nsrsbh){
          Object.assign(user.nsrInfo,{nsrsbh:user.nsrInfo.nsrsbhGs,nsrmc:user.nsrInfo.gsNsrmc});
       }
       localStorage.setItem('user',  JSON.stringify(Object.assign(state, user)))

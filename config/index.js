@@ -43,7 +43,27 @@ module.exports = {
         changeOrigin: true,
         secure: false
       },
-      '/common/**':{
+      '/common/**': {
+        target: 'http://app.xiaochina.net',
+        changeOrigin: true,
+        secure: false
+      },
+      '/upload/**': {
+        target: 'http://localhost:5050',
+        changeOrigin: true,
+        secure: false
+      },
+      '/gggncx/**': {
+        target: 'http://app.xiaochina.net',
+        changeOrigin: true,
+        secure: false
+      },
+      '/swdj/**': {
+        target: 'http://app.xiaochina.net',
+        changeOrigin: true,
+        secure: false
+      },
+      '/gggn/**': {
         target: 'http://app.xiaochina.net',
         changeOrigin: true,
         secure: false

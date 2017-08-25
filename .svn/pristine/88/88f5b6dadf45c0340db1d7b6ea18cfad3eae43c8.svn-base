@@ -22,7 +22,7 @@
 import {
   XButton
 } from 'vux'
-import {mapState} from 'vuex'
+import {mapGetters} from 'vuex'
 import sbcommon from '../../common/sbcommon'
 export default {
   components: {
@@ -35,6 +35,7 @@ export default {
     }
   },
   methods:{
+    ...mapGetters(['GET_WQHDXX']),
     goSb(item){
         let self = this;
         if(item.ysbbbz === 'N' && item.SBZLCODE === '10101'){
@@ -64,19 +65,12 @@ export default {
       }
     }
   },
-  computed:{
-    ...mapState({
-       wqHdxxData: state => {
-        return state.hdxx.wqHdxxData ? JSON.parse(state.hdxx.wqHdxxData) : null
-      }
-    })
-  },
   created(){
     var self = this;
     sbcommon.getSbzlmc().then(function(result){
       self.sbzlArr = result;
-      if(self.wqHdxxData){
-      self.items = self.wqHdxxData.HdxxResponseVo.SBZL;
+      if(self.GET_WQHDXX()){
+      self.items = self.GET_WQHDXX().HdxxResponseVo.SBZL;
     }
     })
   }

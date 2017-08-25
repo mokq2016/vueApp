@@ -21,9 +21,9 @@ Object.keys(components).forEach((key) => {
 })
 
 router.beforeEach((to, from, next) => {
-  /*if(to.meta.auto+ "" == 'undefined'){
+  if(to.meta.auth+ "" == 'undefined'){
     to.meta.auth = true;
-  }*/
+  }
   if (!store.state.user.nsrInfo && to.meta.auth &&!store.state.user.accountInfo) {
     let to = { path: '/login' }
     return next(to);

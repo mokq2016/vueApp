@@ -1,0 +1,309 @@
+<template>
+  <div class='container' id='zgdjstep1'>
+    <div class='fixedHead'>
+      <v-headerbar title='增值税一般纳税人资格登记'>
+      </v-headerbar>
+    </div>
+    <div class="content mtHead">
+      <group>
+        <selector title="纳税人类别：" :readonly='!canChooseNsrlb' v-model='formData.nsrlbDm' :options='nsrTypeArr' direction></selector>
+        <selector title="主营业务类别：" v-model='formData.nsrzyDm' :options='typeArr' direction></selector>
+        <selector title="资格生效之日：" :readonly='!canChooseRq' v-model='formData.ybnsrzgsxrq' :options='dataArr' direction></selector>
+      </group>
+      <group>
+        <div style='padding: 0.5rem'>
+          <check-icon :value.sync="kjhsjqbz">我承诺本单位会计核算健全</check-icon>
+        </div>
+      </group>
+      <div class='mt3'>
+        <x-button type="primary" class='w80' action-type='button' @click.native='next()'>下一步</x-button>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  Group,
+  Selector,
+  XButton,
+  CheckIcon
+} from 'vux';
+import {
+  mapState
+} from 'vuex';
+import constant from '../../common/constant';
+export default {
+  components: {
+    Group,
+    Selector,
+    XButton,
+    CheckIcon
+  },
+  data() {
+    return {
+      canChooseRq: true,
+      canChooseNsrlb: true,
+      kjhsjqbz: false,
+      formData: {
+        kjhsjqbz: 'Y',
+        swdjrq: '',
+        fddbrZjmAndHm: '',
+        fddbrsfzjlxDm: '',
+        fddbrsfzjhm: '',
+        cwfzrsfzjlxDm: '',
+        cwfzrZjmAndHm: '',
+        cwfzrsfzjhm: '',
+        bsrZjmAndHm: '',
+        bsrsfzjlxDm: '',
+        bsrsfzjhm: '',
+        ybnsrzgsxrq: '',
+        nsrlbDm: ''
+      },
+      ZjlxData: [],
+      typeArr: [{
+        key: '1',
+        value: '工业'
+      }, {
+        key: '2',
+        value: '商业'
+      }, {
+        key: '3',
+        value: '服务业'
+      }, {
+        key: '9',
+        value: '其他'
+      }],
+      dataArr: [{
+        key: 'dy',
+        value: '当月1日'
+      }, {
+        key: 'cy',
+        value: '次月1日'
+      }],
+      nsrTypeArr: [{
+        key: '1',
+        value: '企业'
+      }, {
+        key: '2',
+        value: '非企业性单位'
+      }, {
+        key: '3',
+        value: '个体工商户'
+      }, {
+        key: '9',
+        value: '其他'
+      }]
+    }
+  },
+  computed: {
+    ...mapState({
+      nsrInfo: state => state.user.nsrInfo
+    })
+  },
+  methods: {
+    next() {
+      if (!this.formData.nsrzyDm) {
+        this.$alert('请选择主营业务类别！');
+        return;
+      }
+      if (!this.formData.ybnsrzgsxrq) {
+        this.$alert('请选择资格生效日期！');
+        return;
+      }
+      if (!this.kjhsjqbz) {
+        this.$alert('请承诺会计核算健全！');
+        return;
+      }
+      let param = {
+        step1Data: this.formData
+      }
+      this.$router.push({
+        name: 'nsrzgdj_step2',
+        params: {
+          param: JSON.stringify(param)
+        }
+      });
+    },
+    validateGgyw() { // 校验是否有未完成的公共业务
+      this.kjhsjqbz = false;
+      this.formData['ybnsrzgsxrq'] = '';
+      this.formData['nsrlbDm'] = '';
+      this.formData['nsrzyDm'] = '';
+      let param = {
+        nsrsbh: this.nsrInfo.nsrsbh,
+        swsxdm: constant.swsxConstants.SWSX_DM_ZZSYBNSRDJ
+      }
+      let self = this;
+      this.$http.post('/gggncx/zzblrw_queryZzblrw.do', param, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.success) {
+          self.getSfzjlx();
+        } else {
+          self.$alert({
+            content: result.message,
+            onHide() {
+              self.$router.replace('/index/ywbl');
+            }
+          });
+        }
+      })
+    },
+    getSfzjlx() { // 身份证件类型basecode
+      let self = this;
+      this.$http('/common/BaseCodeAction_getBaseCode2CombSelect.do?codename=DM_GY_SFZJLX', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(data) {
+        self.ZjlxData = data;
+      }).then(function() {
+        self.init();
+      })
+    },
+    init() {
+      let param = {
+        djxh: this.nsrInfo.djxh
+      }
+      let self = this;
+      this.$http.post('/swdj/zzsybnsrdj_initZzsYbnsrDj.do', param, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.success) {
+          let nsrxx = result.data;
+          let nsrxxKz = nsrxx.nsrxxKzVO;
+          self.formData['nsrsbh'] = nsrxx.nsrsbh;
+          self.formData['nsrmc'] = nsrxx.nsrmc;
+
+          self.formData['fddbrxm'] = nsrxx.fddbrxm;
+          if (nsrxx.fddbrsfzjlxDm != '') {
+            self.formData['fddbrZjmAndHm'] = self.getZjlxmc(nsrxx.fddbrsfzjlxDm) + '+' + nsrxx.fddbrsfzjhm;
+            self.formData['fddbrsfzjlxDm'] = nsrxx.fddbrsfzjlxDm;
+            self.formData['fddbrsfzjhm'] = nsrxx.fddbrsfzjhm;
+          }
+          self.formData['fddbryddh'] = nsrxxKz.fddbryddh;
+
+          self.formData['cwfzrxm'] = nsrxxKz.cwfzrxm;
+          if (nsrxxKz.cwfzrsfzjzlDm != '') {
+            self.formData['cwfzrsfzjlxDm'] = nsrxxKz.cwfzrsfzjzlDm;
+            self.formData['cwfzrZjmAndHm'] = self.getZjlxmc(nsrxxKz.cwfzrsfzjzlDm) + '+' + nsrxxKz.cwfzrsfzjhm;
+            self.formData['cwfzrsfzjhm'] = nsrxxKz.cwfzrsfzjhm;
+          }
+          self.formData['cwfzryddh'] = nsrxxKz.cwfzryddh;
+
+          self.formData['bsrxm'] = nsrxxKz.bsrxm;
+          if (nsrxxKz.bsrsfzjzlDm != '') {
+            self.formData['bsrsfzjlxDm'] = nsrxxKz.bsrsfzjzlDm;
+            self.formData['bsrZjmAndHm'] = self.getZjlxmc(nsrxxKz.bsrsfzjzlDm) + '+' + nsrxxKz.bsrsfzjhm;
+            self.formData['bsrsfzjhm'] = nsrxxKz.bsrsfzjhm;
+          }
+          self.formData['bsryddh'] = nsrxxKz.bsryddh;
+
+          if (nsrxx.djrq != '') {
+            self.formData['swdjrq'] = new Date(nsrxx.djrq).format('yyyy-MM-dd');
+          }
+          self.formData['scjydz'] = nsrxx.scjydz;
+          self.formData['zcdz'] = nsrxx.zcdz;
+
+          let fpMesssageCode = result.messageCode;
+          if (fpMesssageCode == "000000") {
+            self.formData['ybnsrzgsxrq'] = 'cy';
+            self.canChooseRq = false;
+          }
+
+          let djzclxDmFirst = nsrxx.djzclxDm.substring(0, 1);
+          let nsrlbDmRadioSelect = "9";
+          if (djzclxDmFirst == 1 || djzclxDmFirst == 2 || djzclxDmFirst == 3) {
+            nsrlbDmRadioSelect = "1";
+          } else if (djzclxDmFirst == "4") {
+            nsrlbDmRadioSelect = "3";
+          } else if (djzclxDmFirst == "5") {
+            nsrlbDmRadioSelect = "2";
+          }
+          if (djzclxDmFirst == "" || djzclxDmFirst == null || djzclxDmFirst == undefined) {
+
+          } else {
+            self.formData['nsrlbDm'] = nsrlbDmRadioSelect;
+            self.canChooseNsrlb = false;
+          }
+
+          let hydm = nsrxx.hyDm;
+          let fdqflag = false;
+          if ((new Date().getTime() - new Date(nsrxx.djrq).getTime()) / (24 * 60 * 60 * 1000) < 30) {
+            fdqflag = true;
+          }
+          if (nsrxxKz.zczb <= 800000 && hydm.substring(0, 2) == "51" && nsrxxKz.cyrs <= 10 && fdqflag) {
+            self.$alert({
+              content: '您属于小型商贸企业，应按一般纳税人辅导期管理，请到办税大厅去办理一般纳税人辅导期管理！',
+              onHide() {
+                self.$router.replace('/index/ywbl');
+              }
+            });
+          }
+          self.$alert('根据《增值税一般纳税人资格认定管理办法》第十二条规定，纳税人一经认定为一般纳税人后，不得转为小规模纳税人。请慎重操作！');
+        } else {
+          let messsageCode = result.messageCode;
+          // 如果纳税人已经是增值税一般纳税人
+          if (messsageCode.substring(0, 5) == "ybnsr") {
+            self.$alert({
+              content: '您已登记为增值税一般纳税人，可按照要求申请办理增值税专用发票手续！',
+              onHide() {
+                self.$router.replace('/index/ywbl');
+              }
+            })
+          } else {
+            self.$alert({
+              content: result.message,
+              onHide() {
+                self.$router.replace('/index/ywbl');
+              }
+            });
+          }
+
+
+        }
+      })
+    },
+    getZjlxmc(zjlxdm) { // 根据证件类型代码获取证件类型名称
+      for (var i = 0; i < this.ZjlxData.length; i++) {
+        var zjlxVo = this.ZjlxData[i];
+        if (zjlxVo.ID == zjlxdm) {
+          return zjlxVo.MC;
+        }
+      }
+      return "";
+    }
+  },
+  beforeRouteEnter(to, from, next) {
+    if (from.path == '/index/ywbl' || from.path == '/index') {
+      to.meta['isReturn'] = false;
+    } else {
+      to.meta['isReturn'] = true;
+    }
+    next();
+  },
+  activated() {
+    if (!this.$route.meta['isReturn']) {
+      this.validateGgyw()
+    }
+  },
+  beforeRouteLeave(to, from, next) {
+    if (to.name == 'nsrzgdj_step2' && from.meta['isReturn'] == false) {
+      to.meta['needClear'] = true;
+    } else {
+      if (to.name == 'nsrzgdj_step2') {
+        to.meta['needClear'] = false;
+      }
+    }
+    next();
+  },
+  mounted() {
+    this.validateGgyw()
+  }
+}
+</script>
+<style lang='less'>
+#zgdjstep1 {
+  .weui-label {
+    width: 130px;
+  }
+}
+</style>

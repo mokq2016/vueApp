@@ -177,8 +177,7 @@ export default {
             accountInfo: accountInfo,
             nsrInfo: result.data.nsrInfo
           });
-          self.chooseIdentity();
-          /*if (accountInfo.smrzTxCjZt == 'N') {
+          if (accountInfo.smrzTxCjZt == 'N') {
             self.$confirm({
               content: '系统未录入您的实名采集照片，是否重新录入？',
               onConfirm() {
@@ -187,7 +186,7 @@ export default {
             })
           } else {
             self.chooseIdentity();
-          }*/
+          }
         } else {
           self.$alert(result.message);
         }
@@ -224,10 +223,6 @@ export default {
                 'Content-Type': 'application/x-www-form-urlencoded;'
               }).then(function(result) {
                 if (result.success) {
-                  self.$toast({
-                    type:'success',
-                    text:'恭喜您资料补录成功！'
-                  })
                   self.chooseIdentity();
                 } else {
                   self.$alert(result.message);

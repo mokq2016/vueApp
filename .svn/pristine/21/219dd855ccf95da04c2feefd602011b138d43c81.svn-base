@@ -3,8 +3,8 @@ import Vue from 'vue'
 import * as types from '../mutation-types'
 
 const state = {
-  hdxxData: localStorage.getItem('hdxxData') || JSON.stringify({}),
-  wqHdxxData: localStorage.getItem('wqHdxxData') || JSON.stringify({})
+  hdxxData: localStorage.getItem('hdxxData') || {},
+  wqHdxxData: localStorage.getItem('wqHdxxData') || {}
 }
 
 export default {

@@ -19,9 +19,13 @@ import {
   Grid,
   GridItem
 } from 'vux';
-import {mapGetters,mapActions} from 'vuex'
+import {
+  mapState,
+  mapActions
+} from 'vuex'
 import vImgArea from './imgArea.vue';
 import vFootermenu from './footerMenu.vue';
+import server from '../../config/hostConfig'
 export default {
   components: {
     Grid,
@@ -46,7 +50,7 @@ export default {
           id: 3,
           text: '预约办税',
           ionic: 'yybs',
-          link: ''
+          link: '#/irs/yybsHome'
         }, {
           id: 4,
           text: '税种启用',
@@ -57,6 +61,11 @@ export default {
           text: '增值税小规模本期申报',
           ionic: 'sb',
           link: '/xgmsb_step1'
+        }, {
+          id: 6,
+          text: '增值税一般纳税人资格登记',
+          ionic: 'yybs',
+          link: '/nsrzgdj_step1'
         }]
       ]
     }
@@ -67,28 +76,58 @@ export default {
   mounted: function() {},
 
   methods: {
-    ...mapGetters(['GET_HDXX']),
     ...mapActions(['USER_SIGNOUT']),
     changeItem: function(index) {
       this.defaultMunu = index;
       console.log('333')
     },
-    go(menu){
-      let openArr = [2,5];
+    go(menu) {
+      if (!(this.token)) {
+        this.$toast("请登录后再操作！");
+        this.$router.replace('/login');
+        return;
+      }
+      let openArr = [2, 3, 5,6];
       if (openArr.indexOf(menu.id) === -1) {
         this.$alert('暂未开放，敬请期待！');
         return;
       } else {
-        this.$router.push(menu.link);
+        if (menu.id === 3) { //ionic项目链接地址
+          window.location.href = server.current + server.proAddr + menu.link;
+        } else {
+          if (menu.id === 5) { //小规模申报时判断是否存在本期申报
+            if (this.hdxxData) {
+              let ysbArr = this.hdxxData.sbzlxx.map(function(item) {
+                return item.SBZLCODE;
+              })
+              if (ysbArr.indexOf('10103') == -1) { //不存在小规模申报的当期申报
+                this.$alert('您不存在增值税小规模本期申报，若要进行逾期申报，请到<span style="color:red">涉税查询-逾期申报查询</span>模块查看！');
+                return;
+              }
+            } else {
+              this.$alert('核定信息获取失败，请重新登录后再试');
+              return;
+            }       
+          }
+          this.$router.push(menu.link);
+        }
       }
     }
   },
-   beforeRouteEnter (to, from, next) {
-    next(vm =>{
-      if(from.path == '/'){//每次进入首页时清空登录信息
-      vm.USER_SIGNOUT();
-    }
-      
+  computed: {
+    ...mapState({
+      hdxxData: state => {
+        return state.hdxx.hdxxData ? JSON.parse(state.hdxx.hdxxData) : null
+      },
+      token: state => state.user.token
+    })
+  },
+  beforeRouteEnter(to, from, next) {
+    next(vm => {
+      if (from.path == '/') { //每次进入首页时清空登录信息
+        vm.USER_SIGNOUT();
+      }
+
     });
   }
 

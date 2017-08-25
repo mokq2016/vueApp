@@ -11,7 +11,7 @@ current:当前项目部署地址
 }*/
 //测试环境配置
 export default{
-    target:'',
+    target:'http://app.xiaochina.net',
     current:'http://servyouwx.applinzi.com',
     proAddr:'/irs-shenz.git/www/index.html',
     wxReq:'/api/wxHtRz'

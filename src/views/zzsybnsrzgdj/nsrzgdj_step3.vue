@@ -1,0 +1,154 @@
+<template>
+  <div class="container" id='nsrzgdj_view'>
+    <div class='fixedHead'>
+      <v-headerbar title='增值税一般纳税人资格登记'>
+      </v-headerbar>
+    </div>
+    <div class='content mtHead'>
+      <group>
+        <cell title="纳税人识别号：" :value="showData.nsrsbh" primary='title'></cell>
+        <cell title="纳税人名称：" :value="showData.nsrmc"></cell>
+        <cell title="法定代表人：" :value="showData.fddbrxm"></cell>
+        <cell title="财务负责人：" :value="showData.cwfzrxm"></cell>
+        <cell title="办税人员：" :value="showData.bsrxm"></cell>
+        <cell title="税务登记日期：" :value="showData.swdjrq"></cell>
+        <cell title="生产经营地址：" :value="showData.scjydz"></cell>
+        <cell title="注册地址：" :value="showData.zcdz"></cell>
+        <cell title="纳税人类型：" :value="showData.nsrlbMc"></cell>
+        <cell title="主营业务类别：" :value="showData.nsrzyMc"></cell>
+        <cell title="资格生效之日：" :value="showData.nsrzgsxrqMc"></cell>
+      </group>
+      <group>
+        <cell title="会计核算健全：" :value="showData.kjhsjqbzMc"></cell>
+      </group>
+      <div class='mt3 mb3'>
+        <x-button type="primary" class='w80' action-type='button' @click.native='submit()'>提交</x-button>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  Group,
+  XInput,
+  XButton,
+  Cell,
+  CellBox
+} from 'vux'
+export default {
+  components: {
+    Group,
+    XInput,
+    XButton,
+    Cell,
+    CellBox
+  },
+  data() {
+    return {
+      showData: {},
+      sqxh: '',
+      dataGrid: {
+        sqxh: '',
+        swsxDm: '110113',
+        nsrlbMc: '',
+        nsrzyMc: '',
+        kjhsjqbzMc: '',
+        nsrzgsxrqMc: ''
+      },
+      formData: {
+        sjhm: '',
+        sjYzm: '',
+        sqxh: '',
+        zlsfqq: 'N',
+        yzmJybz: 'Y'
+      }
+    }
+  },
+  methods: {
+    initMC() {
+      switch (this.showData.nsrlbDm) {
+        case '1':
+          this.showData.nsrlbMc = '企业';
+          break;
+        case '2':
+          this.showData.nsrlbMc = '非企业性单位';
+          break;
+        case '3':
+          this.showData.nsrlbMc = '个体工商户';
+          break;
+        case '9':
+          this.showData.nsrlbMc = '其他';
+          break;
+        default:
+          this.showData.nsrlbMc = '未知类型';
+          break;
+      }
+      switch (this.showData.nsrzyDm) {
+        case '1':
+          this.showData.nsrzyMc = '工业';
+          break;
+        case '2':
+          this.showData.nsrzyMc = '商业';
+          break;
+        case '3':
+          this.showData.nsrzyMc = '服务业';
+          break;
+        case '9':
+          this.showData.nsrzyMc = '其他';
+          break;
+        default:
+          this.showData.nsrzyMc = '未知类型';
+          break;
+      }
+      if (this.showData.ybnsrzgsxrq == 'cy') {
+        this.showData.nsrzgsxrqMc = '次月1日'
+      } else {
+        this.showData.nsrzgsxrqMc = '当月1日'
+      }
+    },
+    submit() {
+      let self = this;
+      this.$confirm({
+        content: '您确定要提交？',
+        onConfirm() {
+          self.showData['sqxh'] = self.sqxh;
+          self.showData['swsxDm'] = '110113';
+          self.formData['sqxh'] = self.sqxh;
+          self.formData['data'] = JSON.stringify(self.showData);
+          let url = '/swdj/zzsybnsrdj_saveZzsYbnsrDj.do?rn=' + Math.random();
+          self.$http.post(url, self.formData, {
+            'Content-Type': 'application/x-www-form-urlencoded;'
+          }).then(function(result) {
+            if (result.success) {
+              self.$router.push('/index/ywbl');
+              self.$alert({
+                content: '尊敬的纳税人：您好！您的申请已经提交成功，您可以通过电子税务局查看文书结果!',
+                onConfirm() {
+                  self.$router.push('/index/ywbl')
+                }
+              })
+            } else {
+              self.$alert('您的申请提交失败，请稍后再试！');
+              console.log(result.message);
+            }
+          })
+        }
+      })
+    }
+  },
+  created() {
+    let param = JSON.parse(this.$route.params.param);
+    this.showData = param.step1Data;
+    this.sqxh = param.sqxh;
+    this.showData.kjhsjqbzMc = '是';
+    this.initMC();
+  }
+}
+</script>
+<style lang='less'>
+#nsrzgdj_view {
+  .vux-label {
+    width: 8rem;
+  }
+}
+</style>
