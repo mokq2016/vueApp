@@ -89,12 +89,12 @@ export default {
       &:not(:first-child){
          margin-top: 1rem;
       }
-      background: #fff;
+      background: #DFE4EB;
       padding: 0.5rem;
       .bottom-div {
         margin-top: 0.3rem;
         padding: 0.3rem 0.5rem 0.3rem 0;
-        border-top: 1px solid #ccc;
+       /*  border-top: 1px solid #ccc; */
         .btn {
           float: right;
         }

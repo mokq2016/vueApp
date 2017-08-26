@@ -1,0 +1,212 @@
+<template>
+  <div class="container" id='fbzlupload'>
+    <div class='fixedHead'>
+      <v-headerbar title='增值税一般纳税人资格登记'>
+      </v-headerbar>
+    </div>
+    <div class="content mtHead">
+      <div v-for="item in items">
+        <span class='title'>{{item.fbzl_mc}}</span><span class='red'>{{item.bbbz=='Y'?'必报':'非必报'}}</span>
+        <v-fileupload :params='item' @completeUploadEvt='saveFbzlxxWithoutImageData' @deleteFileEvt='deleteFile' :useDefaultTitle='false' :uploadAddr="'/api/dzzl/upload?filepath=/'" :ref='item.fbzl_dm'></v-fileupload>
+      </div>
+    </div>
+    <div class='mt3'>
+      <x-button type="primary" class='w80' action-type='button' @click.native='uploadFile()'>下一步</x-button>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  mapState
+} from 'vuex';
+import {
+  XButton
+} from 'vux'
+export default {
+  components: {
+    XButton
+  },
+  data() {
+    return {
+      sqxh: '',
+      items: [],
+      uploadCount: 0,
+      formData: {},
+      saveFileArr: []
+    }
+  },
+  methods: {
+    init() {
+      let self = this;
+      let param = JSON.parse(this.$route.params.param);
+      this.formData = param.step1Data;
+      this.items = [];
+      this.saveFileArr = [];
+      this.$http.get('/api/upload/sqxh/generate').then(function(result) {
+        if (result.success) {
+          self.sqxh = result.data;
+          self.getFbzlList();
+        } else {
+          self.$alert(result.message)
+        }
+      })
+    },
+    getFbzlList() {
+      let self = this;
+      let url = '/gggn/fbzlsc_fbzlQueryListBySqxh.do?rn=' + Math.random();
+      let param = {
+        sqxh: this.sqxh,
+        swsxdm: '110113'
+      }
+      this.$http.post(url, param, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.success) {
+          self.items = result.data;
+        } else {
+          self.$alert(result.message);
+        }
+      })
+    },
+    deleteFile(fileKey) {
+      let self = this;
+      this.saveFileArr.map((index, item) => {
+        if (item == fileKey) {
+          self.saveFileArr.splice(index, 1);
+          return false;
+        }
+      })
+    },
+    uploadFile() {
+      /* let param = {
+         sqxh: this.sqxh,
+         step1Data: this.formData
+       }
+       this.$router.push({
+           name: 'nsrzgdj_step3',
+           params: {
+             param: JSON.stringify(param)
+           }
+         })*/
+      let self = this;
+      let validate = true;
+      Object.values(self.$refs).forEach(function(child) {
+        if (child[0].params.bbbz == 'Y' && child[0].filesArr.length === 0) {
+          self.$alert('必报资料必须上传！');
+          validate = false;
+          return false;
+        }
+      })
+      if (!validate) {
+        return;
+      }
+      this.uploadCount = 0;
+      Object.values(this.$refs).map((child) => {
+        child[0].upload();
+      })
+    },
+    saveFbzlxxWithoutImageData(fileArr, params) {
+      let self = this;
+      let info = [];
+      fileArr.forEach(function(item) {
+        if (item.completeUpload && self.saveFileArr.indexOf(item.fileKey) === -1) {
+          info.push(item.fileKey + ',' + (item.fileSize / 1024).toFixed(2) + ',' + item.fileType)
+        }
+      })
+      if (info.length === 0) {
+        self.uploadCount++;
+        if (self.uploadCount === self.items.length) {
+          let param = {
+            sqxh: self.sqxh,
+            step1Data: self.formData
+          }
+          self.$router.push({
+            name: 'nsrzgdj_step3',
+            params: {
+              param: JSON.stringify(param)
+            }
+          })
+        }
+        return;
+      }
+      console.log(info)
+      let param = {
+        info: JSON.stringify(info),
+        sqxh: this.sqxh,
+        fbzldm: params.fbzl_dm,
+        swsxdm: '110113',
+        nsrsbh: this.nsrInfo.nsrsbh,
+        fbzlmc: params.fbzl_mc,
+        fbzlxh: params.fbzl_xh
+      }
+      this.$http.post('/api/dzzl/saveFbzlxxWithoutImageData', param, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.success) {
+          self.uploadCount++;
+          info.map((item) => {
+            self.saveFileArr.push(item.split(',')[0]);
+          })
+          if (self.uploadCount === self.items.length) {
+            let param = {
+              sqxh: self.sqxh,
+              step1Data: self.formData
+            }
+            self.$router.push({
+              name: 'nsrzgdj_step3',
+              params: {
+                param: JSON.stringify(param)
+              }
+            })
+          }
+        } else {
+          self.$alert(result.message)
+        }
+      })
+    }
+  },
+  computed: {
+    ...mapState({
+      nsrInfo: state => state.user.nsrInfo
+    })
+  },
+  watch: {
+    uploadCount: {
+      handler: function(val) {
+        console.log(val)
+      }
+    }
+  },
+  beforeRouteEnter(to, from, next) {
+    if (from.path == '/nsrzgdj_step1' && to.meta['needClear'] == true) {
+      to.meta['needClear'] = true;
+    } else {
+      to.meta['needClear'] = false;
+    }
+    next();
+  },
+  activated() {
+    if (this.$route.meta['needClear']) {
+      this.init()
+    }
+  },
+  created() {
+    this.init();
+  }
+}
+</script>
+<style lang='less'>
+#fbzlupload {
+  .content {
+    .title {
+      margin-left: 0.8rem;
+      margin-right: 0.8rem;
+      font-size: 1.3rem;
+      display: inline-block;
+    }
+    .weui-cells {
+      margin-top: 0.1rem;
+    }
+  }
+}
+</style>

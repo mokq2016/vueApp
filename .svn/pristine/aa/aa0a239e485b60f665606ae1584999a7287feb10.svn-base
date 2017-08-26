@@ -15,7 +15,7 @@
                 <li class="weui_uploader_file weui_uploader_status" v-for="(item,index) in filesArr" :style="{ backgroundImage: 'url(' + item.base64 + ')' }"><i @click.stop='deleteFile(index)' class="iconfont icon-delete"></i><span v-if='item.completeUpload' class="successFlag"></span></li>
               </ul>
               <div class="weui-uploader__input-box">
-                <input id="uploaderCustomInput" type="file" accept="image/*" @change='chooseFile($event)' class="weui-uploader__input js_file"/>
+                <input id="uploaderCustomInput" @change='chooseFile($event)' class="weui-uploader__input js_file" type="file">
               </div>
             </div>
           </div>

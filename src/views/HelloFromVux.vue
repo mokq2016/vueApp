@@ -24,7 +24,7 @@
             <div class="weui-uploader__bd">
               <ul class="weui-uploader__files" id="uploaderCustomFiles"></ul>
               <div class="weui-uploader__input-box">
-                <input id="uploaderCustomInput" class="weui-uploader__input js_file" type="file">
+                <input id="uploaderCustomInput" type="file" accept="image/*" class="weui-uploader__input js_file"/>
               </div>
             </div>
           </div>

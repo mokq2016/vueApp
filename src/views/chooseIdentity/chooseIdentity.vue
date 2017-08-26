@@ -87,7 +87,7 @@ export default {
         });
         this.CLEAR_HDXX();
         if (self.isFromLogin) {
-          self.$router.push('/index');
+          self.$router.push('/index/ywbl');
         } else {
           self.$router.go(-1);
         }
@@ -110,7 +110,7 @@ export default {
             self.getHdxx();
             self.getWqHdxx();
             if (self.isFromLogin) {
-              self.$router.push('/index');
+              self.$router.push('/index/ywbl');
             } else {
               self.$router.go(-1);
             }

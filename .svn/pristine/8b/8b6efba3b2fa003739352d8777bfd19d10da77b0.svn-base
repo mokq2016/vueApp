@@ -208,11 +208,6 @@ export default new VueRouter({
       name: 'nsrzgdj_step3',//增值税一般纳税人资格登记
       path: '/nsrzgdj_step3/:param',
       component: resolve => require(['../views/zzsybnsrzgdj/nsrzgdj_step3.vue'], resolve)
-    },
-    {
-      name: 'test',//增值税一般纳税人资格登记
-      path: '/test',
-      component: resolve => require(['../views/HelloFromVux.vue'], resolve)
     }
   ]
 })
