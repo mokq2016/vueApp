@@ -21,6 +21,10 @@ import {
 } from 'vux';
 import vImgArea from './imgArea.vue';
 import vFootermenu from './footerMenu.vue';
+import server from '../../config/hostConfig';
+import {
+  mapState
+} from 'vuex';
 export default {
   components: {
     Grid,
@@ -35,7 +39,7 @@ export default {
           id: 1,
           text: '自然人代开<br/>发票申请',
           ionic: 'fpsq',
-          link: ''
+          link: '#/irs/dkfp/xsfxx'
         }, {
           id: 2,
           text: '自然人代开<br/>提交订单',
@@ -45,12 +49,12 @@ export default {
           id: 3,
           text: '自然人代开作废',
           ionic: 'dkzf',
-          link: ''
+          link: '#/irs/dkfp/dkfpzf'
         }, {
           id: 4,
           text: '自然人代开<br/>申请信息查询',
           ionic: 'xxcx',
-          link: ''
+          link: '#/irs/dkfp/fpdkjl'
         }, {
           id: 5,
           text: '自然人代开<br/>订单查询',
@@ -66,24 +70,35 @@ export default {
     }
   },
 
-  props: {},
-
-  mounted: function() {},
-
   methods: {
     changeItem: function(index) {
       this.defaultMunu = index;
       console.log('333')
     },
     go(menu) {
-      let openArr = [];
+      if (!(this.token)) {
+        this.$toast("请登录后再操作！");
+        this.$router.replace('/login');
+        return;
+      }
+      let openArr = [3,4];
       if (openArr.indexOf(menu.id) === -1) {
         this.$alert('暂未开放，敬请期待！');
         return;
       } else {
-        this.$router.push(menu.link);
+        if (!this.accountInfo) {
+        this.$alert('该功能仅限实名认证用户使用！');
+        return;
+      }
+        window.location.href = server.current + server.proAddr + menu.link;
       }
     }
+  },
+  computed: {
+    ...mapState({
+       token: state => state.user.token,
+      accountInfo: state => state.user.accountInfo
+    })
   }
 
 }

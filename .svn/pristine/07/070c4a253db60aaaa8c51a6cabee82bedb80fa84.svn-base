@@ -1,0 +1,269 @@
+<template>
+  <div class="container" id='fileupload'>
+    <div class="weui-cells weui-cells_form" id="uploaderCustom">
+      <div class="weui-cell">
+        <div class="weui-cell__bd">
+          <div class="weui-uploader">
+            <div class="weui-uploader__hd">
+              <p class="weui-uploader__title" v-if='useDefaultTitle'>{{title}}</p>
+              <div class="weui-uploader__info" v-if='false'>
+                <span id='uploadCount'>0</span>/{{maxCount}}
+              </div>
+            </div>
+            <div class="weui-uploader__bd">
+              <ul class="weui-uploader__files" id="uploaderCustomFiles">
+                <li class="weui_uploader_file weui_uploader_status" v-for="(item,index) in filesArr" :style="{ backgroundImage: 'url(' + item.base64 + ')' }"><i @click.stop='deleteFile(index)' class="iconfont icon-delete"></i><span v-if='item.completeUpload' class="successFlag"></span></li>
+              </ul>
+              <div class="weui-uploader__input-box">
+                <input id="uploaderCustomInput" type="file" accept="image/*" @change='chooseFile($event)' class="weui-uploader__input js_file"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <x-button type="primary" class='w80 mt3' action-type='button' @click.native='upload()'>上传</x-button> -->
+  </div>
+</template>
+<script>
+import {
+  XButton
+} from 'vux'
+import {
+  Promise
+} from 'es6-promise';
+export default {
+  components: {
+    XButton
+  },
+  data() {
+    return {
+        successCount:0
+    }
+  },
+  props: {
+    title: {
+      type: [String],
+      default: '图片上传'
+    },
+    useDefaultTitle: {
+      type: [Boolean],
+      default: true
+    },
+    maxSize: {
+      type: [Number],
+      default: 10240000
+    },
+    maxCount: {
+      type: [Number],
+      default: 5
+    },
+    filesArr: {
+      type: [Array],
+      default: function() {
+        return []
+      }
+    },
+    uploadAddr: {
+      type: [String],
+      default: '/upload/uploadFile'
+    },
+    params: { //接收父组件传入的参数
+      type: [Object],
+      default: function() {
+        return {}
+      }
+    }
+  },
+  methods: {
+    chooseFile(event) {
+      let files = event.target.files;
+      let self = this;
+      // 如果没有选中文件，直接返回  
+      if (files.length === 0) {
+        return;
+      }
+      for (var i = 0; i < files.length; i++) {
+        let file = files[i];
+        //self.filesArr.push(file)
+        let reader = new FileReader();
+        if (file.size > self.maxSize) {
+          self.$alert('图片太大，不允许上传！');
+          continue;
+        }
+        reader.onload = function(e) {
+          var img = new Image();
+          img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var ctx = canvas.getContext('2d');
+            var w = img.width;
+            var h = img.height;
+            // 设置 canvas 的宽度和高度  
+            canvas.width = w;
+            canvas.height = h;
+            ctx.drawImage(img, 0, 0, w, h);
+            var base64 = canvas.toDataURL('image/png');
+
+            // 插入到预览区  
+            /*var $preview = $('<li class="weui_uploader_file weui_uploader_status" style="background-image:url(' + base64 + ')"><i class="iconfont icon-delete"></i><span class="successFlag"></span></li>');
+            self.$uploaderCustomFiles.append($preview);*/
+            self.filesArr.push({
+              file: file,
+              fileSize: file.size,
+              base64: base64
+            })
+          }
+          img.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    },
+    deleteFile(index) {
+      let fileKey = this.filesArr[index].fileKey;
+      let self = this;
+      if (fileKey) {
+        let url = '/api/dzzl/deletefile?filekey=' + fileKey;
+        this.$http.post(url).then(function(result) {
+          if (result.success) {
+            self.$emit('deleteFileEvt',fileKey);
+            self.filesArr.splice(index, 1);
+            self.successCount --;
+          } else {
+            self.$alert(result.message);
+          }
+        })
+      } else {
+        this.filesArr.splice(index, 1);
+      }
+    },
+     upload() { //附报资料上传
+      let self = this;
+      let successCount = 0;
+      if (self.filesArr.length == self.successCount) {
+        self.$emit('completeUploadEvt', self.filesArr, self.params);
+        return;
+      }
+      self.filesArr.map((fileObj) => {
+        if (fileObj.completeUpload) {
+          return;
+        }
+        let param = new FormData();
+        let url = self.uploadAddr;
+        param.append('Filedata', fileObj.file);
+        self.$http.post(url, param, {
+          'Content-Type': 'multipart/form-data;'
+        }).then(function(result) {
+          if (result.success) {
+            fileObj.fileKey = result.data.fileKey;
+            fileObj.fileType = result.data.fileType;
+            self.$set(fileObj, 'completeUpload', true);
+            self.successCount++;
+            if (self.successCount == self.filesArr.length) {
+              self.$emit('completeUploadEvt', self.filesArr, self.params);
+            }
+          } else {
+            self.$alert(result.message);
+          }
+        })
+      })
+    }
+  },
+  created() {
+
+  },
+  mounted() {
+
+    //this.bindEvent2();
+  }
+}
+</script>
+<style lang='less'>
+#fileupload {
+  .weui-uploader__hd {
+    display: flex;
+    .weui-uploader__title {
+      flex: 1;
+    }
+    .weui-uploader__info {
+      color: #b2b2b2;
+    }
+  }
+  .weui-uploader__bd {
+    margin-bottom: -4px;
+    margin-right: -9px;
+    overflow: hidden;
+    margin-top: 0.4rem;
+    .weui-uploader__files {
+      .weui_uploader_file {
+        position: relative;
+        box-sizing: border-box;
+        border: 1px solid #ccc;
+        float: left;
+        margin-right: 9px;
+        margin-bottom: 9px;
+        width: 79px;
+        height: 79px;
+        background: no-repeat center center;
+        background-size: cover;
+        list-style: none;
+      }
+      .weui_uploader_file .iconfont {
+        position: absolute;
+        top: -4px;
+        font-size: 1.4rem;
+        right: -1px;
+        color: red;
+      }
+      .weui_uploader_file .successFlag {
+        display: inline-block;
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-top: 1rem solid green;
+        border-right: 1rem solid transparent;
+      }
+    }
+    .weui-uploader__input-box {
+      float: left;
+      position: relative;
+      margin-right: 9px;
+      margin-bottom: 9px;
+      width: 77px;
+      height: 77px;
+      border: 1px solid #d9d9d9;
+      &:before {
+        width: 2px;
+        height: 39.5px;
+        content: " ";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        background-color: #d9d9d9;
+      }
+      &:after {
+        width: 39.5px;
+        height: 2px;
+        content: " ";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        background-color: #d9d9d9;
+      }
+      .weui-uploader__input {
+        position: absolute;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+      }
+    }
+  }
+}
+</style>

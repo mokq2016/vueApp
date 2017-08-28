@@ -22,22 +22,22 @@
             <!--  </sticky> -->
           </div>
           <group v-show='showTaxNumLogin'>
-            <x-input label-width='4rem' placeholder="请输入税号" v-validate="'required'" name='税号' v-model="userName">
+            <x-input label-width='4rem' placeholder="请输入税号" v-validate="'required'" name='税号' v-model.trim="userName">
               <i slot="label" class="iconfont icon-people"></i>
             </x-input>
             <span v-show="errors2.has('税号') && submitted" class="errors-tip is-danger">{{ errors2.first('税号') }}</span>
-            <x-input label-width='4rem' :type='inpType' v-validate="'required'" data-vv-name='密码' placeholder="请输入密码" v-model="passWord">
+            <x-input label-width='4rem' :type='inpType' v-validate="'required'" data-vv-name='密码' placeholder="请输入密码" v-model.trim="passWord">
               <i slot="label" class="iconfont icon-lock"></i>
               <i slot="right" class="iconfont icon-browse" @click='changeInp()'></i>
             </x-input>
             <span v-show="errors2.has('密码') && submitted" class="errors-tip is-danger">{{ errors2.first('密码') }}</span>
           </group>
           <group v-show='!showTaxNumLogin'>
-            <x-input label-width='4rem' placeholder="请输入手机号" v-validate="'required'" name='手机号' v-model="mobile">
+            <x-input label-width='4rem' placeholder="请输入手机号" v-validate="'required'" name='手机号' v-model.trim="mobile">
               <i slot="label" class="iconfont icon-people"></i>
             </x-input>
             <span v-show="errors2.has('手机号') && submitted" class="errors-tip is-danger">{{ errors2.first('手机号') }}</span>
-            <x-input label-width='4rem' :type='inpType' v-validate="'required'" data-vv-name='密码' placeholder="请输入密码" v-model="mobilePw">
+            <x-input label-width='4rem' :type='inpType' v-validate="'required'" data-vv-name='密码' placeholder="请输入密码" v-model.trim="mobilePw">
               <i slot="label" class="iconfont icon-lock"></i>
               <i slot="right" class="iconfont icon-browse" @click='changeInp()'></i>
             </x-input>
@@ -177,6 +177,7 @@ export default {
             accountInfo: accountInfo,
             nsrInfo: result.data.nsrInfo
           });
+          localStorage.setItem('loginNsrsbh', result.data.nsrjbxx.nsrsbh);//自然人代开发票需要的
           self.chooseIdentity();
           /*if (accountInfo.smrzTxCjZt == 'N') {
             self.$confirm({

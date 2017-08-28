@@ -4,7 +4,7 @@
     <!-- grid  @on-item-click=""  link=""  -->
     <grid :rows="4" v-for="(item, index) in subTabData">
       <grid-item v-for="subI in item">
-        <span class='badge tip' v-if="subI.id === 5 && wqHdxxData.HdxxResponseVo">{{wqHdxxData.HdxxResponseVo.SBZL.length}}</span>
+      <span class='badge tip' v-if="subI.id === 5 && wqHdxxData && wqHdxxData.HdxxResponseVo">{{wqHdxxData.HdxxResponseVo.SBZL.length}}</span>
         <div @click='go(subI)'>
           <i v-bind:class="'ionic '+subI.ionic"></i>
           <span class="tab_text" v-html="subI.text">{{ subI.text }}  </span>
@@ -83,7 +83,7 @@ export default {
   },
 
   mounted: function() {
-    //console.log(this.$store.state.hdxx.wqHdxxData)
+    //console.log(this.wqHdxxData)
   },
 
   methods: {

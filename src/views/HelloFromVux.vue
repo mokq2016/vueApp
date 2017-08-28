@@ -11,6 +11,7 @@
         </group>
         <x-button type="primary">Top</x-button>
     </div> -->
+    <scroller lock-x :use-pullup='true' ref="scroller">
     <div class="weui-cells weui-cells_form" id="uploaderCustom">
       <div class="weui-cell">
         <div class="weui-cell__bd">
@@ -24,7 +25,7 @@
             <div class="weui-uploader__bd">
               <ul class="weui-uploader__files" id="uploaderCustomFiles"></ul>
               <div class="weui-uploader__input-box">
-                <input id="uploaderCustomInput" type="file" accept="image/*" class="weui-uploader__input js_file"/>
+                <input id="uploaderCustomInput" accept="image/**" cap  class="weui-uploader__input js_file" type="file">
               </div>
             </div>
           </div>
@@ -32,20 +33,24 @@
       </div>
     </div>
     <x-button type="primary" class='w80 mt3' action-type='button' @click.native='upload()'>上传</x-button>
+    </scroller>
   </div>
+
 </template>
 <script>
 import {
   Toast,
   XButton,
   Group,
-  Cell
+  Cell,
+  Scroller
 } from 'vux'
 export default {
   components: {
     XButton,
     Group,
-    Cell
+    Cell,
+    Scroller
   },
   data() {
     return {

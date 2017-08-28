@@ -42,6 +42,7 @@ export default {
       commit(types.USER_SIGNIN, user)
     },
     USER_SIGNOUT ({ commit }) {
+      localStorage.removeItem('loginNsrsbh');
       commit(types.USER_SIGNOUT);
       commit(types.CLEAR_HDXX);
     },

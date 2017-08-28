@@ -7,11 +7,11 @@ current:当前项目部署地址
     target:'http://dzswj.szgs.gov.cn',
     current:'http://app.dzswj.szgs.gov.cn',
     proAddr:'/MobileWeb/static/dist/index.html?cityid=440300',
-    wxReq:'/api/thirdInterf/getWxConfig'
+    wxReq:'/api/thirdInterf/getWxConfig'    
 }*/
 //测试环境配置
 export default{
-    target:'http://app.xiaochina.net',
+    target:'',
     current:'http://servyouwx.applinzi.com',
     proAddr:'/irs-shenz.git/www/index.html',
     wxReq:'/api/wxHtRz'

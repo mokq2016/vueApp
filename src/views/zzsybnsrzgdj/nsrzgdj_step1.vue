@@ -8,7 +8,8 @@
       <group>
         <selector title="纳税人类别：" :readonly='!canChooseNsrlb' v-model='formData.nsrlbDm' :options='nsrTypeArr' direction></selector>
         <selector title="主营业务类别：" v-model='formData.nsrzyDm' :options='typeArr' direction></selector>
-        <selector title="资格生效之日：" :readonly='!canChooseRq' v-model='formData.ybnsrzgsxrq' :options='dataArr' direction></selector>
+       <selector title="资格生效之日：" :readonly='!canChooseRq' v-model='formData.ybnsrzgsxrq' :options='dataArr' direction>
+        </selector>
       </group>
       <group>
         <div style='padding: 0.5rem'>
@@ -134,8 +135,7 @@ export default {
         swsxdm: constant.swsxConstants.SWSX_DM_ZZSYBNSRDJ
       }
       let self = this;
-      self.getSfzjlx();
-     /* this.$http.post('/gggncx/zzblrw_queryZzblrw.do', param, {
+      this.$http.post('/api/zzblrwcx/queryZzblrw', param, {
         'Content-Type': 'application/x-www-form-urlencoded;'
       }).then(function(result) {
         if (result.success) {
@@ -148,7 +148,7 @@ export default {
             }
           });
         }
-      })*/
+      })
     },
     getSfzjlx() { // 身份证件类型basecode
       let self = this;
@@ -245,7 +245,7 @@ export default {
           // 如果纳税人已经是增值税一般纳税人
           if (messsageCode.substring(0, 5) == "ybnsr") {
             self.$alert({
-              content: '您已登记为增值税一般纳税人，可按照要求申请办理增值税专用发票手续！',
+              content: '您已登记为增值税一般纳税人（或辅导期一般纳税人），可按照要求申请办理增值税专用发票手续！',
               onHide() {
                 self.$router.replace('/index/ywbl');
               }
