@@ -151,8 +151,7 @@ export default {
         let url = self.uploadAddr;
         param.append('Filedata', fileObj.file);
         self.$http.post(url, param, {
-          'Content-Type': 'multipart/form-data;',
-          'NoLoading':true
+          'Content-Type': 'multipart/form-data;'
         }).then(function(result) {
           if (result.success) {
             fileObj.fileKey = result.data.fileKey;

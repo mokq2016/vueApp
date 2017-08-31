@@ -58,9 +58,7 @@ export default {
         bsrsfzjlxDm: '',
         bsrsfzjhm: '',
         ybnsrzgsxrq: '',
-        nsrlbDm: '',
-        nsrzyDm: '',
-
+        nsrlbDm: ''
       },
       ZjlxData: [],
       typeArr: [{
@@ -132,22 +130,11 @@ export default {
       this.formData['ybnsrzgsxrq'] = '';
       this.formData['nsrlbDm'] = '';
       this.formData['nsrzyDm'] = '';
-      let self = this;
-      if (this.nsrInfo.nsrztDm == '05') {
-        this.$alert({
-          content: '纳税人状态异常，流程终止！',
-          onHide() {
-            self.$router.replace('/index/ywbl');
-          }
-        });
-        return;
-      }
-
       let param = {
         nsrsbh: this.nsrInfo.nsrsbh,
         swsxdm: constant.swsxConstants.SWSX_DM_ZZSYBNSRDJ
       }
-
+      let self = this;
       this.$http.post('/api/zzblrwcx/queryZzblrw', param, {
         'Content-Type': 'application/x-www-form-urlencoded;'
       }).then(function(result) {
@@ -212,7 +199,7 @@ export default {
           self.formData['bsryddh'] = nsrxxKz.bsryddh;
 
           if (nsrxx.djrq != '') {
-            self.formData['swdjrq'] = new Date(nsrxx.djrq.replace(/-/g,'/')).format('yyyy-MM-dd');
+            self.formData['swdjrq'] = new Date(nsrxx.djrq).format('yyyy-MM-dd');
           }
           self.formData['scjydz'] = nsrxx.scjydz;
           self.formData['zcdz'] = nsrxx.zcdz;
@@ -308,6 +295,9 @@ export default {
       }
     }
     next();
+  },
+  mounted() {
+    this.validateGgyw()
   }
 }
 </script>

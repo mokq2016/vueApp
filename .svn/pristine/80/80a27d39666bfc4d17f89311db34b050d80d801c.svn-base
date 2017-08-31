@@ -89,20 +89,18 @@ export default {
         this.$alert('暂未开放，敬请期待！');
         return;
       } else {
-        if (this.accountInfo && !this.nsrInfo) {
-          window.location.href = server.current + server.proAddr + menu.link;
-        } else {
-          this.$alert('该业务只支持自然人，非自然人的代开发票请到深圳电子税务局官方网站申请！');
+        if (!this.accountInfo) {
+          this.$alert('该功能仅限实名认证用户使用！');
+          return;
         }
-
+        window.location.href = server.current + server.proAddr + menu.link;
       }
     }
   },
   computed: {
     ...mapState({
       token: state => state.user.token,
-      accountInfo: state => state.user.accountInfo,
-      nsrInfo: state => state.user.nsrInfo
+      accountInfo: state => state.user.accountInfo
     })
   }
 

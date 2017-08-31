@@ -1,0 +1,53 @@
+import Vue from 'vue'
+
+import * as types from '../mutation-types'
+
+export default {
+  state: JSON.parse(localStorage.getItem('user')) || {},
+  mutations: {
+    [types.USER_SIGNIN] (state, user) {
+      localStorage.setItem('user', JSON.stringify(user))
+      //Object.assign(state, user)
+      Object.keys(user).forEach(k => Vue.set(state,k,user[k]));
+    },
+    [types.USER_SIGNOUT] (state) {
+      localStorage.removeItem('user')
+      Object.keys(state).forEach(k => Vue.delete(state, k))
+    },
+    [types.UPDATE_USERINFO](state,user){
+      if(user.nsrInfo && user.nsrInfo.nsrsbhGs){
+         Object.assign(user.nsrInfo,{nsrsbh:user.nsrInfo.nsrsbhGs,nsrmc:user.nsrInfo.gsNsrmc});
+      }
+      localStorage.setItem('user',  JSON.stringify(Object.assign(state, user)))
+      //Object.assign(state, user)
+      Object.keys(user).forEach(k => Vue.set(state,k,user[k]));
+    }
+  },
+  getters:{
+    GET_NSRINFO(state){
+        return state.nsrInfo;
+    },
+    GET_NSRLIST(state){
+      return state.nsrList;
+    },
+    GET_CURRENTROLE(state){
+      return state.currentRole;//currentRole:{roleName:'',nsrmc:'',nsrsbh:''}
+    },
+    GET_ACCOUNTINFO(state){
+      return state.accountInfo;
+    }
+  },
+  actions: {
+    USER_SIGNIN ({ commit }, user) {
+      commit(types.USER_SIGNIN, user)
+    },
+    USER_SIGNOUT ({ commit }) {
+      localStorage.removeItem('loginNsrsbh');
+      commit(types.USER_SIGNOUT);
+      commit(types.CLEAR_HDXX);
+    },
+    UPDATE_USERINFO({ commit }, user){
+       commit(types.UPDATE_USERINFO, user)
+    }
+  }
+}

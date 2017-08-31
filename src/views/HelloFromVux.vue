@@ -11,7 +11,7 @@
         </group>
         <x-button type="primary">Top</x-button>
     </div> -->
-    <scroller lock-x :use-pullup='true' ref="scroller">
+    <v-loadMore>
     <div class="weui-cells weui-cells_form" id="uploaderCustom">
       <div class="weui-cell">
         <div class="weui-cell__bd">
@@ -33,7 +33,7 @@
       </div>
     </div>
     <x-button type="primary" class='w80 mt3' action-type='button' @click.native='upload()'>上传</x-button>
-    </scroller>
+   </v-loadMore>
   </div>
 
 </template>
@@ -42,15 +42,13 @@ import {
   Toast,
   XButton,
   Group,
-  Cell,
-  Scroller
+  Cell
 } from 'vux'
 export default {
   components: {
     XButton,
     Group,
-    Cell,
-    Scroller
+    Cell
   },
   data() {
     return {

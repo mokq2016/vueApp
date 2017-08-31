@@ -93,7 +93,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['USER_SIGNIN', 'UPDATE_HDXX','USER_SIGNOUT']),
+    ...mapActions(['USER_SIGNIN', 'UPDATE_HDXX']),
     register() {
       window.location.href = server.current + server.proAddr + '#/irs/register/%7B%22Flag%22:%22Y%22%7D';
     },
@@ -178,8 +178,8 @@ export default {
             nsrInfo: result.data.nsrInfo
           });
           localStorage.setItem('loginNsrsbh', result.data.nsrjbxx.nsrsbh);//自然人代开发票需要的
-          self.chooseIdentity();
-          /*if (accountInfo.smrzTxCjZt == 'N') {
+          //self.chooseIdentity();
+          if (accountInfo.smrzTxCjZt == 'N') {
             self.$confirm({
               content: '系统未录入您的实名采集照片，是否重新录入？',
               onConfirm() {
@@ -188,7 +188,7 @@ export default {
             })
           } else {
             self.chooseIdentity();
-          }*/
+          }
         } else {
           self.$alert(result.message);
         }
@@ -248,14 +248,6 @@ export default {
     if (urlArr.length > 1) {
       this.redirect = urlArr[1].replace('%2F', '/').replace('%2f', '/');
     }
-  },
-  beforeRouteEnter(to, from, next) {
-    next(vm => {
-      if (to.path == '/login') { //登录页面强制清空登录信息
-        vm.USER_SIGNOUT();
-      }
-
-    });
   }
 }
 </script>

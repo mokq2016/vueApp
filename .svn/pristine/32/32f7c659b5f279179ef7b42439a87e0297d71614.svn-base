@@ -93,7 +93,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['USER_SIGNIN', 'UPDATE_HDXX','USER_SIGNOUT']),
+    ...mapActions(['USER_SIGNIN', 'UPDATE_HDXX',USER_SIGNOUT]),
     register() {
       window.location.href = server.current + server.proAddr + '#/irs/register/%7B%22Flag%22:%22Y%22%7D';
     },
