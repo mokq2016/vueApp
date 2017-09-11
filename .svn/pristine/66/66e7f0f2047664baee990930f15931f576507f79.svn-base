@@ -21,17 +21,15 @@ Object.keys(components).forEach((key) => {
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.meta.auth + "" == 'undefined') {
+  /*if (to.meta.auth + "" == 'undefined') {
     to.meta.auth = true;
-  }
-  let redirect = to.fullPath; //标记从哪个模块跳转到登录的
+  }*/
+  console.log(to.fullPath)
+  let redirect = to.fullPath;//标记从哪个模块跳转到登录的
   if (!store.state.user.nsrInfo && to.meta.auth && !store.state.user.accountInfo) {
-    let to = {
-      path: '/login',
-      query: {
-        from: redirect
-      }
-    }
+    let to = { path: '/login',query:{
+      from:redirect
+    } }
     return next(to);
   }
   next();

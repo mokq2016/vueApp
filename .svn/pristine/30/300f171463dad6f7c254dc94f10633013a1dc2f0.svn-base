@@ -62,12 +62,12 @@ export default {
             text: '自然人代开<br/>订单查询',
             ionic: 'ddcx',
             link: '#/irs/dkfp/yjztcx'
-          }/*, {
+          }, {
             id: 6,
             text: '发票真伪查验',
             ionic: 'zwcy',
             link: ''
-          }*/
+          }
         ]
       ]
     }

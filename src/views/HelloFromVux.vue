@@ -11,7 +11,6 @@
         </group>
         <x-button type="primary">Top</x-button>
     </div> -->
-    <v-loadMore>
     <div class="weui-cells weui-cells_form" id="uploaderCustom">
       <div class="weui-cell">
         <div class="weui-cell__bd">
@@ -33,7 +32,6 @@
       </div>
     </div>
     <x-button type="primary" class='w80 mt3' action-type='button' @click.native='upload()'>上传</x-button>
-   </v-loadMore>
   </div>
 
 </template>

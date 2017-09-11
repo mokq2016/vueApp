@@ -42,7 +42,7 @@ export default {
           text: '网上办理文书<br/>进度查询',
           ionic: 'jdcx',
           link: '/wsjgcx'
-        }, /*{
+        }, {
           id: 2,
           text: '税务事项<br/>通知书查询',
           ionic: 'tzscx',
@@ -52,7 +52,7 @@ export default {
           text: '本期应申报查询',
           ionic: 'ysbcx',
           link: ''
-        },*/ {
+        }, {
           id: 4,
           text: '已申报<br/>结果查询',
           ionic: 'jgcx',
@@ -62,7 +62,7 @@ export default {
           text: '逾期未<br/>申报查询',
           ionic: 'wsbcx',
           link: '/wqsbcx'
-        }/*, {
+        }, {
           id: 6,
           text: '发票验旧<br/>信息查询',
           ionic: 'yjcx',
@@ -72,7 +72,7 @@ export default {
           text: '信用等级查询',
           ionic: 'djcx',
           link: ''
-        }*/, {
+        }, {
           id: 8,
           text: '缴税信息查询',
           ionic: 'xxcx',

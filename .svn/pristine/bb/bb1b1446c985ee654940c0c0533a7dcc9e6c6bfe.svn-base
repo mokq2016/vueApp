@@ -43,7 +43,7 @@ export default {
   },
   methods: {
     ...mapGetters(['GET_NSRLIST']),
-    ...mapMutations(['UPDATE_USERINFO', 'UPDATE_HDXX', 'CLEAR_HDXX']),
+    ...mapMutations(['UPDATE_USERINFO', 'UPDATE_HDXX','CLEAR_HDXX']),
     getRoleName(roleType) {
       let bsType = '';
       switch (roleType) {
@@ -96,8 +96,7 @@ export default {
       /*if (!self.isFromLogin) { //非login路由而来为切换办税身份*/
       this.$http.post('/api/mobile/general/chooseCompany', {
           djxh: self.items[this.selected].djxh,
-          nsrsbh: self.items[this.selected].nsrsbh,
-          roleId:self.items[this.selected].type
+          nsrsbh: self.items[this.selected].nsrsbh
         }).then(function(result) {
           if (result.success) { //切换身份成功
             self.UPDATE_USERINFO({
@@ -108,6 +107,8 @@ export default {
               }
             });
             self.getLatestUserInfo(); //获取最新企业信息
+            self.getHdxx();
+            self.getWqHdxx();
             if (self.isFromLogin) {
               self.$router.push('/index/ywbl');
             } else {
@@ -129,8 +130,6 @@ export default {
             nsrInfo: result.data.nsrInfo,
             accountInfo: result.data.accountInfo
           });
-          self.getHdxx();
-          self.getWqHdxx();
         } else {
           self.$toast(result.message);
         }

@@ -128,17 +128,11 @@ export default new VueRouter({
     }, {
       name: 'forgetPwd',
       path: '/forgetPwd',
-      component: resolve => require(['../views/login/forgetPwd.vue'], resolve),
-      meta: {
-        auth: false
-      }
+      component: resolve => require(['../views/login/forgetPwd.vue'], resolve)
     }, {
       name: 'findPwd',
       path: '/findPwd/:params',
-      component: resolve => require(['../views/login/findPwd.vue'], resolve),
-      meta: {
-        auth: false
-      }
+      component: resolve => require(['../views/login/findPwd.vue'], resolve)
     }, { //首页模块
       name: 'index',
       path: '/index',

@@ -33,9 +33,7 @@ import {
   TabItem,
   XButton
 } from 'vux'
-import {
-  mapState
-} from 'vuex'
+import {mapGetters} from 'vuex'
 export default {
   components: {
     Tab,
@@ -44,12 +42,13 @@ export default {
   },
   data() {
     return {
-      showTab: true,
+      showTab:true,
       showTaxNumLogin: true,
       bindList: []
     }
   },
   methods: {
+    ...mapGetters(['GET_CURRENTROLE']),
     getBsType(type) {
       let bsType = '';
       switch (type) {
@@ -126,14 +125,9 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapState({
-      currentRole: state => state.user.currentRole
-    })
-  },
   created() {
-    console.log(this.currentRole)
-    if (this.currentRole.roleType) {
+    console.log(this.GET_CURRENTROLE().roleType)
+    if(this.GET_CURRENTROLE().roleType){
       this.showTab = false;
       this.showTaxNumLogin = false;
     }
