@@ -1,0 +1,210 @@
+<template>
+  <div class="container" id="xgmsb">
+    <div class='fixedHead'>
+      <v-headerbar title='存款账户帐号报告'>
+      </v-headerbar>
+    </div>
+    <div class="content">
+      <div style="margin-top: 4rem;margin-left: 1rem;font-size: 1.2rem;">已报告账户信息</div>
+      <group >
+        <div v-for="item in yhxxData" class="line">
+           <cell :title='changeMc(item.yhhbDm)' :value='item.yhzh' is-link @click.native="goDetail(item)"></cell>
+        </div>
+      </group>
+      <x-button type="primary" class='btn' action-type='button' @click.native='addBtn()'>增加</x-button>
+    </div>
+  </div>
+</template>
+<script>
+  import {
+    Alert,
+    Group,
+    Cell,
+    XButton
+  } from 'vux'
+  import {
+    mapState,//此两项是为引用缓存
+    mapActions
+  } from 'vuex'
+  import sbcommon from '../../common/sbcommon'
+  export default {
+    components: {
+      Alert,
+      Group,
+      Cell,
+      XButton
+    },
+    data() {
+      return {
+        yhxxData:[],
+        yhzhxzData:[],//银行账户信息
+        yhhbData:[],//银行行别
+        hbszData:[]//币种
+      }
+    },
+    methods: {
+      goDetail(item){
+        this.$router.push({
+          name: 'accountDetail',
+          query: {
+          routeParams: JSON.stringify(item)
+        }
+      })
+      },
+      addBtn(){
+        this.$router.replace('/addAccount');
+      },
+      changeMc(yhhbDm){
+        let yhhbMc = "";
+        for (var i = 0; i < this.yhhbData.length; i++) {
+          if (this.yhhbData[i].ID == yhhbDm) {
+            yhhbMc = this.yhhbData[i].MC;
+            break;
+          }
+        }
+        return yhhbMc;
+      },
+      init(){
+        if(this.nsrInfo.nsrztDm == "07"){
+          this.$alert({
+            content: '纳税人状态为注销，不允许办理存款账户账号报告',
+            onHide() {
+              this.$router.replace('/index/ywbl');
+            }
+          })
+          return;
+        }
+        if(this.nsrInfo.nsrztDm == "08"){
+          this.$alert({
+            content: '纳税人状态为非正常户注销，不允许办理存款账户账号报告',
+            onHide() {
+              this.$router.replace('/index/ywbl');
+            }
+          })
+          return;
+        }
+        this.validateGgyw();//查询是否有公共的正在办理任务
+        this.initGlobalConstants();// 初始化全局常量
+      },
+
+      //查询是否有公共的正在办理任务
+      validateGgyw(){
+        let self = this;
+        let data = {
+          nsrsbh : this.nsrInfo.nsrsbh,
+          swsxdm : "110111"  //SWSX_DM_CKZHZHBG : "110111"
+        }
+        self.$http.post('/gggncx/zzblrw_queryZzblrw.do', data,{
+          'Content-Type': 'application/x-www-form-urlencoded;'
+        }).then(function(result) {
+          if (result.success) {
+            self.initYhxxGrid();// 初始化银行信息
+          }else{
+            self.$alert(result.message);
+          }
+        })
+      },
+      //初始化银行信息
+      initYhxxGrid(){
+        var that = this;
+        that.$http.post('/swdj/djYhxx_queryYhxx.do',{},{
+          'Content-Type': 'application/x-www-form-urlencoded;'
+        }).then(function(result) {
+          if (result.success) {
+            that.yhxxData = result.data;
+            for(let i = 0; i < that.yhxxData.length; i++){
+              that.yhxxData[i].ffrq = new Date(that.yhxxData[i].ffrq).format('yyyy-MM-dd');
+              that.yhxxData[i].khrq = new Date(that.yhxxData[i].khrq).format('yyyy-MM-dd');
+              that.yhxxData[i].yxqq = new Date(that.yhxxData[i].yxqq).format('yyyy-MM-dd');
+              that.yhxxData[i].yxqz = new Date(that.yhxxData[i].yxqz).format('yyyy-MM-dd');
+              that.yhxxData[i].xgrq = new Date(that.yhxxData[i].xgrq).format('yyyy-MM-dd');
+              that.yhxxData[i].lrrq = new Date(that.yhxxData[i].lrrq).format('yyyy-MM-dd');
+            }
+          }else{
+            that.$alert(result.message);
+          }
+        })
+      },
+
+      // 初始化全局常量
+      initGlobalConstants(){
+        let self = this;
+        //获取银行账户性质
+        self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect.do?codename=DM_GY_YHZHXZ', {},{
+          'Content-Type': 'application/x-www-form-urlencoded;'
+        }).then(function(result) {
+          if (result.length > 0) {
+            self.yhzhxzData = result;
+          }
+        })
+
+        //获取银行行别
+        self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect2.do?codename=DM_GY_YHHB', {},{
+          'Content-Type': 'application/x-www-form-urlencoded;'
+        }).then(function(result) {
+          if (result.length > 0) {
+            self.yhhbData = result;
+          }
+        })
+
+        //获取币种
+        self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect.do?codename=DM_GY_HB', {},{
+          'Content-Type': 'application/x-www-form-urlencoded;'
+        }).then(function(result) {
+          if (result.length > 0) {
+            self.hbszData = result;
+          }
+        })
+      }
+    },
+    computed: {
+      ...mapState({
+        nsrInfo: state => state.user.nsrInfo
+      })
+    },
+    created: function() {
+      this.init();
+    }
+  }
+</script>
+<style lang='less'>
+  #xgmsb {
+    .fixedHead {
+      position: fixed;
+      width: 100%;
+      height: 3.1rem;
+      z-index: 500;
+      top: 0;
+    }
+    .content {
+      width: 100%;
+      margin-top:4rem;
+      .vux-cell-box.weui-cell {
+        div {
+          padding-right: 0;
+          width: 100%;
+        }
+      }
+      .weui-cell:before{
+        left:0;
+      }
+      .btn{
+        margin-top:40px;
+        width:40%;
+      }
+      .line{
+        border-bottom: 1px solid #eee;
+      }
+      label {
+        width: 100%;
+        display: inline-block;
+        font-size: 1.1rem;
+      }
+      input {
+        align-self: flex-start;
+        font-size: 18px;
+      }
+    }
+  }
+</style>
+

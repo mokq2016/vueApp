@@ -313,9 +313,7 @@ export default {
                 self.validateGgyw()
               }
             })
-            return;
           }
-          self.validateGgyw();
         } else {
           this.$alert({
             content: result.message,

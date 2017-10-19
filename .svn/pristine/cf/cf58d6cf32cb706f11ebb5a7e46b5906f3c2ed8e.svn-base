@@ -148,15 +148,15 @@ export default new VueRouter({
         name: 'ywbl',
         component: resolve => require(['../views/index/ywbl.vue'], resolve),
         meta: {
-          auth: false
-        }
+        auth: false
+      }
       }, {
         path: '/index/ywbl',
         name: 'ywbl',
         component: resolve => require(['../views/index/ywbl.vue'], resolve),
         meta: {
-          auth: false
-        }
+        auth: false
+      }
       }, {
         path: '/index/fpgl',
         name: 'fpgl',
@@ -176,8 +176,8 @@ export default new VueRouter({
         name: 'smgl',
         component: resolve => require(['../views/index/smgl.vue'], resolve),
         meta: {
-          auth: false
-        }
+        auth: false
+      }
       }, {
         path: '/index/aboutMe',
         name: 'aboutMe',
@@ -188,109 +188,87 @@ export default new VueRouter({
       }]
     }, //首页模块 end
     {
-      name: 'wqsbcx', //往期申报查询
+      name: 'wqsbcx',//往期申报查询
       path: '/wqsbcx',
       component: resolve => require(['../views/wqsbcx/wqsbcx.vue'], resolve)
-    }, {
-      name: 'nsrzgdj_step1', //增值税一般纳税人资格登记
+    },
+    {
+      name: 'nsrzgdj_step1',//增值税一般纳税人资格登记
       path: '/nsrzgdj_step1',
       component: resolve => require(['../views/zzsybnsrzgdj/nsrzgdj_step1.vue'], resolve),
       meta: {
         keepAlive: true,
         auth: true
       }
-    }, {
-      name: 'nsrzgdj_step2', //增值税一般纳税人资格登记
+    },
+    {
+      name: 'nsrzgdj_step2',//增值税一般纳税人资格登记
       path: '/nsrzgdj_step2/:param',
       component: resolve => require(['../views/zzsybnsrzgdj/nsrzgdj_step2.vue'], resolve),
       meta: {
         keepAlive: true,
         auth: true
       }
-    }, {
-      name: 'nsrzgdj_step3', //增值税一般纳税人资格登记
+    },
+    {
+      name: 'nsrzgdj_step3',//增值税一般纳税人资格登记
       path: '/nsrzgdj_step3/:param',
       component: resolve => require(['../views/zzsybnsrzgdj/nsrzgdj_step3.vue'], resolve)
-    }, {
-      name: 'wsjgcx', //文书结果查询
+    },
+    {
+      name: 'wsjgcx',//文书结果查询
       path: '/wsjgcx',
       component: resolve => require(['../views/wsjgcx/wsjgcx.vue'], resolve)
-    }, {
-      name: 'wscxResult', //文书结果查询
+    },
+    {
+      name: 'wscxResult',//文书结果查询
       path: '/wscxResult/:param',
       component: resolve => require(['../views/wsjgcx/wscxResult.vue'], resolve)
-    }, {
-      name: 'szqy', //税种启用
-      path: '/szqy',
+    },
+    {
+      name: 'szqy',//税种启用
+        path: '/szqy',
       component: resolve => require(['../views/szqy/szqy.vue'], resolve)
-    }, {
-      name: 'xgmlsb', //小规模零申报
-      path: '/xgmlsb',
+    },
+    {
+      name: 'xgmlsb',//小规模零申报
+        path: '/xgmlsb',
       component: resolve => require(['../views/xgmsb/xgmlsb/xgmlsb.vue'], resolve)
-    }, {
-      name: 'ckzhzhbg', //存款账户帐号报告
-      path: '/ckzhzhbg',
-      component: resolve => require(['../views/account/ckzhzhbg.vue'], resolve),
-      meta: {
-        keepAlive: true,
-        auth: true
-      }
-    }, {
-      name: 'accountDetail', //存款账户帐号详情
-      path: '/accountDetail',
+    },
+    {
+      name: 'ckzhzhbg',//存款账户帐号报告
+        path: '/ckzhzhbg',
+      component: resolve => require(['../views/account/ckzhzhbg.vue'], resolve)
+    },
+    {
+      name: 'accountDetail',//存款账户帐号详情
+        path: '/accountDetail',
       component: resolve => require(['../views/account/accountDetail.vue'], resolve)
-    }, {
-      name: 'addAccount', //增加存款账户帐号
-      path: '/addAccount',
+    },
+    {
+      name: 'addAccount',//增加存款账户帐号
+        path: '/addAccount',
       component: resolve => require(['../views/account/addAccount.vue'], resolve)
-    }, {
-      name: 'ckzhbg_step2', //
-      path: '/ckzhbg_step2',
-      component: resolve => require(['../views/account/ckzhbg_step2.vue'], resolve),
-      meta: {
-        keepAlive: true,
-        auth: true
-      }
-    }, {
-      name: 'ckzhbg_step3', //
-      path: '/ckzhbg_step3',
-      component: resolve => require(['../views/account/ckzhbg_step3.vue'], resolve)
-    }, {
-      name: 'register', //注册帐号-姓名、身份证号
-      path: '/register',
+    },
+    {
+      name: 'register',//注册帐号-姓名、身份证号
+        path: '/register',
       component: resolve => require(['../views/login/register.vue'], resolve)
-    }, {
-      name: 'validation', //注册帐号-验证手机号
-      path: '/validation',
+    },
+    {
+      name: 'validation',//注册帐号-验证手机号
+        path: '/validation',
       component: resolve => require(['../views/login/validation.vue'], resolve)
-    }, {
-      name: 'registerPwd', //注册帐号-设置密码
-      path: '/registerPwd',
+    },
+    {
+      name: 'registerPwd',//注册帐号-设置密码
+        path: '/registerPwd',
       component: resolve => require(['../views/login/registerPwd.vue'], resolve)
-    }, {
-      name: 'registerSuccess', //注册帐号-设置密码
-      path: '/registerSuccess',
+    },
+    {
+      name: 'registerSuccess',//注册帐号-设置密码
+        path: '/registerSuccess',
       component: resolve => require(['../views/login/registerSuccess.vue'], resolve)
-    }, {
-      name: 'cwkjzdbgs_step1', //财务会计制度及核算软件备案报告书
-      path: '/cwkjzdbgs_step1',
-      component: resolve => require(['../views/cwkjzdbgs/cwkjzdbgs_step1.vue'], resolve),
-      meta: {
-        keepAlive: true,
-        auth: true
-      }
-    }, {
-      name: 'cwkjzdbgs_step2', //财务会计制度及核算软件备案报告书
-      path: '/cwkjzdbgs_step2',
-      component: resolve => require(['../views/cwkjzdbgs/cwkjzdbgs_step2.vue'], resolve),
-      meta: {
-        keepAlive: true,
-        auth: true
-      }
-    }, {
-      name: 'cwkjzdbgs_step3', //财务会计制度及核算软件备案报告书
-      path: '/cwkjzdbgs_step3',
-      component: resolve => require(['../views/cwkjzdbgs/cwkjzdbgs_step3.vue'], resolve)
     }
   ]
 })

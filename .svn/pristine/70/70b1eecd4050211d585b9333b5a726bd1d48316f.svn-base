@@ -527,8 +527,6 @@ export default {
         sbzl_dm: '10103',
         sssqq: this.sbInfo['sssqArray'][0],
         sssqz: this.sbInfo['sssqArray'][1]
-      }, {
-        'Content-Type': 'application/x-www-form-urlencoded;'
       }).then((result) => {
         if (result.success) {
           if (result.data == 'Y') {

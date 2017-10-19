@@ -1,0 +1,281 @@
+<template>
+  <div class="container" id="xgmsb">
+    <div class='fixedHead'>
+      <v-headerbar title='存款账户帐号报告信息'>
+      </v-headerbar>
+    </div>
+    <div class="content">
+      <group >
+        <div>
+           <cell title='账户名称' :value='item.zhmc'></cell>
+           <cell title='银行种类' :value='changeMc(item.yhhbDm)'></cell>
+           <cell title='开户银行' :value='khyhMc'></cell>
+           <cell title='银行账户' :value='item.yhzh'></cell>
+           <cell title='银行开户登记证号' :value='item.yhkhdjzh'></cell>
+           <cell title='登记证书发证日期' :value='item.ffrq'></cell>
+           <cell title='开户时间' :value='item.khrq'></cell>
+           <cell title='纳税账户' :value='sxjszhbz'></cell>
+        </div>
+      </group>
+      <x-button type="primary" class='btn' action-type='button' @click.native='goBack()'>返回</x-button>
+    </div>
+  </div>
+</template>
+<script>
+  import {
+    Group,
+    Cell,
+    XButton
+  } from 'vux'
+  import sbcommon from '../../common/sbcommon'
+  export default {
+    components: {
+      Group,
+      Cell,
+      XButton
+    },
+    data() {
+      return {
+        item:{},
+        yhzhxzData:[],//银行账户信息
+        yhhbData:[],//银行行别
+        hbszData:[],//币种
+        khyhData:[],//开户银行列表
+        khyhMc:'',//开户银行名称
+        sxjszhbz:''//缴税账号
+      }
+    },
+    methods: {
+      goBack(){
+        this.$router.replace('/ckzhzhbg');
+      },
+      init(){
+        //JSON.parse
+          /*let item = this.$route.fullPath.split('?routeParams=')[1];*/
+        this.item = JSON.parse(this.$route.query.routeParams);
+        this.initGlobalConstants();// 初始化全局常量
+      },
+      // 初始化全局常量
+      initGlobalConstants(){
+        let self = this;
+        let yhhbDm = this.item.yhhbDm;
+        let xzqhszDm = this.item.xzqhszDm;
+
+        //获取银行账户性质
+        self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect.do?codename=DM_GY_YHZHXZ', {},{
+          'Content-Type': 'application/x-www-form-urlencoded;'
+        }).then(function(result) {
+          if (result.length > 0) {
+            self.yhzhxzData = result;
+          }
+        })
+
+        //获取银行行别
+        self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect2.do?codename=DM_GY_YHHB', {},{
+          'Content-Type': 'application/x-www-form-urlencoded;'
+        }).then(function(result) {
+          if (result.length > 0) {
+            self.yhhbData = result;
+          }
+        })
+
+        //获取币种
+        self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect.do?codename=DM_GY_HB', {},{
+          'Content-Type': 'application/x-www-form-urlencoded;'
+        }).then(function(result) {
+          if (result.length > 0) {
+            self.hbszData = result;
+          }
+        })
+
+        //获取银行名称
+        self.$http.get('/common/BaseCodeAction_getBaseCode2CombSelect4.do?codename=DM_GY_YHYYWD&dlName=yhhb_dm&dlValue='
+          + yhhbDm + '&dlName2=XZQHSZ_DM&dlValue2=' + xzqhszDm, {},{
+          'Content-Type': 'application/x-www-form-urlencoded;'
+        }).then(function(result) {
+          if (result.length > 0) {
+            self.khyhData = result;
+          }
+        })
+
+        if(this.item.sxjszhbz == 'N'){
+          this.sxjszhbz = '否';
+        }else if(this.item.sxjszhbz == 'Y'){
+          this.sxjszhbz = '是';
+        }
+      },
+      //获取银行种类名称
+      changeMc(yhhbDm){
+        for (var i = 0; i < this.khyhData.length; i++) {
+          if (this.khyhData[i].ID == this.item.yhyywdDm) {
+            this.khyhMc = this.khyhData[i].MC;
+            break;
+          }
+        }
+
+        let yhhbMc = "";
+        for (var i = 0; i < this.yhhbData.length; i++) {
+          if (this.yhhbData[i].ID == yhhbDm) {
+            yhhbMc = this.yhhbData[i].MC;
+            break;
+          }
+        }
+        return yhhbMc;
+      }
+
+       /*getKhyhmc(){
+        let that = this;
+        let yhhbDm = this.item.yhhbDm;
+        let xzqhszDm = this.item.xzqhszDm;
+        let yhyywdDm = this.item.yhyywdDm; //用该字段找到value值开户银行名称
+        let khyhMc = "";//开户银行名称
+        //获取银行名称
+         this.$http.get('/common/BaseCodeAction_getBaseCode2CombSelect4.do?codename=DM_GY_YHYYWD&dlName=yhhb_dm&dlValue='
+          + yhhbDm + '&dlName2=XZQHSZ_DM&dlValue2=' + xzqhszDm, {},{
+          'Content-Type': 'application/x-www-form-urlencoded;'
+        }).then(function(result) {
+          that.khyhData = result;
+        })
+        for (var i = 0; i < this.khyhData.length; i++) {
+          if (this.khyhData[i].ID == yhyywdDm) {
+            khyhMc = this.khyhData[i].MC;
+            break;
+          }
+        }
+        return khyhMc;
+      }*/
+    },
+    created: function() {
+      this.init();
+    }
+  }
+</script>
+<style lang='less'>
+  #xgmsb {
+    .fixedHead {
+      position: fixed;
+      width: 100%;
+      height: 3.1rem;
+      z-index: 500;
+      top: 0;
+    }
+    .content {
+      width: 100%;
+      margin-top:4rem;
+      .vux-cell-box.weui-cell {
+        div {
+          padding-right: 0;
+          width: 100%;
+        }
+      }
+      .weui-cell:before{
+        left:0;
+      }
+      .btn{
+        margin-top:40px;
+        width:40%;
+      }
+      .tips{
+        margin:1rem;
+        background:#eee;
+        padding: 5px 8px;
+      }
+      label {
+        width: 68%;
+        display: inline-block;
+        font-size: 1.1rem;
+      }
+      input {
+        align-self: flex-start;
+        font-size: 18px;
+      }
+      table{
+        font-size: 0.94rem;
+      }
+    }
+    .jk-pop .part {
+      width: 50%;
+      float: left;
+      box-sizing: border-box;
+      border: 1px solid #fff;
+      position: relative;
+      padding-left: 1.1rem;
+    }
+
+    .head{
+      padding-bottom: 7px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .jk-pop .part .icon-position{
+      position: absolute;
+      top: 0.2rem;
+      left: 0.1rem;
+      font-size: 1.8rem;
+    }
+
+    .jk-pop .part.active {
+      border: 1px solid #6998FF;
+      box-shadow: 0px 0px 5px #D8E4FF inset;
+    }
+
+    .jk-pop {
+      text-align: center;
+      position: fixed;
+      width: 80%;
+      left: 10%;
+      top: 10rem;
+      z-index: 1000;
+    }
+
+    .jk-pop:after {
+      content: '';
+      top: 0px;
+      bottom: 0px;
+      right: 0px;
+      left: 0px;
+      position: fixed;
+      background: rgba(0, 0, 0, .4);
+      z-index: 999;
+    }
+
+    .jk-pop .inner {
+      position: relative;
+      z-index: 9999;
+      background: #fff;
+      padding-top: 10px;
+      border-radius: 4px;
+    }
+
+    .box {
+      overflow: hidden;
+      padding: 0px 10px 10px;
+    }
+
+    .footer {
+      border-top: 1px solid #ddd;
+      overflow: hidden;
+    }
+
+    .footer .btn {
+      float: left;
+      width: 50%;
+      padding: 8px 0px;
+      box-sizing: border-box;
+    }
+
+    .footer .left {
+      border-right: 1px solid #ccc;
+    }
+    .colorB{
+      color: #BBB;
+    }
+    .colorF{
+      color: #00F;
+    }
+    .line{
+      border-bottom: 1px solid #EEE;
+    }
+  }
+</style>
+

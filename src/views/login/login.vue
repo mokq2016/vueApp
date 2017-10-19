@@ -178,8 +178,8 @@ export default {
             nsrInfo: result.data.nsrInfo
           });
           localStorage.setItem('loginNsrsbh', result.data.nsrjbxx.nsrsbh); //自然人代开发票需要的
-          //self.chooseIdentity();
-          if (accountInfo.smrzTxCjZt == 'N') {
+          self.chooseIdentity();
+          /*if (accountInfo.smrzTxCjZt == 'N') {
             self.$confirm({
               content: '系统未录入您的实名采集照片，是否重新录入？',
               onConfirm() {
@@ -188,7 +188,7 @@ export default {
             })
           } else {
             self.chooseIdentity();
-          }
+          }*/
         } else {
           self.$alert(result.message);
         }

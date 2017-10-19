@@ -77,6 +77,11 @@ module.exports = {
         target: 'http://app.xiaochina.net',
         changeOrigin: true,
         secure: false
+      },
+      '/smgggnyz/**':{
+        target: 'http://app.xiaochina.net',
+        changeOrigin: true,
+        secure: false
       }
     },
     // CSS Sourcemaps off by default because relative paths are "buggy"

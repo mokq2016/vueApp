@@ -1,0 +1,184 @@
+<template>
+  <div class="container">
+    <div class='fixedHead'>
+      <v-headerbar title='存款账户帐号报告'>
+      </v-headerbar>
+    </div>
+    <div class="content mtHead">
+      <group>
+        <div>
+          <selector title='缴税帐号：' :options="jszhData" @on-change="valChange('sxjszhMc',formData.sxjszhbz)" v-model="formData.sxjszhbz"></selector>
+          <x-input title='账户名称：' v-model="formData.zhmc"></x-input>
+          <selector title="账户性质：" @on-change="zhxzChange" :options="zhxzList" v-model="formData.yhzhxzDm"></selector>
+          <selector title="行政区划：" @on-change="xzqhChange" :options="xzqhData" v-model="formData.xzqhszDm"></selector>
+          <x-input title='开户登记号：' v-model="formData.yhkhdjzh"></x-input>
+          <datetime title='发证日期：' v-model="formData.ffrq"></datetime>
+          <selector title="银行种类：" :options="yhzlList" @on-change="yhzlChange" v-model="formData.yhhbDm"></selector>
+          <selector title='开户银行：' @on-change="khyhChange" :options="khyhmcList" v-model="formData.yhyywdDm"></selector>
+          <selector title='币种：' :options="hbszData" v-model="formData.hbszDm"></selector>
+          <x-input title='银行帐号：' v-model="formData.yhzh"></x-input>
+          <datetime title='开户时间：' clear-text="清除" @on-clear="clearValue('khrq')" v-model="formData.khrq"></datetime>
+          <datetime title='变更时间：' :start-date="getMinDate()" :end-date="new Date().format('yyyy-MM-dd')" clear-text="清除" @on-clear="clearValue('bgrq')" v-model="formData.bgrq"></datetime>
+          <datetime title='注销时间：' :start-date="getMinDate()" :end-date="new Date().format('yyyy-MM-dd')" clear-text="清除" @on-clear="clearValue('zxrq')" v-model="formData.zxrq"></datetime>
+          <selector title='出口退税账号：' :options="jszhData" v-model="formData.cktszhbz"></selector>
+          <selector title='退税账户标志：' :options="jszhData" v-model="formData.tszhbz"></selector>
+        </div>
+      </group>
+      <div class='mt3 mb3'>
+        <x-button type="primary" class='w80' action-type='button' @click.native='save()'>确定</x-button>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  Group,
+  Cell,
+  XSwitch,
+  Selector,
+  Datetime,
+  XInput,
+  XButton
+} from 'vux'
+import {
+  mapState,
+  mapActions
+} from 'vuex'
+export default {
+  components: {
+    Group,
+    Cell,
+    XSwitch,
+    Selector,
+    Datetime,
+    XInput,
+    XButton
+  },
+  data() {
+    return {
+      zhxzList: [],
+      zhxzList2: [],
+      yhzlList: [],
+      khyhmcList: [],
+      hbszData:[],
+      opType: 'add',
+      xzqhData: [{
+        "key": "440300",
+        "value": "深圳市"
+      }],
+      jszhData: [{
+        'key': 'Y',
+        'value': '是'
+      }, {
+        'key': 'N',
+        'value': '否'
+      }],
+      formData: {
+        "yhhbDm": "",
+        "yhhbMc": "",
+        "yhzh": "",
+        "hbszDm": "",
+        "hbszMc": "",
+        "swjgDm": "",
+        "nsrSwjgDm": "",
+        "xzqhszMc": "",
+        "sxjszhMc": "",
+        "yhzhxzMc": "",
+        "cktszhMc": "",
+        "tszhMc": "",
+        "sxjszhbz": "N",
+        "zhmc": "",
+        "yhzhxzDm": "",
+        "xzqhszDm": "",
+        "yhkhdjzh": "",
+        "ffrq": "",
+        "yhyywdDm": "",
+        "yhMc": "",
+        "khrq": "",
+        "bgrq": "",
+        "zxrq": "",
+        "cktszhbz": "N",
+        "tszhbz": "N",
+        "hbszDm":''
+      }
+    }
+  },
+  methods: {
+    ...mapActions(['UPDATE_CACHE']),
+    init() {
+      if (this.opType == 'modify') {
+        this.formData = this.ckzhbgData.filter((item, index) => {
+          return index == this.$route.query.index;
+        })[0];
+      }
+    },
+    xzqhChange(val) {
+      if (val == '440300') {
+        this.formData['xzqhszMc'] = '深圳市';
+      }
+    },
+    zhxzChange(val) {
+      this.zhxzList.forEach((item) => {
+        if (item.key == val) {
+          this.formData['yhzhxzMc'] = item.value;
+          return false;
+        }
+      });
+    },
+    khyhChange(val) {
+      this.khyhmcList.forEach((item) => {
+        if (item.key == val) {
+          this.formData['yhMc'] = item.value;
+          return false;
+        }
+      })
+    },
+    valChange(prop, val) {
+      this.formData[prop] = val == 'Y' ? '是' : '否';
+    },
+    getMinDate() {
+      return new Date(new Date().getTime() - 1000 * 60 * 60 * 24 * 365 * 10).format('yyyy-MM-dd'); //当前时间往前10年
+    },
+    clearValue(prop) {
+      this.formData[prop] = '';
+    },
+    yhzlChange(val) {
+      this.yhzlList.forEach((item) => {
+        if (item.key == val) {
+          this.formData['yhhbMc'] = item.value;
+          return false;
+        }
+      })
+      this.$http.get("/common/BaseCodeAction_getBaseCode2CombSelect4.do?codename=DM_GY_YHYYWD&dlName=yhhb_dm&dlValue=" + val + "&dlName2=XZQHSZ_DM&dlValue2=440300").then((result) => {
+          this.khyhmcList = JSON.parse(JSON.stringify(result).replace(/ID/g, 'key').replace(/MC/g, 'value'))
+        }) //默认是深圳市
+    },
+    save() {
+      if (this.opType == 'add') {
+        this.ckzhbgData.push(this.formData);
+      }else{
+        this.ckzhbgData.splice(this.$route.query.index,1,this.formData);
+      }
+      this.UPDATE_CACHE({
+          'ckzhbgData': JSON.stringify(this.ckzhbgData)
+        })
+        this.$router.go(-1);
+    }
+  },
+  computed: {
+    ...mapState({
+      ckzhbgData: state => JSON.parse(state.cache.ckzhbgData) || []
+    })
+  },
+  created: function() {
+    let yhzhxzData = this.$route.query.yhzhxzData;
+    this.zhxzList = JSON.parse(yhzhxzData.replace(/ID/g, 'key').replace(/MC/g, 'value'));
+
+    let yhzl = this.$route.query.yhzl;
+    this.yhzlList = JSON.parse(yhzl.replace(/ID/g, 'key').replace(/MC/g, 'value'));
+    this.hbszData = JSON.parse(this.$route.query.hbszData);
+    this.opType = this.$route.query.opType;
+    this.init();
+  }
+}
+</script>

@@ -6,7 +6,7 @@
       <grid-item v-for="subI in item">
         <div @click='go(subI)'>
           <i v-bind:class="'ionic '+subI.ionic"></i>
-          <span :class="subI.id == 9?'tab_text txt-ellipsis':'tab_text'" v-html="subI.text">{{ subI.text }}  </span>
+          <span class="tab_text" v-html="subI.text">{{ subI.text }}  </span>
         </div>
       </grid-item>
     </grid>
@@ -41,7 +41,8 @@ export default {
           text: '增值税小规模<br/>一键零申报',
           ionic: 'sb',
           link: '/xgmlsb'
-        }, {
+        },
+         {
           id: 2,
           text: '缴纳税款',
           ionic: 'jnsk',
@@ -51,7 +52,7 @@ export default {
           text: '预约办税',
           ionic: 'yybs',
           link: '#/irs/yybsHome'
-        }, {
+        },{
           id: 4,
           text: '税种启用',
           ionic: 'szqy',
@@ -66,22 +67,17 @@ export default {
           text: '增值税一般纳税人资格登记',
           ionic: 'yybs',
           link: '/nsrzgdj_step1'
-        }, {
+        }/*,{
           id: 7,
           text: '存款账户帐号报告',
           ionic: 'yybs',
           link: '/ckzhzhbg'
-
-        }, {
+        }*/
+        ,{
           id: 8,
           text: '注册',
           ionic: 'szqy',
           link: '/register'
-        }, {
-          id: 9,
-          text: '财务会计制度及核算软件备案报告',
-          ionic: 'yybs',
-          link: '/cwkjzdbgs_step1'
         }]
       ]
     }
@@ -103,8 +99,7 @@ export default {
         this.$alert('该业务只支持企业身份用户办理,如需办理请切换至企业身份！');
         return;
       }
-      let openArr = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
+      let openArr = [1, 2, 3, 4, 5, 6, 8];
       if (openArr.indexOf(menu.id) === -1) {
         this.$alert('暂未开放，敬请期待！');
         return;
@@ -155,12 +150,6 @@ export default {
 <style scoped="">
 .tab_text {
   font-size: 13px;
-}
-
-.txt-ellipsis {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
 }
 
 .weui-grid {

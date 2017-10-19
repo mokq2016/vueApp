@@ -271,26 +271,6 @@ export default new VueRouter({
       name: 'registerSuccess', //注册帐号-设置密码
       path: '/registerSuccess',
       component: resolve => require(['../views/login/registerSuccess.vue'], resolve)
-    }, {
-      name: 'cwkjzdbgs_step1', //财务会计制度及核算软件备案报告书
-      path: '/cwkjzdbgs_step1',
-      component: resolve => require(['../views/cwkjzdbgs/cwkjzdbgs_step1.vue'], resolve),
-      meta: {
-        keepAlive: true,
-        auth: true
-      }
-    }, {
-      name: 'cwkjzdbgs_step2', //财务会计制度及核算软件备案报告书
-      path: '/cwkjzdbgs_step2',
-      component: resolve => require(['../views/cwkjzdbgs/cwkjzdbgs_step2.vue'], resolve),
-      meta: {
-        keepAlive: true,
-        auth: true
-      }
-    }, {
-      name: 'cwkjzdbgs_step3', //财务会计制度及核算软件备案报告书
-      path: '/cwkjzdbgs_step3',
-      component: resolve => require(['../views/cwkjzdbgs/cwkjzdbgs_step3.vue'], resolve)
     }
   ]
 })

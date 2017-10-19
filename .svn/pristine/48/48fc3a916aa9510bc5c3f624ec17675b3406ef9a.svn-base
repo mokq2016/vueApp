@@ -290,7 +290,7 @@ export default new VueRouter({
     }, {
       name: 'cwkjzdbgs_step3', //财务会计制度及核算软件备案报告书
       path: '/cwkjzdbgs_step3',
-      component: resolve => require(['../views/cwkjzdbgs/cwkjzdbgs_step3.vue'], resolve)
+      component: resolve => require(['../views/cwkjzdbgs/cwkjzdbgs_step1.vue'], resolve)
     }
   ]
 })

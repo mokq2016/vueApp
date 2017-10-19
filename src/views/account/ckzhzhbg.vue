@@ -1,0 +1,321 @@
+<template>
+  <div class="container">
+    <div class='fixedHead'>
+      <v-headerbar title='存款账户帐号报告'>
+        <i slot='right' class='iconfont icon-add' @click="addBtn()"></i>
+      </v-headerbar>
+    </div>
+    <div class="content mtHead">
+      <div style="margin-top: 4rem;margin-left: 1rem;font-size: 1.2rem;">已报告账户信息</div>
+      <!-- <group>
+        <div v-for="item in yhxxData">
+          <cell :title='changeMc(item.yhhbDm)' :value='item.yhzh' is-link @click.native="goDetail(item)"></cell>
+        </div>
+      </group> -->
+      <swipeout>
+        <div v-for="(item,index) in yhxxData">
+          <swipeout-item>
+            <div slot="right-menu">
+              <swipeout-button type='warn' @click.native='deleteItem(index)'>删除</swipeout-button>
+            </div>
+            <div slot="content" @click="modify(index)">
+              <group :title="'序号：'+(index+1)">
+                <p>
+                  <selector title='缴税帐号：' :options="jszhData" readonly v-model="item.sxjszhbz"></selector>
+                </p>
+                <p>
+                  <div class="vux-x-switch weui-cell weui-cell_switch">
+                    <div class="weui-cell__bd">
+                      <label class="weui-label" style="width: 100%;line-height: 30px">账户名称：{{item.zhmc}}</label>
+                    </div>
+                  </div>
+                  <selector title='银行种类：' :options="yhhbData" @on-change="khyhChange([index,item.yhhbDm])" readonly v-model="item.yhhbDm"></selector>
+                  <div class="vux-x-switch weui-cell weui-cell_switch">
+                    <div class="weui-cell__bd">
+                      <label class="weui-label" style="width: 100%;line-height: 30px">银行账号：{{item.yhzh}}</label>
+                    </div>
+                  </div>
+                </p>
+              </group>
+            </div>
+          </swipeout-item>
+        </div>
+      </swipeout>
+      <div class='mt3 mb3'>
+        <x-button type="primary" class='w80' action-type='button' @click.native='next()'>下一步</x-button>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  XButton,
+  Swipeout,
+  SwipeoutItem,
+  SwipeoutButton,
+  Group,
+  Selector
+} from 'vux'
+import {
+  mapState, //此两项是为引用缓存
+  mapActions
+} from 'vuex'
+import wsService from '../../common/wsService'
+import constant from '../../common/constant'
+export default {
+  components: {
+    XButton,
+    Swipeout,
+    SwipeoutItem,
+    SwipeoutButton,
+    Group,
+    Selector
+  },
+  data() {
+    return {
+      jszhData: [{
+        'key': 'Y',
+        'value': '是'
+      }, {
+        'key': 'N',
+        'value': '否'
+      }],
+      yhxxData: [],
+      yhzhxzData: [], //银行账户信息
+      yhhbData: [], //银行行别
+      hbszData: [] //币种
+    }
+  },
+  methods: {
+    ...mapActions(['UPDATE_CACHE']),
+    goDetail(item) {
+      this.$router.push({
+        name: 'accountDetail',
+        query: {
+          routeParams: JSON.stringify(item)
+        }
+      })
+    },
+    khyhChange(arr) {
+      this.yhhbData.forEach((item) => {
+        if (item.key == arr[1]) {
+          this.yhxxData[arr[0]]['yhhbMc'] = item.value;
+          return false;
+        }
+      });
+      if(!this.yhxxData[arr[0]]['lcslid']){
+        return;
+      }
+      this.$http.get("/common/BaseCodeAction_getBaseCode2CombSelect4.do?codename=DM_GY_YHYYWD&dlName=yhhb_dm&dlValue=" + arr[1] + "&dlName2=XZQHSZ_DM&dlValue2=440300").then((result) => {
+          if(result){
+            result.forEach((obj)=>{
+              if(obj.ID == this.yhxxData[arr[0]]['yhyywdDm']){
+                this.yhxxData[arr[0]]['yhMc'] = obj.MC;
+                return false;
+              }
+            })
+          }
+        }) //默认是深圳市
+    },
+    addBtn() {
+      this.$router.push({
+        path: '/addAccount',
+        query: {
+          yhzl: JSON.stringify(this.yhhbData),
+          yhzhxzData: JSON.stringify(this.yhzhxzData),
+          hbszData: JSON.stringify(this.hbszData),
+          opType: 'add'
+        }
+      });
+    },
+    deleteItem(index) {
+      let self = this;
+      this.$confirm({
+        content: '您确定要删除？',
+        onConfirm() {
+          self.yhxxData.splice(index, 1);
+          self.UPDATE_CACHE({
+            'ckzhbgData': JSON.stringify(self.yhxxData)
+          })
+        }
+      })
+
+    },
+    modify(index) {
+      this.$router.push({
+        path: '/addAccount',
+        query: {
+          yhzl: JSON.stringify(this.yhhbData),
+          yhzhxzData: JSON.stringify(this.yhzhxzData),
+          hbszData: JSON.stringify(this.hbszData),
+          opType: 'modify',
+          index: index
+        }
+      });
+    },
+    init() {
+      if (this.nsrInfo.nsrztDm == "07") {
+        this.$alert({
+          content: '纳税人状态为注销，不允许办理存款账户账号报告',
+          onHide() {
+            this.$router.replace('/index/ywbl');
+          }
+        })
+        return;
+      }
+      if (this.nsrInfo.nsrztDm == "08") {
+        this.$alert({
+          content: '纳税人状态为非正常户注销，不允许办理存款账户账号报告',
+          onHide() {
+            this.$router.replace('/index/ywbl');
+          }
+        })
+        return;
+      }
+
+      wsService.validateGgyw(constant.swsxConstants.SWSX_DM_CKZHZHBG).then((result) => {
+
+          if (result.success) {
+            this.initGlobalConstants(); // 初始化全局常量
+            this.initYhxxGrid(); // 初始化银行信息
+          } else {
+            let self = this;
+            this.$alert({
+              content: result.message,
+              onHide() {
+                self.$router.push('/index/ywbl')
+              }
+            })
+          }
+        }) //查询是否有公共的正在办理任务
+
+    },
+    //初始化银行信息
+    initYhxxGrid() {
+      var that = this;
+      that.$http.post('/swdj/djYhxx_queryYhxx.do', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.success) {
+          that.yhxxData = result.data;
+
+          for (let i = 0; i < that.yhxxData.length; i++) {
+            that.yhxxData[i].ffrq = new Date(that.yhxxData[i].ffrq).format('yyyy-MM-dd');
+            that.yhxxData[i].khrq = new Date(that.yhxxData[i].khrq).format('yyyy-MM-dd');
+            that.yhxxData[i].yxqq = new Date(that.yhxxData[i].yxqq).format('yyyy-MM-dd');
+            that.yhxxData[i].yxqz = new Date(that.yhxxData[i].yxqz).format('yyyy-MM-dd');
+            that.yhxxData[i].xgrq = new Date(that.yhxxData[i].xgrq).format('yyyy-MM-dd');
+            that.yhxxData[i].lrrq = new Date(that.yhxxData[i].lrrq).format('yyyy-MM-dd');
+          }
+          that.UPDATE_CACHE({
+            'ckzhbgData': JSON.stringify(that.yhxxData)
+          })
+        } else {
+          that.$alert(result.message);
+        }
+      })
+    },
+    next() {
+      let self = this;
+      let count = 0;
+      this.yhxxData.forEach((item) => {
+        if (item.sxjszhbz == 'Y') { //统计缴款账号的个数
+          count++;
+          item.sxjszhMc = '是'
+        } else {
+          item.sxjszhMc = '否'
+        }
+        item.cktszhMc = item.cktszhbz == 'Y' ? '是' : '否';
+        item.tszhMc = item.tszhbz == 'Y' ? '是' : '否';
+        item.xzqhszMc = '深圳市';
+        self.yhzhxzData.forEach((obj) => {
+          if (obj.ID == item.yhzhxzDm) {
+            item.yhzhxzMc = obj.MC;
+            return false;
+          }
+        })
+        self.yhhbData.forEach((obj) => {
+          if (obj.key == item.yhhbDm) {
+            item.yhhbMc = obj.value;
+            return false;
+          }
+        })
+        self.hbszData.forEach((obj) => {
+          if (obj.key == item.hbszDm) {
+            item.hbszMc = obj.value;
+            return false;
+          }
+        })
+      })
+      if (count === 0) {
+        this.$alert("必须选择一个缴款账号，请更改！");
+        return;
+      }
+      this.$router.push({
+        name: 'ckzhbg_step2',
+        query: {
+          formData: JSON.stringify(this.yhxxData)
+        }
+      })
+    },
+    // 初始化全局常量
+    initGlobalConstants() {
+      let self = this;
+      //获取银行账户性质
+      self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect.do?codename=DM_GY_YHZHXZ', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.length > 0) {
+          self.yhzhxzData = result;
+        }
+      })
+
+      //获取银行行别
+      self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect2.do?codename=DM_GY_YHHB', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.length > 0) {
+          self.yhhbData = result;
+        }
+        if (self.yhhbData) {
+          self.yhhbData = JSON.parse(JSON.stringify(self.yhhbData).replace(/ID/g, 'key').replace(/MC/g, 'value'))
+        }
+      })
+
+      //获取币种
+      self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect.do?codename=DM_GY_HB', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.length > 0) {
+          self.hbszData = JSON.parse(JSON.stringify(result).replace(/ID/g, 'key').replace(/MC/g, 'value'));
+        }
+      })
+    }
+  },
+  computed: {
+    ...mapState({
+      nsrInfo: state => state.user.nsrInfo,
+      ckzhbgData: state => JSON.parse(state.cache.ckzhbgData)
+    })
+  },
+  beforeRouteEnter(to, from, next) {
+    to.meta['fromPath'] = from.path;
+    if (from.path == '/index/ywbl' || from.path == '/index') {
+      to.meta['needFresh'] = true;
+    } else {
+      to.meta['needFresh'] = false;
+    }
+    next();
+  },
+  activated() {
+    if (this.$route.meta['needFresh']) {
+      this.yhxxData = [];
+      this.init();
+    } else {
+      if (this.$route.meta['fromPath'] == '/addAccount') { //从添加过来时刷新列表
+        this.yhxxData = [].concat(this.ckzhbgData);
+      }
+    }
+  }
+}
+</script>
