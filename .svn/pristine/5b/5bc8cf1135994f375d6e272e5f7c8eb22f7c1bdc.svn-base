@@ -1,0 +1,225 @@
+<template>
+  <div class="container">
+    <div class='fixedHead'>
+      <v-headerbar title='发票票种核定调整明细'>
+      </v-headerbar>
+    </div>
+    <div class="content mtHead">
+      <group>
+        <div>
+          <!--<selector title='操作类型：' :options="" @on-change="" readonly v-model="formData.czlx"></selector>
+          <selector title='代开标志：' :options="" @on-change="" readonly v-model="formData.wtdkbz"></selector>
+          <selector title='发票种类：' :options="" @on-change="" readonly v-model="formData.fpzlDm"></selector>
+          <selector title='单张发票最高开票限额：' :options="" @on-change=""  v-model="formData.dffpzgkpxeDm"></selector>
+          <selector title='单份发票最高开票限额特殊值：' :options="" @on-change="" readonly v-model="formData.fpme"></selector>
+          <selector title='单位：' :options="" @on-change="" readonly v-model="formData.jldwDm"></selector>
+          --><x-input title='每月最高购票数量：' v-model="formData.myzggpsl"></x-input>
+          <x-input title='每次最高购票数量：' v-model="formData.mczggpsl"></x-input>
+          <x-input title='持票最高数量：' v-model="formData.cpzgsl"></x-input>
+          <!--<selector title='购票方式：' :options="" @on-change="" readonly v-model="formData.fpgpfsDm"></selector>-->
+        </div>
+      </group>
+      <div class='mt3 mb3'>
+        <x-button type="primary" class='w80' action-type='button' @click.native='next()'>下一步</x-button>
+      </div>
+    </div>
+  </div>
+</template>
+<script>
+import {
+  XButton,
+  Group,
+  XInput,
+  Selector
+} from 'vux'
+import {
+  mapState, //此两项是为引用缓存
+  mapActions
+} from 'vuex'
+import wsService from '../../common/wsService'
+import constant from '../../common/constant'
+export default {
+  components: {
+    XButton,
+    Group,
+    XInput,
+    Selector
+  },
+  data() {
+    return {
+      fpzlData: [],//发票种类
+      zyfpData: [],//专用发票
+      fpgmfsData: [], //发票购买方式
+      sfzjlxData: [], //身份证件类型
+      jldwData: [], //计量单位
+      jebData:[],//金额版
+      dzfpzgkpxeData:[],//单张发票最高开票限额
+      yhxxData:[],
+      dkData: [{
+        'key': 'Y',
+        'value': '是'
+      }, {
+        'key': 'N',
+        'value': '否'
+      }],
+      formData: {
+        "czlx": "",
+        "wtdkbz": "",
+        "fpzlDm": "",
+        "dffpzgkpxeDm": "",
+        "fpme": "",
+        "jldwDm": "",
+        "myzggpsl": "",
+        "mczggpsl": "",
+        "cpzgsl": "",
+        "fpgpfsDm": ""
+      }
+    }
+  },
+  methods: {
+    init() {
+      let self = this;
+      //查询是否有公共的正在办理任务
+      wsService.validateGgyw(constant.swsxConstants.SWSX_DM_FPPZBG).then((result) => {
+        if (result.success) {
+          //校验是否进行实名业务操作
+          self.validateSmyz(constant.swsxConstants.SWSX_DM_FPLYSQ);
+        } else {
+          let self = this;
+          this.$alert({
+            content: result.message,
+            onHide() {
+              self.$router.push('/index/ywbl')
+            }
+          })
+        }
+      })
+    },
+    getYhxx(){
+      let self = this;
+      self.$http.post('/fp/ptfpsyAction_queryFphdxx.do', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.success) {
+          let initxx = result.data;
+          let gprGrid = initxx.gprxx; //购票人信息
+          let hdxxGrid = initxx.pzhdxx.pzhdxxGridlb; //核定信息
+          let zje = initxx.defplqje;
+          let isXefp = result.data.nsrzgrd.isXefp;
+          if(isXefp=="Y"){//过滤出专用发票
+            let nsrzgdm = result.data.nsrzgrd.nsrzgdm;
+            for(let i=0; i<self.fpzlData.length; i++){
+              if(self.fpzlData[i].ZPPZ_DM=="1" || self.fpzlData[i].ZPPZ_DM=="2" ){
+                self.zyfpData.push(fpzlData[i]);//专用发票
+              }
+            }
+          }
+          //外出经营有效期暂时不需要展示
+          for(let i=0; i<hdxxGrid.length;i++){
+            if(hdxxGrid[i].cpzgsl!=""){
+              hdxxGrid[i].cpzgsl = parseFloat(hdxxGrid[i].cpzgsl).toFixed(0);
+            }
+            if(hdxxGrid[i].mczggpsl!=""){
+              hdxxGrid[i].mczggpsl = parseFloat(hdxxGrid[i].mczggpsl).toFixed(0);
+            }
+            if(hdxxGrid[i].myzggpsl!=""){
+              hdxxGrid[i].myzggpsl = parseFloat(hdxxGrid[i].myzggpsl).toFixed(0);
+            }
+          }
+          self.yhxxData = hdxxGrid;
+         /* //写入缓存
+          self.UPDATE_CACHE({
+            'fppzhdtzData': JSON.stringify(self.yhxxData)
+          })*/
+        }else{
+          self.$alert({
+            content: result.message,
+            onHide() {
+              self.$router.replace('/index/ywbl');
+            }
+          })
+        }
+      })
+    },
+    // 初始化全局常量
+    initGlobalConstants() {
+      let self = this;
+      //获取发票种类
+      self.$http.post('/common/BaseCodeAction_getBaseCodeData.do?codename=HB_DM_FP_FPZL', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.length > 0) {
+          self.fpzlData = result;
+        }
+      })
+
+      //获取发票购票方式
+      self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect.do?codename=HB_DM_FP_FPGPFS', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.length > 0) {
+          self.fpgmfsData = result;
+        }
+        if (self.fpgmfsData) {
+          self.fpgmfsData = JSON.parse(JSON.stringify(self.fpgmfsData).replace(/ID/g, 'key').replace(/MC/g, 'value'))
+        }
+      })
+
+      //获取身份证件类型
+      self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect.do?codename=SFZJLX_DM', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.length > 0) {
+          self.sfzjlxData = result;
+        }
+      })
+
+      //获取计量单位
+      self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect2.do?codename=DM_GY_JLDW', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.length > 0) {
+          self.jldwData = result;
+        }
+        if (self.jldwData) {
+          self.jldwData = JSON.parse(JSON.stringify(self.jldwData).replace(/ID/g, 'key').replace(/MC/g, 'value'))
+        }
+      })
+
+      //获取发票开票金额版
+      self.$http.post('/common/BaseCodeAction_getBaseCode2CombSelect.do?codename=DM_GY_JEB', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.length > 0) {
+          self.jebData = result;
+        }
+      })
+
+      //获取单张发票最高开票限额
+      self.$http.post('/common/BaseCodeAction_getBaseCodeData.do?codename=DM_FP_DFFPZGKPXE', {}, {
+        'Content-Type': 'application/x-www-form-urlencoded;'
+      }).then(function(result) {
+        if (result.length > 0) {
+          self.dzfpzgkpxeData = result;
+        }
+        if (self.dzfpzgkpxeData) {
+          self.dzfpzgkpxeData = JSON.parse(JSON.stringify(self.dzfpzgkpxeData).replace(/DFFPZGKPXE_DM/g, 'key').replace(/DFFPZGKPXEMC/g, 'value'))
+        }
+      })
+
+    }
+  },
+  created: function() {
+    this.init();
+    this.initGlobalConstants();
+  }
+}
+</script>
+<style>
+  .weui-select{
+    width: 100px;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+</style>

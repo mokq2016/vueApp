@@ -87,11 +87,6 @@ export default {
           text: '财务会计制度及核算软件备案报告',
           ionic: 'yybs',
           link: '/cwkjzdbgs_step1'
-        }, {
-          id: 11,
-          text: '跨区域涉税事项报告',
-          ionic: 'yybs',
-          link: '/kdqsssx_step1'
         }]
       ]
     }
@@ -113,7 +108,7 @@ export default {
         this.$alert('该业务只支持企业身份用户办理,如需办理请切换至企业身份！');
         return;
       }
-      let openArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11];
+      let openArr = [1, 2, 3, 4, 5, 6, 7, 8, 9,10];
 
       if (openArr.indexOf(menu.id) === -1) {
         this.$alert('暂未开放，敬请期待！');

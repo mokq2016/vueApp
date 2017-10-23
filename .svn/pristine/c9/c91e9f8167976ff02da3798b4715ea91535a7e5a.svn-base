@@ -300,26 +300,6 @@ export default new VueRouter({
       name: 'modifyFppzhd', //发票票种核定调整
       path: '/modifyFppzhd',
       component: resolve => require(['../views/fppzhdtz/modifyFppzhd.vue'], resolve)
-    }, {
-      name: 'kdqsssx_step1', //
-      path: '/kdqsssx_step1',
-      component: resolve => require(['../views/kdqsssx/kdqsssx_step1.vue'], resolve),
-      meta: {
-        keepAlive: true,
-        auth: true
-      }
-    }/*, {
-      name: 'kdqsssx_step2.vue', //
-      path: '/kdqsssx_step2',
-      component: resolve => require(['../views/kdqsssx/kdqsssx_step2.vue'], resolve),
-      meta: {
-        keepAlive: true,
-        auth: true
-      }
-    }, {
-      name: 'kdqsssx_step3', //
-      path: '/kdqsssx_step3',
-      component: resolve => require(['../views/kdqsssx/kdqsssx_step3.vue'], resolve)
-    }*/
+    }
   ]
 })
